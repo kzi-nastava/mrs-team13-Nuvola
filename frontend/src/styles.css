@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global resets and helpers for full-width/height layouts */
+html, body {
+	height: 100%;
+	margin: 0; /* allow elements (e.g., navbar) to span edge-to-edge */
+}
+
+/* Make images scale to container width without overflow */
+img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+/* Utility helpers */
+.full-width { width: 100%; }
+.full-viewport-width { width: 100vw; }
+.full-height { height: 100vh; }
