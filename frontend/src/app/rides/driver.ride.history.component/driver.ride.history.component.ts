@@ -2,10 +2,11 @@ import { Component, Signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RideService } from '../service/ride.service';
 import { RideModel } from '../model/ride.model';
+import { LogedinNavbarComponent } from '../../layout/logedin.navbar.component/logedin.navbar.component';
 
 @Component({
   selector: 'app-driver-ride-history-component',
-  imports: [DatePipe],
+  imports: [DatePipe, LogedinNavbarComponent],
   templateUrl: './driver.ride.history.component.html',
   styleUrl: './driver.ride.history.component.css',
 })
