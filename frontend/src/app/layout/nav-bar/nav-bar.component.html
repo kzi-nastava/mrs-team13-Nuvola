@@ -1,0 +1,47 @@
+<nav class="navbar">
+
+  <button class="icon-btn desktop" (click)="onInboxClick()">
+    <img src="/icons/inbox.svg" alt="Inbox" />
+  </button>
+
+  <button class="menu-btn mobile" (click)="toggleMenu()">
+    ☰
+  </button>
+
+  <div class="logo">
+    <img src="/logo.png" alt="Nuvola logo" />
+  </div>
+
+  <div class="nav-items desktop">
+    <button class="nav-link" (click)="onRideHistory()">Ride history</button>
+    <button class="nav-link" (click)="onAccount()">Account</button>
+    <button class="nav-link" (click)="onLogout()">Log out</button>
+  </div>
+
+</nav>
+
+<div class="backdrop" *ngIf="menuOpen" (click)="toggleMenu()"></div>
+
+<!-- mobile menu-->
+<div class="mobile-menu" *ngIf="menuOpen">
+
+  <button class="menu-btn mobile" (click)="toggleMenu()">☰</button>
+
+  <button class="nav-link" (click)="onInboxClick()">
+    <img src="/icons/inbox.svg" alt="Inbox" />
+    Inbox
+  </button>
+
+  <button class="nav-link" (click)="onRideHistory()">
+    Ride history
+  </button>
+
+  <button class="nav-link" (click)="onAccount()">
+    Account
+  </button>
+
+  <button class="nav-link" (click)="onLogout()">
+    Log out
+  </button>
+
+</div>
