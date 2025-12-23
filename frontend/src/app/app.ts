@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { DriverRideHistoryComponent } from './rides/driver.ride.history.component/driver.ride.history.component';
 import { NavBarComponent } from './layout/nav-bar/nav-bar.component';
 import { AccountComponent } from './layout/account/account.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [NavBarComponent, AccountComponent],
+  imports: [RouterOutlet, DriverRideHistoryComponent, NavBarComponent, AccountComponent],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
