@@ -1,0 +1,166 @@
+<app-nav-bar>
+    app-nav-bar
+</app-nav-bar>
+
+<div class="app-background">
+  <main class="auth-wrapper">
+    <section class="auth-card">
+      <div class="titles">
+        <div class="subtitle">Create Your Account</div>
+      </div>
+
+      <!-- Upload circle -->
+      <div class="avatar-block">
+        <div class="avatar">
+          <img *ngIf="imagePreviewUrl" [src]="imagePreviewUrl" alt="Profile preview" />
+        </div>
+
+        <label class="upload-link">
+            <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+            Upload profile picture (optional)
+        </label>
+
+      </div>
+
+      <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+        <!-- First + Last name -->
+        <div class="two-cols">
+          <div class="field">
+            <label class="label">First name *</label>
+            <div class="input-wrap">
+              <span class="icon left">👤</span>
+              <input class="input" type="text" placeholder="First name" formControlName="firstName" />
+            </div>
+            
+
+            <div class="error" *ngIf="firstName.touched && firstName.invalid">
+                <span *ngIf="firstName.errors?.['required']">Required.</span>
+                <span *ngIf="firstName.errors?.['maxlength']">Max 20 characters.</span>
+            </div>
+
+            <div class="error" *ngIf="lastName.touched && lastName.invalid">
+                <span *ngIf="lastName.errors?.['required']">Required.</span>
+                <span *ngIf="lastName.errors?.['maxlength']">Max 20 characters.</span>
+            </div>
+
+            <div class="error" *ngIf="email.touched && email.invalid">
+                <span *ngIf="email.errors?.['required']">Required.</span>
+                <span *ngIf="email.errors?.['email']">Email must contain @ and be valid.</span>
+                <span *ngIf="email.errors?.['maxlength']">Max 35 characters.</span>
+            </div>
+
+            <div class="error" *ngIf="password.touched && password.invalid">
+                <span *ngIf="password.errors?.['required']">Required.</span>
+                <span *ngIf="password.errors?.['minlength']">Min 6 characters.</span>
+            </div>
+
+            <div class="error" *ngIf="phone.touched && phone.invalid">
+                <span *ngIf="phone.errors?.['required']">Required.</span>
+                <span *ngIf="phone.errors?.['pattern']">Phone must start with +381 and contain only digits (e.g. +381641234567).</span>
+            </div>
+          </div>
+
+
+          <div class="field">
+            <label class="label">Last name *</label>
+            <div class="input-wrap">
+              <span class="icon left">👤</span>
+              <input class="input" type="text" placeholder="Last name" formControlName="lastName" />
+            </div>
+            <div class="error" *ngIf="lastName.touched && lastName.invalid">
+              <span *ngIf="lastName.errors?.['required']">Required.</span>
+              <span *ngIf="lastName.errors?.['minlength']">Min 2 characters.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="field">
+          <label class="label">Email Address *</label>
+          <div class="input-wrap">
+            <span class="icon left">✉️</span>
+            <input class="input" type="email" placeholder="Enter your email" formControlName="email" />
+          </div>
+          <div class="error" *ngIf="email.touched && email.invalid">
+            <span *ngIf="email.errors?.['required']">Required.</span>
+            <span *ngIf="email.errors?.['email']">Invalid email.</span>
+          </div>
+        </div>
+
+        <!-- Passwords -->
+        <div class="two-cols">
+          <div class="field">
+            <label class="label">Password *</label>
+            <div class="input-wrap">
+              <span class="icon left">🔒</span>
+              <input class="input" [type]="hide1 ? 'password' : 'text'" placeholder="******" formControlName="password" />
+              <button type="button" class="icon-btn right" (click)="hide1 = !hide1">
+                {{ hide1 ? '👁️' : '🙈' }}
+              </button>
+            </div>
+            <div class="error" *ngIf="password.touched && password.invalid">
+              <span *ngIf="password.errors?.['required']">Required.</span>
+              <span *ngIf="password.errors?.['minlength']">Min 6 characters.</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Confirm Password *</label>
+            <div class="input-wrap">
+              <span class="icon left">🔒</span>
+              <input class="input" [type]="hide2 ? 'password' : 'text'" placeholder="******" formControlName="confirmPassword" />
+              <button type="button" class="icon-btn right" (click)="hide2 = !hide2">
+                {{ hide2 ? '👁️' : '🙈' }}
+              </button>
+            </div>
+
+            <div class="error" *ngIf="confirmPassword.touched && confirmPassword.invalid">
+              <span *ngIf="confirmPassword.errors?.['required']">Required.</span>
+            </div>
+
+            <div class="error" *ngIf="(confirmPassword.touched || password.touched) && mismatch">
+              Passwords do not match.
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="field">
+          <label class="label">Phone Number *</label>
+          <div class="input-wrap">
+            <span class="icon left">📞</span>
+            <input class="input" type="text" placeholder="+381 64 5556655" formControlName="phone" />
+          </div>
+          <div class="error" *ngIf="phone.touched && phone.invalid">
+            <span *ngIf="phone.errors?.['required']">Required.</span>
+            <span *ngIf="phone.errors?.['pattern']">Enter a valid phone.</span>
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div class="field">
+          <label class="label">Home Address *</label>
+          <div class="input-wrap">
+            <span class="icon left">📍</span>
+            <input class="input" type="text" placeholder="Fruskogorska 37" formControlName="address" />
+          </div>
+          <div class="error" *ngIf="address.touched && address.invalid">
+            <span *ngIf="address.errors?.['required']">Required.</span>
+            <span *ngIf="address.errors?.['minlength']">Too short.</span>
+          </div>
+        </div>
+
+        <button class="primary-btn" type="submit">Create Account</button>
+        <div class="success" *ngIf="registered">
+            Succesfuly registered.
+        </div>
+
+
+        <div class="bottom">
+          <span>Already have an account?</span>
+          <a class="link" [routerLink]="['/login']">Sign in</a>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>

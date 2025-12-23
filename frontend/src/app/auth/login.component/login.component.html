@@ -1,0 +1,84 @@
+<app-nav-bar>
+    app-nav-bar
+</app-nav-bar>
+
+<div class="app-background">
+
+  <main class="auth-wrapper">
+    <section class="auth-card">
+      <div class="titles">
+        <div class="welcome">Welcome Back</div>
+        <div class="subtitle">Sign in to your account</div>
+      </div>
+
+      <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+        <!-- Email -->
+        <div class="field">
+          <label class="label">Email Address</label>
+          <div class="input-wrap">
+            <span class="icon left">✉️</span>
+            <input
+              class="input"
+              type="email"
+              placeholder="Enter your email"
+              formControlName="email"
+            />
+          </div>
+          <div class="error" *ngIf="email.touched && email.invalid">
+            <span *ngIf="email.errors?.['required']">Email is required.</span>
+            <span *ngIf="email.errors?.['email']">Enter a valid email.</span>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label class="label">Password</label>
+          <div class="input-wrap">
+            <span class="icon left">🔒</span>
+            <input
+              class="input"
+              [type]="hidePassword ? 'password' : 'text'"
+              placeholder="Enter your password"
+              formControlName="password"
+            />
+            <button
+              type="button"
+              class="icon-btn right"
+              (click)="togglePassword()"
+              aria-label="Toggle password visibility"
+            >
+              {{ hidePassword ? '👁️' : '🙈' }}
+            </button>
+          </div>
+          <div class="error" *ngIf="password.touched && password.invalid">
+            <span *ngIf="password.errors?.['required']">Password is required.</span>
+          </div>
+        </div>
+
+        <!-- Remember + Forgot -->
+        <div class="row">
+          <label class="remember">
+            <input type="checkbox" formControlName="rememberMe" />
+            <span>Remember me</span>
+          </label>
+
+          <a class="link" [routerLink]="['/forgot-password']">Forgot password?</a>
+        </div>
+
+        <!-- Button -->
+        <button class="primary-btn" type="submit">Login</button>
+
+        <!-- Bottom -->
+        <div class="bottom">
+          <span>Don’t have an account?</span>
+          <a class="link" [routerLink]="['/register']">Sign up</a>
+        </div>
+
+        
+        <div class="success" *ngIf="submittedOk">
+          Login successful (UI simulation).
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
