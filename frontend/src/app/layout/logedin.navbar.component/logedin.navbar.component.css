@@ -58,7 +58,7 @@
 }
 
 .logo {
-    height: 80px;
+    height: 85px;
     width: auto;
     transition: transform 0.2s ease;
 }
@@ -127,7 +127,7 @@
     }
     
     .logo {
-        height: 60px;
+        height: 70px;
     }
     
     .notification-icon svg {
@@ -151,7 +151,7 @@
     }
     
     .logo {
-        height: 50px;
+        height: 60px;
     }
     
     .notification-icon svg {
