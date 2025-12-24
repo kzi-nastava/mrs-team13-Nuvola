@@ -6,9 +6,6 @@
     </svg>
     <span class="notification-badge" *ngIf="authService.hasNotifications()"></span>
   </div>
-  <!-- <button class="icon-btn desktop" (click)="onInboxClick()">
-    <img src="/icons/inbox.svg" alt="Inbox" />
-  </button> -->
 
   <button class="menu-btn show-mobile" (click)="toggleMenu()">
     ☰
@@ -30,7 +27,6 @@
 
 <div class="backdrop" *ngIf="menuOpen" (click)="toggleMenu()"></div>
 
-<!-- mobile menu-->
 <div class="mobile-menu show-mobile" *ngIf="menuOpen">
 
   <button class="menu-btn" (click)="toggleMenu()">☰</button>
@@ -42,7 +38,6 @@
       </svg>
       <span class="notification-badge" *ngIf="authService.hasNotifications()"></span>
     </div>
-    <!-- <img src="/icons/inbox.svg" alt="Inbox" /> -->
     Inbox
   </button>
 
