@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { NavBarComponent } from '../../layout/nav-bar/nav-bar.component';
+import { AuthService } from '../../layout/service/auth.service';
 
 
 @Component({
@@ -21,6 +22,9 @@ export class LoginComponent {
     rememberMe: new FormControl(false),
   });
 
+  constructor(private authService: AuthService,
+    private router: Router) {}
+
   get email() {
     return this.form.controls.email;
   }
@@ -33,6 +37,12 @@ export class LoginComponent {
     this.hidePassword = !this.hidePassword;
   }
 
+  onForgotPassword() {
+    const email = this.email.value;
+    const username = email?.split('@')[0] || 'user';
+    this.router.navigate(['/forgot-password', username]);
+  }
+
   submit() {
     this.submittedOk = false;
 
@@ -41,8 +51,14 @@ export class LoginComponent {
       return;
     }
 
+    const email = this.email.value;
     
+    const username = email?.split('@')[0] || 'user';
+    
+    this.authService.login(username);
     this.submittedOk = true;
+    this.router.navigate(['/ride-history/', username]);
+
   }
 }
 

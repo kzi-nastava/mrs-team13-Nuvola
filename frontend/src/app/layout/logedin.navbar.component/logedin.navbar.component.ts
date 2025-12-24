@@ -10,8 +10,14 @@ import { RouterModule } from '@angular/router';
 })
 export class LogedinNavbarComponent {
   hasNotifications: boolean = true;
+  username: string = 'milica04';
+
+  isLoggedIn(): boolean {
+    return this.username !== '' && this.username !== null && this.username !== undefined;
+  }
 
   onLogout() {
     console.log('Logging out...');
+    this.username = '';
   }
 }

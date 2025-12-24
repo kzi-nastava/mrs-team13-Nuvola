@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../service/auth.service';
+import { Console } from 'console';
 
 @Component({
   selector: 'app-nav-bar',
@@ -10,10 +12,13 @@ import { Router } from '@angular/router';
   styleUrls: ['./nav-bar.component.css']
 })
 export class NavBarComponent {
+  // hasNotifications: boolean = true;
+  // username: string = 'milica04';
+  menuOpen: boolean = false;
 
-  menuOpen = false;
-
-  constructor(private router: Router) {}
+  constructor(private router: Router, public authService: AuthService) {
+    
+  }
 
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
@@ -25,17 +30,30 @@ export class NavBarComponent {
   }
 
   onRideHistory(): void {
-    this.router.navigate(['/ride-history']);
+    this.router.navigate(['/ride-history/', this.authService.username()]);
     this.menuOpen = false;
   }
 
   onAccount(): void {
-    this.router.navigate(['/account']);
+    this.router.navigate(['/account-settings/', this.authService.username()]);
     this.menuOpen = false;
   }
 
   onLogout(): void {
     this.router.navigate(['/login']);
+    // this.username = '';
+    // this.hasNotifications = false;
+    this.authService.logout();
+    this.menuOpen = false;
+  }
+
+  onLogin(): void {
+    this.router.navigate(['/login']);
+    this.menuOpen = false;
+  }
+
+  onRegister(): void {
+    this.router.navigate(['/register']);
     this.menuOpen = false;
   }
 }

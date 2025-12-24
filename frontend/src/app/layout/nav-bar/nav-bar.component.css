@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap'); */
 .navbar {
   position: fixed;
   top: 0;
@@ -35,6 +35,27 @@
   height: 130px;
 }
 
+.notification-icon {
+  margin-left: 32px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.notification-icon:hover {
+    transform: scale(1.1);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background: #FA5050;
+    border-radius: 50%;
+    border: 2px solid #0A1128;
+}
 
 .nav-items {
   display: flex;
@@ -88,23 +109,39 @@
   height: 22px;
 }
 
-.desktop {
+/* .desktop {
   display: flex;
 }
 
 .mobile {
   display: none;
+} */
+
+.show-desktop {
+  display: flex;
+}
+
+.show-mobile {
+  display: none;
 }
 
 @media (max-width: 768px) {
 
-  .desktop {
+  /* .desktop {
     display: none;
   }
 
   .mobile {
     display: block;
-  }
+  } */
+
+  .show-desktop {
+  display: flex;
+}
+
+.show-mobile {
+  display: none;
+}
 
   .navbar {
     height: 72px;
@@ -150,6 +187,10 @@
   .mobile-menu .menu-btn {
     align-self: flex-end;
     margin-bottom: 12px;
+  }
+
+  .notification-icon {
+    margin-left: 0;
   }
 
 }

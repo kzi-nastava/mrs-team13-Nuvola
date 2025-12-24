@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NavBarComponent } from '../../layout/nav-bar/nav-bar.component';
+import { AuthService } from '../../layout/service/auth.service';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const p1 = group.get('password')?.value;
@@ -66,7 +67,9 @@ export class RegisterComponent {
   { validators: passwordsMatchValidator }
 );
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, 
+              private authService: AuthService
+  ) {}
 
   get firstName() { return this.form.controls.firstName; }
   get lastName() { return this.form.controls.lastName; }
@@ -113,6 +116,11 @@ export class RegisterComponent {
       profileImage: this.form.value.profileImage ? '(file selected)' : null,
     });
 
+    const email = this.email.value;
+    const username = email?.split('@')[0] || 'user';
+    this.authService.login(username);
+
     this.registered = true;
+    this.router.navigate(['/ride-history/', username]);
   }
 }
