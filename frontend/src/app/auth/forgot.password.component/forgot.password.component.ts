@@ -2,11 +2,10 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { NavBarComponent } from '../../layout/nav-bar/nav-bar.component';
 
 @Component({
   selector: 'app-forgot-password-component',
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, NavBarComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './forgot.password.component.html',
   styleUrl: './forgot.password.component.css',
 })

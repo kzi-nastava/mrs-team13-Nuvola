@@ -12,8 +12,6 @@ import { Console } from 'console';
   styleUrls: ['./nav-bar.component.css']
 })
 export class NavBarComponent {
-  // hasNotifications: boolean = true;
-  // username: string = 'milica04';
   menuOpen: boolean = false;
 
   constructor(private router: Router, public authService: AuthService) {
@@ -40,11 +38,10 @@ export class NavBarComponent {
   }
 
   onLogout(): void {
-    this.router.navigate(['/login']);
-    // this.username = '';
-    // this.hasNotifications = false;
+    
     this.authService.logout();
     this.menuOpen = false;
+    this.router.navigate(['/login']);
   }
 
   onLogin(): void {
