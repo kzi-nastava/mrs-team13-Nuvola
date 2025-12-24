@@ -2,13 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { NavBarComponent } from '../../layout/nav-bar/nav-bar.component';
 import { AuthService } from '../../layout/service/auth.service';
 
 
 @Component({
   selector: 'app-login-component',
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, NavBarComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })

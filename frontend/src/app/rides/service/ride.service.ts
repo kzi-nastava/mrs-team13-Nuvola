@@ -30,4 +30,15 @@ export class RideService {
       )
     );
   }
+
+  toggleSortOrder() {
+    const currentRides = this._rides();
+    const isAsc = currentRides[0].statingTime < currentRides[currentRides.length - 1].statingTime;
+    const sortedRides = [...currentRides].sort((a, b) =>
+      isAsc
+        ? b.statingTime.getTime() - a.statingTime.getTime()
+        : a.statingTime.getTime() - b.statingTime.getTime()
+    );
+    this._rides.set(sortedRides);
+  }
 }

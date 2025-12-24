@@ -1,6 +1,8 @@
-<!-- <app-logedin-navbar></app-logedin-navbar> -->
-<!-- <app-nav-bar></app-nav-bar> -->
 <main>
+    <button class="sort-bttn" (click)="toggleSortOrder()">
+        Sort by date <span *ngIf="isAscending()">▲</span><span *ngIf="!isAscending()">▼</span>
+    </button>
+
     <div class="list">
     @for (ride of rides(); track ride.id) {
         <div class="ride-card">

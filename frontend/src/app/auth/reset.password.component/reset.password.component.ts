@@ -9,7 +9,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NavBarComponent } from '../../layout/nav-bar/nav-bar.component';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const newPass = group.get('newPassword')?.value;
@@ -21,7 +20,7 @@ function passwordsMatchValidator(group: AbstractControl): ValidationErrors | nul
 
 @Component({
   selector: 'app-reset-password-component',
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, NavBarComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './reset.password.component.html',
   styleUrl: './reset.password.component.css',
 })

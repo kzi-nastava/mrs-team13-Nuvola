@@ -9,7 +9,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { NavBarComponent } from '../../layout/nav-bar/nav-bar.component';
 import { AuthService } from '../../layout/service/auth.service';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
@@ -22,7 +21,7 @@ function passwordsMatchValidator(group: AbstractControl): ValidationErrors | nul
 
 @Component({
   selector: 'app-register-component',
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, NavBarComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })
