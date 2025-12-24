@@ -1,6 +1,6 @@
-<app-nav-bar>
+<!-- <app-nav-bar>
     app-nav-bar
-</app-nav-bar>
+</app-nav-bar> -->
 
 <div class="app-background">
 
@@ -62,7 +62,7 @@
             <span>Remember me</span>
           </label>
 
-          <a class="link" [routerLink]="['/forgot-password']">Forgot password?</a>
+          <a class="link" (click)="onForgotPassword()">Forgot password?</a>
         </div>
 
         <!-- Button -->
