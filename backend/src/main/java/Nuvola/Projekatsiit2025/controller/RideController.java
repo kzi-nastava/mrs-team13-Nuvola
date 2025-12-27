@@ -42,4 +42,48 @@ public class RideController {
     public ResponseEntity<Void> startRide(@PathVariable Long rideId) {
         return ResponseEntity.ok().build();
     }
+    
+ // 2.1.2
+    @PostMapping(value = "/estimate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RideEstimateResponseDTO> estimateRide(@RequestBody RideEstimateRequestDTO dto) {
+
+        RideEstimateResponseDTO response = new RideEstimateResponseDTO(
+                dto.getStartAddress(),
+                dto.getDestinationAddress(),
+                12 // stub procena
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }    
+    
+    // 2.5 Cancel ride
+    @PutMapping(value = "/{rideId}/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CreatedRideDTO> cancelRide(@PathVariable Long rideId, @RequestBody CancelRideDTO dto) {
+
+        CreatedRideDTO response = new CreatedRideDTO();
+        response.setId(rideId);
+        response.setStatus(RideStatus.CANCELED);   
+        response.setPrice(0.0);
+        response.setMessage("Ride canceled. Reason: " + dto.getReason());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    
+    
+ // 2.6.5 Stop ride while it's active
+    @PutMapping(value = "/{rideId}/stop", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CreatedRideDTO> stopRide(@PathVariable Long rideId) {
+
+        CreatedRideDTO response = new CreatedRideDTO();
+        response.setId(rideId);
+        response.setStatus(RideStatus.FINISHED);   
+        response.setPrice(900.0);
+        response.setMessage("Ride stopped successfully");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
 }
+
+
