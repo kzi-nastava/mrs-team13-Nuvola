@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/card_border_background"
+    android:padding="16dp"
+    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="16dp"
+    android:id="@+id/drivers_history_ride_card_item">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_alignParentStart="true">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_recent_history"
+                app:tint="#666666"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/ride_date_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="01.07.2024 10:00 AM"
+                android:textSize="20sp"
+                android:fontFamily="sans-serif"
+                android:textColor="#333333"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/favorite_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/btn_star_big_off"
+            android:layout_alignParentEnd="true"
+            app:tint="#666666"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@android:drawable/ic_menu_myplaces"
+            app:tint="#666666"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/driver_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="John Doe"
+            android:textSize="20sp"
+            android:fontFamily="sans-serif"
+            android:textColor="#333333"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <!-- Pickup lokacija -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@android:drawable/ic_menu_compass"
+            app:tint="#4CAF50"
+            android:layout_marginEnd="8dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pickup"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif"
+                android:textColor="#999999"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/pickup_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location B"
+                android:textSize="20sp"
+                android:fontFamily="sans-serif"
+                android:textColor="#333333"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Dropoff lokacija -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@android:drawable/ic_menu_mylocation"
+            app:tint="#F44336"
+            android:layout_marginEnd="8dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dropoff"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif"
+                android:textColor="#999999"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/dropoff_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location A"
+                android:textSize="20sp"
+                android:fontFamily="sans-serif"
+                android:textColor="#333333"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Linija razdvajanja -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EEEEEE"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Cena -->
+    <TextView
+        android:id="@+id/ride_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="15 €"
+        android:textSize="24sp"
+        android:textColor="#333333"
+        android:textStyle="bold"
+        android:layout_gravity="end"/>
+
+</LinearLayout>
