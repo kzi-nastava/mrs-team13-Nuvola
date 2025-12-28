@@ -7,6 +7,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/rides")
 public class RideController {
@@ -43,10 +46,22 @@ public class RideController {
         return ResponseEntity.ok().build();
     }
 
-    // 2.6.1
-    @PutMapping("/{rideId}/end")
-    public ResponseEntity<Void> endRide(@PathVariable Long rideId) {
-        return ResponseEntity.ok().build();
+    //2.6.2
+    @GetMapping(value = "/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable("id") Long id){
+        // find that ride
+        TrackingRideDTO ride = new TrackingRideDTO();
+        return new ResponseEntity<>(ride, HttpStatus.OK);
+    }
+
+
+    // 2.7
+    @PutMapping(value="/{rideId}/end", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ScheduledRideDTO>> endRide(@PathVariable Long rideId) {
+        List<ScheduledRideDTO> rides = new ArrayList<>();
+        // via service find scheduled ride for this driver and for current time
+
+        return new ResponseEntity<List<ScheduledRideDTO>>(rides, HttpStatus.OK);
     }
 
 
@@ -90,6 +105,7 @@ public class RideController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
 
 }
