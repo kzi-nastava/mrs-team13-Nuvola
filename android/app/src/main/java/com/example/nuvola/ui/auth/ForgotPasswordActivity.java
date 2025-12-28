@@ -9,19 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.core.view.GravityCompat;
-import android.view.View;
-import android.widget.ImageView;
-
-
-import android.widget.ImageView;
-import android.view.Menu;
-import android.view.MenuItem;
-import androidx.appcompat.widget.PopupMenu;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.PopupMenu;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.nuvola.R;
 import com.google.android.material.button.MaterialButton;
@@ -30,83 +20,63 @@ import com.google.android.material.textfield.TextInputLayout;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
 
-    private TextInputLayout tilEmail;
-    private TextInputEditText etEmail;
-    private MaterialButton btnSend;
-    private TextView tvBackToLogin;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
 
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
 
         ImageView ivMenu = findViewById(R.id.ivMenu);
-        if (ivMenu != null) {
-            ivMenu.setOnClickListener(v -> {
-                PopupMenu popup = new PopupMenu(this, v);
+        if (ivMenu != null && drawerLayout != null) {
+            ivMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        }
 
-                popup.getMenu().add(0, 1, 1, "Log in");
-                popup.getMenu().add(0, 2, 2, "Register");
-
-                popup.setOnMenuItemClickListener(item -> {
-                    if (item.getItemId() == 1) {
-                        // već si na Login-u, ali možemo samo da ostavimo true
-                        return true;
-                    } else if (item.getItemId() == 2) {
-                        startActivity(new Intent(this, RegisterActivity.class));
-                        return true;
-                    }
-                    return false;
-                });
-
-                popup.show();
+        TextView menuLogin = findViewById(R.id.menuLogin);
+        if (menuLogin != null && drawerLayout != null) {
+            menuLogin.setOnClickListener(v -> {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(new Intent(this, LoginActivity.class));
             });
         }
 
+        TextView menuRegister = findViewById(R.id.menuRegister);
+        if (menuRegister != null && drawerLayout != null) {
+            menuRegister.setOnClickListener(v -> {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(new Intent(this, RegisterActivity.class));
+            });
+        }
 
-        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        TextInputLayout tilEmail = findViewById(R.id.tilEmailReset);
+        TextInputEditText etEmail = findViewById(R.id.etEmailReset);
+        MaterialButton btnSend = findViewById(R.id.btnSendReset);
+        TextView tvBackToLogin = findViewById(R.id.tvBackToLogin);
 
-        View navbar = findViewById(R.id.navbar);
+        if (etEmail != null) {
+            etEmail.addTextChangedListener(simpleWatcher(() -> validateEmail(tilEmail, etEmail)));
+        }
 
+        if (btnSend != null) {
+            btnSend.setOnClickListener(v -> {
+                if (validateEmail(tilEmail, etEmail)) {
+                    Toast.makeText(this, "Reset link sent ✅ (demo)", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, ResetPasswordActivity.class));
+                }
+            });
+        }
 
-        ivMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
-
-        findViewById(R.id.menuLogin).setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(this, LoginActivity.class));
-        });
-
-        findViewById(R.id.menuRegister).setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(this, RegisterActivity.class));
-        });
-
-
-        tilEmail = findViewById(R.id.tilEmailReset);
-        etEmail = findViewById(R.id.etEmailReset);
-        btnSend = findViewById(R.id.btnSendReset);
-        tvBackToLogin = findViewById(R.id.tvBackToLogin);
-
-        etEmail.addTextChangedListener(simpleWatcher(this::validateEmail));
-
-        btnSend.setOnClickListener(v -> {
-            if (validateEmail()) {
-                // TODO: kasnije: poziv API-ja za reset
-                Toast.makeText(this, "Reset link sent ✅ (demo)", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(ForgotPasswordActivity.this, ResetPasswordActivity.class));
-
-            }
-        });
-
-        tvBackToLogin.setOnClickListener(v -> {
-            startActivity(new Intent(ForgotPasswordActivity.this, LoginActivity.class));
-            finish();
-        });
+        if (tvBackToLogin != null) {
+            tvBackToLogin.setOnClickListener(v -> {
+                startActivity(new Intent(this, LoginActivity.class));
+                finish();
+            });
+        }
     }
 
-    private boolean validateEmail() {
+    private boolean validateEmail(TextInputLayout tilEmail, TextInputEditText etEmail) {
+        if (tilEmail == null || etEmail == null) return false;
+
         String email = etEmail.getText() == null ? "" : etEmail.getText().toString().trim();
 
         if (email.isEmpty()) {
@@ -129,5 +99,4 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             @Override public void afterTextChanged(Editable s) {}
         };
     }
-
 }

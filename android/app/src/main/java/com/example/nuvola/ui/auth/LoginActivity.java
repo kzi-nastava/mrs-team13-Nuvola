@@ -6,15 +6,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
 import android.widget.Toast;
-import android.content.Intent;
 import android.widget.TextView;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
 
 import android.widget.ImageView;
-import android.view.Menu;
-import android.view.MenuItem;
 import androidx.appcompat.widget.PopupMenu;
 
 import androidx.appcompat.app.AppCompatActivity;

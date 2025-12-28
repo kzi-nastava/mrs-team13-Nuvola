@@ -15,9 +15,6 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.widget.ImageView;
-import android.view.Menu;
-import android.view.MenuItem;
 import androidx.appcompat.widget.PopupMenu;
 
 import com.example.nuvola.R;
@@ -62,7 +59,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
         DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
 
-        View navbar = findViewById(R.id.navbar);
 
 
         ivMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));

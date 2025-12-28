@@ -20,7 +20,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- CARD (veći + centriran u sivom delu) -->
+
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardLogin"
             android:layout_width="0dp"
@@ -39,7 +39,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintVertical_bias="0.35">
 
-            <!-- da radi i na manjim ekranima -->
+
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -50,12 +50,12 @@
                     android:layout_height="wrap_content"
                     android:padding="24dp">
 
-                    <!-- Welcome Back (manje) -->
+
                     <TextView
                         android:id="@+id/tvWelcome"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Welcome Back"
+                        android:text="@string/welcome"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="#1B1B1B"
@@ -63,12 +63,12 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent" />
 
-                    <!-- Sign in... (veće, kao na Figma-i) -->
+
                     <TextView
                         android:id="@+id/tvSubtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Sign in to your account"
+                        android:text="@string/sign_in"
                         android:textSize="14sp"
                         android:textColor="#6A6A6A"
                         android:layout_marginTop="8dp"
@@ -81,7 +81,7 @@
                         android:id="@+id/tvEmailLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Email Address"
+                        android:text="@string/email"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:textColor="#1B1B1B"
@@ -107,7 +107,7 @@
                             android:id="@+id/etEmail"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Enter your email"
+                            android:hint="@string/email_hint"
                             android:inputType="textEmailAddress"
                             android:padding="14dp" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -117,7 +117,7 @@
                         android:id="@+id/tvPassLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Password"
+                        android:text="@string/password"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:textColor="#1B1B1B"
@@ -144,7 +144,7 @@
                             android:id="@+id/etPassword"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Enter your password"
+                            android:hint="@string/password_enter"
                             android:inputType="textPassword"
                             android:padding="14dp" />
                     </com.google.android.material.textfield.TextInputLayout>
@@ -154,7 +154,7 @@
                         android:id="@+id/cbRemember"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Remember me"
+                        android:text="@string/remember"
                         android:textSize="12sp"
                         android:textColor="#1B1B1B"
                         android:layout_marginTop="10dp"
@@ -165,7 +165,7 @@
                         android:id="@+id/tvForgotPassword"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Forgot password?"
+                        android:text="@string/forgot_password"
                         android:textSize="12sp"
                         android:textColor="#2B6FFF"
                         android:layout_marginTop="10dp"
@@ -178,7 +178,7 @@
                         android:layout_width="220dp"
                         android:layout_height="48dp"
                         android:layout_marginTop="18dp"
-                        android:text="Login"
+                        android:text="@string/login_"
                         android:textAllCaps="false"
                         android:textStyle="bold"
                         android:backgroundTint="#0A0F2C"
@@ -192,7 +192,7 @@
                         android:id="@+id/tvGoToRegister"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Don’t have an account? Sign up"
+                        android:text="@string/message_account"
                         android:textSize="12sp"
                         android:textColor="#1B1B1B"
                         android:layout_marginTop="14dp"
