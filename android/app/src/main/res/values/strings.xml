@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Nuvola</string>
+    <string-array name="vehicle_types">
+        <item>Select vehicle type</item>
+        <item>Standard</item>
+        <item>Luxury</item>
+        <item>Van</item>
+    </string-array>
+
 </resources>
