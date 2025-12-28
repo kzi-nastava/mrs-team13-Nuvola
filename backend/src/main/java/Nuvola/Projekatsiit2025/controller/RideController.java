@@ -42,8 +42,16 @@ public class RideController {
     public ResponseEntity<Void> startRide(@PathVariable Long rideId) {
         return ResponseEntity.ok().build();
     }
-    
- // 2.1.2
+
+    // 2.6.1
+    @PutMapping("/{rideId}/end")
+    public ResponseEntity<Void> endRide(@PathVariable Long rideId) {
+        return ResponseEntity.ok().build();
+    }
+
+
+
+    // 2.1.2
     @PostMapping(value = "/estimate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RideEstimateResponseDTO> estimateRide(@RequestBody RideEstimateRequestDTO dto) {
 
