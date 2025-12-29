@@ -1,0 +1,82 @@
+package Nuvola.Projekatsiit2025.dto;
+
+import Nuvola.Projekatsiit2025.model.VehicleType;
+import java.util.List;
+
+public class CreateRideDTO {
+    private String startLocation;
+    private String destination;
+    private List<String> stops;
+
+    private List<String> passengerEmails;
+    private VehicleType vehicleType;
+    private boolean babyTransport;
+    private boolean petTransport;
+    private String scheduledTime;
+
+    public CreateRideDTO() {}
+
+    public String getStartLocation() {
+        return startLocation;
+    }
+
+    public void setStartLocation(String startLocation) {
+        this.startLocation = startLocation;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
+    public List<String> getStops() {
+        return stops;
+    }
+
+    public void setStops(List<String> stops) {
+        this.stops = stops;
+    }
+
+    public List<String> getPassengerEmails() {
+        return passengerEmails;
+    }
+
+    public void setPassengerEmails(List<String> passengerEmails) {
+        this.passengerEmails = passengerEmails;
+    }
+
+    public VehicleType getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(VehicleType vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
+    public boolean isBabyTransport() {
+        return babyTransport;
+    }
+
+    public void setBabyTransport(boolean babyTransport) {
+        this.babyTransport = babyTransport;
+    }
+
+    public boolean isPetTransport() {
+        return petTransport;
+    }
+
+    public void setPetTransport(boolean petTransport) {
+        this.petTransport = petTransport;
+    }
+
+    public String getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public void setScheduledTime(String scheduledTime) {
+        this.scheduledTime = scheduledTime;
+    }
+}

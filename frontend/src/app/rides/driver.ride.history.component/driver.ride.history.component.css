@@ -1,0 +1,186 @@
+* {
+    margin: 0;
+    padding: 0;
+    /* box-sizing: border-box; */
+}
+
+.sort-bttn {
+    margin: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #0A1128;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+
+.list {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    background-color: #E9E9E9;
+    padding: 20px;
+    margin: 0;
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ride-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    max-width: 1400px;
+    width: 80%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ride-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.ride-info {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.time-info, .driver-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+    color: #333;
+}
+
+.favorite-icon {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    
+}
+
+.favorite-icon.favorited {
+    fill: black;
+}
+
+
+.ride-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.locations {
+    display: flex;
+    gap: 60px;
+    flex: 1;
+}
+
+.location {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.location-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 400;
+}
+
+.location-address {
+    color: #333;
+    margin-left: 36px;
+}
+
+.price {
+    font-size: 32px;
+    font-weight: 400;
+    color: #333;
+}
+
+/* novo */
+
+.ride-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px 24px;
+    max-width: 1400px;
+    width: 80%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .ride-card {
+        width: 95%;
+        padding: 16px;
+        position: relative;
+    }
+
+    .ride-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding-right: 40px;
+    }
+
+    .ride-info {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .favorite-icon {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+
+    .ride-details {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .locations {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .price {
+        align-self: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    .ride-card {
+        width: 100%;
+        padding: 12px;
+    }
+
+    .location-address {
+        margin-left: 0;
+        padding-left: 36px;
+        font-size: 13px;
+    }
+
+    .price {
+        font-size: 28px;
+    }
+}
