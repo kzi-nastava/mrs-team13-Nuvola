@@ -8,6 +8,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Nuvola">
         <activity
+            android:name=".activities.DriverRideHistory"
+            android:exported="false"/>
+        <activity
             android:name=".activities.ProfileActivity"
             android:exported="false" />
         <activity
