@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- ================== MAIN CONTENT ================== -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -16,7 +15,6 @@
             android:id="@+id/navbar"
             layout="@layout/view_navbar" />
 
-        <!-- PROFILE CONTENT -->
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -258,12 +256,16 @@
 
     </FrameLayout>
 
-    <!-- ================== DRAWER MENU ================== -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:menu="@menu/loged_drawer_menu" />
+
+        android:background="#0A0F2C"
+        app:menu="@menu/loged_drawer_menu"
+        app:itemTextColor="@android:color/white"
+        app:itemBackground="@android:color/transparent" />
+
 
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -183,7 +183,6 @@ public class ProfileActivity extends AppCompatActivity {
             valid = false;
         }
 
-        // 🚗 DRIVER VALIDATION
         if (isDriver) {
             if (etVehicleModel.getText().toString().trim().isEmpty()) {
                 tvErrorVehicleModel.setVisibility(View.VISIBLE);
