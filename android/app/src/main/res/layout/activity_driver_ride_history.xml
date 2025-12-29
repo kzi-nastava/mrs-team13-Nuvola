@@ -5,8 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activities.DriverRideHistory">
+    android:layout_height="match_parent">
 
     <!-- Glavni sadržaj -->
     <include
@@ -14,14 +13,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Navigation Drawer -->
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
+        android:id="@+id/navView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header"
-        app:menu="@menu/nav_menu" />
+
+        android:background="#0A0F2C"
+        app:menu="@menu/loged_drawer_menu"
+        app:itemTextColor="@android:color/white"
+        app:itemBackground="@android:color/transparent" />
+
 
 </androidx.drawerlayout.widget.DrawerLayout>
+
