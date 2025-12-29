@@ -46,7 +46,7 @@
             android:layout_height="24dp"
             android:src="@android:drawable/btn_star_big_off"
             android:layout_alignParentEnd="true"
-            app:tint="#666666"/>
+            />
     </RelativeLayout>
 
     <LinearLayout
