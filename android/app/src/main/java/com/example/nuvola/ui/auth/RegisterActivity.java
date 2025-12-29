@@ -3,18 +3,13 @@ package com.example.nuvola.ui.auth;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.core.view.GravityCompat;
-import android.view.View;
-import android.widget.ImageView;
-
-import androidx.appcompat.widget.PopupMenu;
-
-
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.nuvola.R;
 import com.google.android.material.button.MaterialButton;
@@ -31,65 +26,40 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
 
         ImageView ivMenu = findViewById(R.id.ivMenu);
+        if (ivMenu != null && drawerLayout != null) {
+            ivMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+        }
 
-        if (ivMenu != null) {
-            ivMenu.setOnClickListener(v -> {
-                PopupMenu popup = new PopupMenu(this, v);
-
-                popup.getMenu().add(0, 1, 1, "Log in");
-                popup.getMenu().add(0, 2, 2, "Register");
-
-                popup.setOnMenuItemClickListener(item -> {
-                    if (item.getItemId() == 1) {
-                        startActivity(new Intent(this, LoginActivity.class));
-                        return true;
-                    } else if (item.getItemId() == 2) {
-                        startActivity(new Intent(this, RegisterActivity.class));
-                        return true;
-                    }
-                    return false;
-                });
-
-                popup.show();
+        TextView menuLogin = findViewById(R.id.menuLogin);
+        if (menuLogin != null && drawerLayout != null) {
+            menuLogin.setOnClickListener(v -> {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(new Intent(this, LoginActivity.class));
             });
         }
 
-        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
-
-        View navbar = findViewById(R.id.navbar);
-
-
-        ivMenu.setOnClickListener(v ->
-                drawerLayout.openDrawer(GravityCompat.START)
-        );
-
-        findViewById(R.id.menuLogin).setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-            startActivity(new Intent(this, LoginActivity.class));
-        });
-
-        findViewById(R.id.menuRegister).setOnClickListener(v -> {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        });
-
-
+        TextView menuRegister = findViewById(R.id.menuRegister);
+        if (menuRegister != null && drawerLayout != null) {
+            menuRegister.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+        }
 
         bindViews();
 
         MaterialButton btnRegister = findViewById(R.id.btnRegister);
-        btnRegister.setOnClickListener(v -> onRegister());
+        if (btnRegister != null) {
+            btnRegister.setOnClickListener(v -> onRegister());
+        }
 
         TextView tvGoToLogin = findViewById(R.id.tvGoToLogin);
-        tvGoToLogin.setOnClickListener(v -> {
-            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish(); // da ne ostaje Register u back-stacku
-        });
-
-
-
+        if (tvGoToLogin != null) {
+            tvGoToLogin.setOnClickListener(v -> {
+                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                finish();
+            });
+        }
     }
 
     private void bindViews() {
@@ -113,20 +83,39 @@ public class RegisterActivity extends AppCompatActivity {
     private void onRegister() {
         clearErrors();
 
-        String email = text(etEmail);
-        String pass = text(etPassword);
-        String confirm = text(etConfirmPassword);
+        String firstName = text(etFirstName);
+        String lastName  = text(etLastName);
+        String address   = text(etAddress);
+        String phone     = text(etPhone);
+
+        String email     = text(etEmail);
+        String pass      = text(etPassword);
+        String confirm   = text(etConfirmPassword);
 
         boolean ok = true;
+
+        if (firstName.isEmpty()) { tilFirstName.setError("First name is required"); ok = false; }
+        if (lastName.isEmpty())  { tilLastName.setError("Last name is required"); ok = false; }
+        if (address.isEmpty())   { tilAddress.setError("Address is required"); ok = false; }
+
+        if (phone.isEmpty()) {
+            tilPhone.setError("Phone is required");
+            ok = false;
+        } else if (!phone.matches("^[0-9+\\-\\s]{6,20}$")) {
+            tilPhone.setError("Invalid phone");
+            ok = false;
+        }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             tilEmail.setError("Invalid email");
             ok = false;
         }
+
         if (pass.length() < 8) {
             tilPassword.setError("Min 8 characters");
             ok = false;
         }
+
         if (!pass.equals(confirm)) {
             tilConfirmPassword.setError("Passwords do not match");
             ok = false;
@@ -138,16 +127,16 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void clearErrors() {
-        tilEmail.setError(null);
-        tilPassword.setError(null);
-        tilConfirmPassword.setError(null);
-        tilFirstName.setError(null);
-        tilLastName.setError(null);
-        tilAddress.setError(null);
-        tilPhone.setError(null);
+        if (tilEmail != null) tilEmail.setError(null);
+        if (tilPassword != null) tilPassword.setError(null);
+        if (tilConfirmPassword != null) tilConfirmPassword.setError(null);
+        if (tilFirstName != null) tilFirstName.setError(null);
+        if (tilLastName != null) tilLastName.setError(null);
+        if (tilAddress != null) tilAddress.setError(null);
+        if (tilPhone != null) tilPhone.setError(null);
     }
 
     private String text(TextInputEditText et) {
-        return et.getText() == null ? "" : et.getText().toString().trim();
+        return (et == null || et.getText() == null) ? "" : et.getText().toString().trim();
     }
 }

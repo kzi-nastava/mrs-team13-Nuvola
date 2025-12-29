@@ -5,20 +5,18 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
-import android.widget.Toast;
-import android.widget.TextView;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import com.google.android.material.navigation.NavigationView;
-
 import android.widget.ImageView;
-import androidx.appcompat.widget.PopupMenu;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.nuvola.R;
 import com.example.nuvola.activities.MainActivity;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -26,126 +24,114 @@ public class LoginActivity extends AppCompatActivity {
 
     private TextInputLayout tilEmail, tilPassword;
     private TextInputEditText etEmail, etPassword;
-    private MaterialButton btnLogin;
-    private DrawerLayout drawerLayout;
-    private NavigationView navView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        NavigationView navView = findViewById(R.id.navView);
+
         ImageView ivMenu = findViewById(R.id.ivMenu);
-        if (ivMenu != null) {
-            ivMenu.setOnClickListener(v -> {
-                PopupMenu popup = new PopupMenu(this, v);
-
-                popup.getMenu().add(0, 1, 1, "Log in");
-                popup.getMenu().add(0, 2, 2, "Register");
-
-                popup.setOnMenuItemClickListener(item -> {
-                    if (item.getItemId() == 1) {
-                        // već si na Login-u, ali možemo samo da ostavimo true
-                        return true;
-                    } else if (item.getItemId() == 2) {
-                        startActivity(new Intent(this, RegisterActivity.class));
-                        return true;
-                    }
-                    return false;
-                });
-
-                popup.show();
-            });
+        if (ivMenu != null && drawerLayout != null) {
+            ivMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
         }
 
+        if (navView != null && drawerLayout != null) {
+            navView.setNavigationItemSelectedListener(item -> {
+                int id = item.getItemId();
 
-        drawerLayout = findViewById(R.id.drawerLayout);
-        navView = findViewById(R.id.navView);
+                if (id == R.id.nav_login) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    return true; // ništa, već si na loginu
+                }
 
-        findViewById(R.id.ivMenu).setOnClickListener(v ->
-                drawerLayout.openDrawer(GravityCompat.START)
-        );
+                if (id == R.id.nav_register) {
+                    startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+                }
 
-        navView.setNavigationItemSelectedListener(item -> {
-            int id = item.getItemId();
-
-            if (id == R.id.nav_login) {
-                // već si na loginu
-            } else if (id == R.id.nav_register) {
-                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
-            }
-
-            drawerLayout.closeDrawer(GravityCompat.START);
-            return true;
-        });
-
-
-
-
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            });
+        }
 
         tilEmail = findViewById(R.id.tilEmail);
         tilPassword = findViewById(R.id.tilPassword);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
 
-        // Clear errors while typing
-        etEmail.addTextChangedListener(simpleWatcher(() -> tilEmail.setError(null)));
-        etPassword.addTextChangedListener(simpleWatcher(() -> tilPassword.setError(null)));
+        MaterialButton btnLogin = findViewById(R.id.btnLogin);
 
-        btnLogin.setOnClickListener(v -> {
-            if (validateLogin()) {
+        if (etEmail != null) {
+            etEmail.addTextChangedListener(simpleWatcher(() -> {
+                if (tilEmail != null) tilEmail.setError(null);
+            }));
+        }
 
-                Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show();
+        if (etPassword != null) {
+            etPassword.addTextChangedListener(simpleWatcher(() -> {
+                if (tilPassword != null) tilPassword.setError(null);
+            }));
+        }
 
-
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+        if (btnLogin != null) {
+            btnLogin.setOnClickListener(v -> {
+                if (validateLogin()) {
+                    Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    finish();
+                }
+            });
+        }
 
         TextView tvGoToRegister = findViewById(R.id.tvGoToRegister);
-
-        tvGoToRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivity(intent);
-        });
+        if (tvGoToRegister != null) {
+            tvGoToRegister.setOnClickListener(v ->
+                    startActivity(new Intent(LoginActivity.this, RegisterActivity.class))
+            );
+        }
 
         TextView tvForgotPassword = findViewById(R.id.tvForgotPassword);
-        tvForgotPassword.setOnClickListener(v -> {
-            startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
-        });
-
+        if (tvForgotPassword != null) {
+            tvForgotPassword.setOnClickListener(v ->
+                    startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class))
+            );
+        }
     }
 
     private boolean validateLogin() {
         boolean ok = true;
 
-        String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
-        String password = etPassword.getText() != null ? etPassword.getText().toString() : "";
+        String email = (etEmail == null || etEmail.getText() == null) ? "" : etEmail.getText().toString().trim();
+        String password = (etPassword == null || etPassword.getText() == null) ? "" : etPassword.getText().toString();
 
-        // EMAIL
-        if (email.isEmpty()) {
-            tilEmail.setError("Email is required");
+        if (tilEmail != null) {
+            if (email.isEmpty()) {
+                tilEmail.setError("Email is required");
+                ok = false;
+            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                tilEmail.setError("Invalid email");
+                ok = false;
+            } else {
+                tilEmail.setError(null);
+            }
+        } else if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             ok = false;
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.setError("Invalid email");
-            ok = false;
-        } else {
-            tilEmail.setError(null);
         }
 
-        // PASSWORD
-        if (password.isEmpty()) {
-            tilPassword.setError("Password is required");
+        if (tilPassword != null) {
+            if (password.isEmpty()) {
+                tilPassword.setError("Password is required");
+                ok = false;
+            } else if (password.length() < 8) {
+                tilPassword.setError("Min 8 characters");
+                ok = false;
+            } else {
+                tilPassword.setError(null);
+            }
+        } else if (password.isEmpty() || password.length() < 8) {
             ok = false;
-        } else if (password.length() < 8) {
-            tilPassword.setError("Min 8 characters");
-            ok = false;
-        } else {
-            tilPassword.setError(null);
         }
 
         return ok;
