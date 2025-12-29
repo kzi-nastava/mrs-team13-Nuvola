@@ -1,5 +1,6 @@
 package com.example.nuvola.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -17,6 +18,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.nuvola.R;
 import com.example.nuvola.fragments.DriversRideHistoryFragment;
 import com.example.nuvola.model.Ride;
+import com.example.nuvola.ui.auth.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
 
 import java.time.LocalDateTime;
@@ -96,9 +98,11 @@ public class DriverRideHistory extends AppCompatActivity
             Toast.makeText(this, "Ride History", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_account) {
             Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(DriverRideHistory.this, ProfileActivity.class));
         } else if (id == R.id.nav_logout) {
-            Toast.makeText(this, "Logout clicked", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(DriverRideHistory.this, LoginActivity.class));
         }
+
 
         // close drawer after click
         drawerLayout.closeDrawer(GravityCompat.START);

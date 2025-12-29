@@ -14,6 +14,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.nuvola.R;
+import com.example.nuvola.activities.DriverRideHistory;
 import com.example.nuvola.activities.MainActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
@@ -79,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             btnLogin.setOnClickListener(v -> {
                 if (validateLogin()) {
                     Toast.makeText(this, "OK", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    startActivity(new Intent(LoginActivity.this, DriverRideHistory.class));
                     finish();
                 }
             });

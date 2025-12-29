@@ -5,6 +5,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.example.nuvola.ui.auth.LoginActivity;
+import com.google.android.material.navigation.NavigationView;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,6 +30,38 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_user);
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        NavigationView navView = findViewById(R.id.navView);
+
+        ImageView ivMenu = findViewById(R.id.ivMenu);
+        if (ivMenu != null && drawerLayout != null) {
+            ivMenu.setOnClickListener(v ->
+                    drawerLayout.openDrawer(GravityCompat.START)
+            );
+        }
+
+        if (navView != null && drawerLayout != null) {
+            navView.setNavigationItemSelectedListener(item -> {
+                int id = item.getItemId();
+
+                if (id == R.id.nav_home) {
+                    startActivity(new Intent(this, MainActivity.class));
+                }
+                else if (id == R.id.nav_ridehistory) {
+                    startActivity(new Intent(this, DriverRideHistory.class));
+                }
+                else if (id == R.id.nav_account) {
+                    // već si na profilu
+                }
+                else if (id == R.id.nav_logout) {
+                    startActivity(new Intent(this, LoginActivity.class));
+                }
+
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            });
+        }
+
 
         ivProfile = findViewById(R.id.ivProfile);
         findViewById(R.id.ivUpload).setOnClickListener(v -> openGallery());
