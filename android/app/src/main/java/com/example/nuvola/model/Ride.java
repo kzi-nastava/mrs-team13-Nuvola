@@ -28,7 +28,7 @@ public class Ride implements Parcelable {
 
         String dateTimeString = in.readString();
         if (dateTimeString != null) {
-            startingTime = LocalDateTime.parse(dateTimeString, DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm"));
+            startingTime = LocalDateTime.parse(dateTimeString, DateTimeFormatter.ofPattern("dd.MM.yyyy. hh:mm a"));
         }
     }
 
@@ -57,6 +57,6 @@ public class Ride implements Parcelable {
         dest.writeString(pickup);
         dest.writeString(driver);
         dest.writeByte((byte) (isFavouriteRoute ? 1 : 0));
-        dest.writeString(startingTime != null ? startingTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) : null);
+        dest.writeString(startingTime != null ? startingTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm a")) : null);
     }
 }
