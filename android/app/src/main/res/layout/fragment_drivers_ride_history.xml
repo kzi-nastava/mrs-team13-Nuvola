@@ -20,7 +20,9 @@
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
             android:text="Sort by Date"
-            android:textSize="14sp"/>
+            android:textSize="14sp"
+            android:backgroundTint="#0A1128"
+            android:textColor="#FFFFFF"/>
     </LinearLayout>
 
     <ListView
