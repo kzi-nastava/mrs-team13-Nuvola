@@ -2,6 +2,12 @@
     <string name="nav_login">Log in</string>
     <string name="nav_register">Register</string>
     <string name="app_name">Nuvola</string>
+    <string-array name="vehicle_types">
+        <item>Select vehicle type</item>
+        <item>Standard</item>
+        <item>Luxury</item>
+        <item>Van</item>
+    </string-array>
     <string name="forgot_password_email">Enter your email and we will send you a reset link.</string>
     <string name="email_address">Email Address</string>
     <string name="send_link">"Send Reset Link"</string>
