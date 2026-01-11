@@ -38,7 +38,7 @@ public class DriverController {
             @PathVariable Long driverId,
             @RequestParam(required = false, defaultValue = "startingTime") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String sortOrder) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm a");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy. hh:mm a");
         List<DriverRideHistoryItemDTO> response = new ArrayList<>();
         DriverRideHistoryItemDTO ride1 = new DriverRideHistoryItemDTO();
         ride1.setId(1L);
@@ -46,7 +46,7 @@ public class DriverController {
         ride1.setPickup("Location A");
         ride1.setDropoff("Location B");
         ride1.setPrice(15);
-        ride1.setStartingTime(LocalDateTime.parse("12.01.2026. 11:00" ,formatter));
+        ride1.setStartingTime(LocalDateTime.parse("12.01.2026. 11:00 AM" ,formatter));
         ride1.setFavouriteRoute(false);
 
         DriverRideHistoryItemDTO ride2 = new DriverRideHistoryItemDTO();
@@ -55,7 +55,7 @@ public class DriverController {
         ride2.setPickup("Location C");
         ride2.setDropoff("Location D");
         ride2.setPrice(38);
-        ride2.setStartingTime(LocalDateTime.parse("13.01.2026. 10:00",formatter));
+        ride2.setStartingTime(LocalDateTime.parse("13.01.2026. 10:00 AM",formatter));
         ride2.setFavouriteRoute(false);
 
         response.add(ride1);
