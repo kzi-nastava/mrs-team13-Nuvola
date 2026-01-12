@@ -1,5 +1,7 @@
 package Nuvola.Projekatsiit2025.model;
 
+import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
+
 public class Driver extends User {
     private DriverStatus status;
     private String loginTime;

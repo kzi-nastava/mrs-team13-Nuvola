@@ -1,6 +1,6 @@
 package Nuvola.Projekatsiit2025.model;
 
-public class User {
+public abstract class User {
     protected Long id;
     protected String email;
     protected String password;

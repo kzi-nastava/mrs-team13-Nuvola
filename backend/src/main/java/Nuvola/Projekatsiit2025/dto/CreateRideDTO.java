@@ -1,6 +1,6 @@
 package Nuvola.Projekatsiit2025.dto;
 
-import Nuvola.Projekatsiit2025.model.VehicleType;
+import Nuvola.Projekatsiit2025.model.enums.VehicleType;
 import java.util.List;
 
 public class CreateRideDTO {

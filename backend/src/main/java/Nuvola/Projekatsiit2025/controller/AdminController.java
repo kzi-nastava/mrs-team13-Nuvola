@@ -2,7 +2,7 @@ package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.AdminRideDetailsDTO;
 import Nuvola.Projekatsiit2025.dto.AdminRideHistoryItemDTO;
-import Nuvola.Projekatsiit2025.model.RideStatus;
+import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

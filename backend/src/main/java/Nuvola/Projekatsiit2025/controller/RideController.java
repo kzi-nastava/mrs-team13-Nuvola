@@ -1,7 +1,7 @@
 package Nuvola.Projekatsiit2025.controller;
 import Nuvola.Projekatsiit2025.dto.*;
 
-import Nuvola.Projekatsiit2025.model.RideStatus;
+import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

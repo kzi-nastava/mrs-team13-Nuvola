@@ -1,7 +1,5 @@
 package Nuvola.Projekatsiit2025.dto;
 
-import Nuvola.Projekatsiit2025.model.VehicleType;
-
 public class UpdateProfileDTO {
     private String firstName;
     private String lastName;

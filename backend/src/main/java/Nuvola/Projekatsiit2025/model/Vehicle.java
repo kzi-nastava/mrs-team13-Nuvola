@@ -1,5 +1,7 @@
 package Nuvola.Projekatsiit2025.model;
 
+import Nuvola.Projekatsiit2025.model.enums.VehicleType;
+
 public class Vehicle {
     private Long id;
     private String model;

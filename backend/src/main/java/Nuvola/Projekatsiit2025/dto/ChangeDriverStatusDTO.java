@@ -1,6 +1,6 @@
 package Nuvola.Projekatsiit2025.dto;
 
-import Nuvola.Projekatsiit2025.model.DriverStatus;
+import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
 
 public class ChangeDriverStatusDTO {
 	private DriverStatus status;

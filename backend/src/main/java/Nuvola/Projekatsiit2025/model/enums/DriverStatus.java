@@ -1,4 +1,4 @@
-package Nuvola.Projekatsiit2025.model;
+package Nuvola.Projekatsiit2025.model.enums;
 
 public enum DriverStatus {
     ACTIVE,
