@@ -1,0 +1,81 @@
+<div class="app-background">
+  <main class="auth-wrapper">
+    <section class="auth-card">
+
+      <div class="titles">
+        <div class="welcome">Cancel ride</div>
+        <div class="subtitle">Ride #{{ rideId }}</div>
+      </div>
+
+      <!-- Ride info -->
+      <div class="pill" *ngIf="ride() as r; else noRide">
+        <div><b>Status:</b> {{ r.status ?? 'ASSIGNED' }}</div>
+        <div><b>Start time:</b> {{ r.statingTime | date:'medium' }}</div>
+
+        <div *ngIf="r.canceled">
+          <b>Canceled by:</b> {{ r.canceled }}
+        </div>
+
+        <div *ngIf="r.cancelReason">
+          <b>Reason:</b> {{ r.cancelReason }}
+        </div>
+      </div>
+
+      <ng-template #noRide>
+        <div class="error">Ride not found.</div>
+      </ng-template>
+
+      <!-- DRIVER VIEW -->
+      <div *ngIf="role() === 'DRIVER'" class="block">
+        <div class="block-title">Driver cancellation (reason required)</div>
+
+        <form class="form" [formGroup]="driverForm" (ngSubmit)="cancelDriver()">
+          <label class="label">Reason</label>
+
+          <div class="input-wrap">
+            <span class="icon left">✍️</span>
+            <input
+              class="input"
+              formControlName="reason"
+              placeholder="e.g. passenger not present, health issue..."
+            />
+          </div>
+
+          <div class="error" *ngIf="reason.touched && reason.invalid">
+            <span *ngIf="reason.errors?.['required']">Reason is required.</span>
+            <span *ngIf="reason.errors?.['minlength']">Min 5 characters.</span>
+          </div>
+
+          <button class="primary-btn" type="submit" [disabled]="!canDriverCancel()">
+            Cancel ride
+          </button>
+
+          <div class="hint" *ngIf="!canDriverCancel()">
+            Driver can cancel only before ride start.
+          </div>
+        </form>
+      </div>
+
+      <!-- PASSENGER VIEW -->
+      <div *ngIf="role() === 'PASSENGER'" class="block">
+        <div class="block-title">Passenger cancellation (10 minutes rule)</div>
+
+        <button
+          class="primary-btn"
+          (click)="cancelPassenger()"
+          [disabled]="!canPassengerCancel()"
+        >
+          Cancel ride
+        </button>
+
+        <div class="hint" *ngIf="!canPassengerCancel()">
+          Passenger can cancel only up to 10 minutes before start.
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="msg" *ngIf="message()">{{ message() }}</div>
+
+    </section>
+  </main>
+</div>
