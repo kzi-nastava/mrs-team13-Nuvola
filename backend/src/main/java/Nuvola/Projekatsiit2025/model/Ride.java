@@ -1,106 +1,42 @@
 package Nuvola.Projekatsiit2025.model;
 
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
+import lombok.Data;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+
+@Data
 public class Ride {
-
     private Long id;
     private double price;
     private RideStatus status;
-    private String startLocation;
-    private String destination;
-    private String startTime;
-    private String endTime;
-    private String creationDate;
+    private Route route;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private LocalDateTime creationTime;
     private boolean isPanic;
+    private List<RegisteredUser> otherPassengers;
+    private Driver driver;
+    private RegisteredUser creator;
+    private List<Report> reports;
+    private Set<Rating> ratings;
 
     public Ride() {
-        this.isPanic = false; // default vrednost
+        this.isPanic = false; // default
     }
 
-    public Ride(Long id, double price, RideStatus status, String startLocation,
-                String destination, String startTime, String endTime,
-                String creationDate, boolean isPanic) {
+    public Ride(Long id, double price, RideStatus status, Route route, LocalDateTime startTime, LocalDateTime endTime,
+                LocalDateTime creationTime, boolean isPanic) {
         this.id = id;
         this.price = price;
         this.status = status;
-        this.startLocation = startLocation;
-        this.destination = destination;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.creationDate = creationDate;
+        this.creationTime = creationTime;
         this.isPanic = isPanic;
     }
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public RideStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(RideStatus status) {
-        this.status = status;
-    }
-
-    public String getStartLocation() {
-        return startLocation;
-    }
-
-    public void setStartLocation(String startLocation) {
-        this.startLocation = startLocation;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-
-    public String getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(String creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public boolean isPanic() {
-        return isPanic;
-    }
-
-    public void setPanic(boolean panic) {
-        isPanic = panic;
-    }
 }

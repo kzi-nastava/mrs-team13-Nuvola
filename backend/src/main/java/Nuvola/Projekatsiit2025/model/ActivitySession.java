@@ -6,13 +6,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
-public class Chat {
+public class ActivitySession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private List<ChatMessage> messages;
+    private Driver driver;
+    private LocalDateTime startTime;  // cant be null
+    private LocalDateTime endTime;
 }
