@@ -1,0 +1,57 @@
+<div class="app-background">
+  <main class="auth-wrapper">
+    <section class="auth-card">
+
+      <div class="titles">
+        <div class="welcome">Route Planner</div>
+        <div class="subtitle">Enter departure and destination</div>
+      </div>
+
+      <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+
+        <!-- Departure -->
+        <div class="field">
+          <label class="label">Departure Address</label>
+
+          <div class="input-wrap">
+            <span class="icon left">📍</span>
+            <input
+              class="input"
+              type="text"
+              formControlName="pickup"
+              placeholder="e.g., Novi Sad"
+            />
+          </div>
+
+          <div class="error" *ngIf="pickup.touched && pickup.invalid">
+            <span *ngIf="pickup.errors?.['required']">Departure address is required.</span>
+            <span *ngIf="pickup.errors?.['minlength']">Minimum 3 characters.</span>
+          </div>
+        </div>
+
+        <!-- Destination -->
+        <div class="field">
+          <label class="label">Destination Address</label>
+
+          <div class="input-wrap">
+            <span class="icon left">📍</span>
+            <input
+              class="input"
+              type="text"
+              formControlName="destination"
+              placeholder="e.g., Novi Sad"
+            />
+          </div>
+
+          <div class="error" *ngIf="destination.touched && destination.invalid">
+            <span *ngIf="destination.errors?.['required']">Destination address is required.</span>
+            <span *ngIf="destination.errors?.['minlength']">Minimum 3 characters.</span>
+          </div>
+        </div>
+
+        <button class="primary-btn" type="submit">Find Route</button>
+      </form>
+
+    </section>
+  </main>
+</div>
