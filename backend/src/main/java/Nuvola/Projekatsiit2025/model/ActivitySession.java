@@ -1,9 +1,6 @@
 package Nuvola.Projekatsiit2025.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,7 +11,14 @@ public class ActivitySession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "driver_id")
     private Driver driver;
-    private LocalDateTime startTime;  // cant be null
+
+    @Column(nullable = false)
+    private LocalDateTime startTime;
+
+    @Column(nullable = true)
     private LocalDateTime endTime;
 }

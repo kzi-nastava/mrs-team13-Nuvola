@@ -1,17 +1,35 @@
 package Nuvola.Projekatsiit2025.model;
 
 import Nuvola.Projekatsiit2025.model.enums.VehicleType;
+import jakarta.persistence.*;
 import lombok.Data;
 
+@Entity
 @Data
 public class Vehicle {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String model;
+
+    @Enumerated(EnumType.STRING)
     private VehicleType type;
+
     private String regNumber;
+
     private int numOfSeats;
+
     private boolean babyFriendly;
+
     private boolean petFriendly;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "title", column = @Column(name = "location_title")),
+            @AttributeOverride(name = "latitude", column = @Column(name = "location_latitude")),
+            @AttributeOverride(name = "longitude", column = @Column(name = "location_longitude"))
+    })
     private Location location;
 
     public Vehicle() {

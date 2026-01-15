@@ -1,13 +1,27 @@
 package Nuvola.Projekatsiit2025.model;
 
 import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
+import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Driver extends User {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private DriverStatus status;
-    private List<ActivitySession> sessions;
+
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ActivitySession> sessions =  new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_id")
+    private Chat chat;
 
     public Driver() {
         super();
