@@ -1,14 +1,45 @@
 package Nuvola.Projekatsiit2025.model;
 
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@Data
 public abstract class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
+
+    @Column(unique = true, nullable = false)
     protected String email;
+    @Column(nullable = false)
     protected String password;
+    @Column(nullable = false)
     protected String firstName;
+    @Column(nullable = false)
     protected String lastName;
+    @Column(nullable = false)
     protected String address;
+    @Column(nullable = false)
     protected String phone;
+
     protected String picture;
+
+    @Column(nullable = false)
+    protected boolean isBlocked;
+
+    protected String blockingReason;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    protected List<Notification> notifications = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_id")
+    private Chat chat;
 
     public User() {
     }
@@ -26,67 +57,5 @@ public abstract class User {
         this.picture = picture;
     }
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getPicture() {
-        return picture;
-    }
-
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
 }
