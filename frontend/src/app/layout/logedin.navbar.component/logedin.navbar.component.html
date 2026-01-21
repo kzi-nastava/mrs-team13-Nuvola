@@ -15,6 +15,7 @@
     </div>
 
     <div class="navbar-right" *ngIf="isLoggedIn()">
+        <a routerLink="/users" class="nav-link">Users</a>
         <a routerLink="/account-settings/{{username}}" class="nav-link">Account</a>
         <a (click)="onLogout()" class="nav-link">Log out</a>
     </div>
