@@ -58,4 +58,14 @@ export class NavBarComponent {
     this.router.navigate(['/register']);
     this.menuOpen = false;
   }
+
+  onLogoClick(): void {
+  if (this.authService.isLoggedIn()) {
+    this.router.navigate(['/logedin-home/', this.authService.username()]);
+  } else {
+    this.router.navigate(['/']);
+  }
+
+  this.menuOpen = false;
+}
 }
