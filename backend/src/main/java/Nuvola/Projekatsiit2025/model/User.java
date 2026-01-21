@@ -1,7 +1,9 @@
 package Nuvola.Projekatsiit2025.model;
 
+import Nuvola.Projekatsiit2025.services.UserService;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,11 +11,12 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
-public abstract class User {
+public abstract class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
-
+    @Column(unique = true, nullable = false)
+    protected String username;
     @Column(unique = true, nullable = false)
     protected String email;
     @Column(nullable = false)
@@ -57,5 +60,8 @@ public abstract class User {
         this.picture = picture;
     }
 
-
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
 }
