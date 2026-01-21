@@ -1,4 +1,6 @@
-/* You can add global styles to this file, and also import other style files */
+@import "leaflet/dist/leaflet.css";
+@import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+
 body {
     margin: 109px 0 0 0;
     padding: 0;
