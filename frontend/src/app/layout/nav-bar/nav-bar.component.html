@@ -16,6 +16,7 @@
   </div>
 
   <div class="nav-items show-desktop">
+    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onUsers()">Users</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideHistory()">Ride history</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onAccount()">Account</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onLogout()">Log out</button>
@@ -39,6 +40,10 @@
       <span class="notification-badge" *ngIf="authService.hasNotifications()"></span>
     </div>
     Inbox
+  </button>
+
+  <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onUsers()">
+    Users
   </button>
 
   <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideHistory()">

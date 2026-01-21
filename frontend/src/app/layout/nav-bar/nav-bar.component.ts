@@ -27,6 +27,11 @@ export class NavBarComponent {
     console.log('Inbox clicked');
   }
 
+  onUsers(): void {
+    this.router.navigate(['/users/', this.authService.username()]);
+    this.menuOpen = false;
+  }
+
   onRideHistory(): void {
     this.router.navigate(['/ride-history/', this.authService.username()]);
     this.menuOpen = false;

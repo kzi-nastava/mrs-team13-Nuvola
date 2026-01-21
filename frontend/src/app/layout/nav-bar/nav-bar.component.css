@@ -98,6 +98,7 @@
   display: flex;
   flex-direction: column;
   padding: 16px;
+  gap: 12px;
 }
 
 .mobile-menu .nav-link {
@@ -106,6 +107,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  white-space: nowrap;
 }
 
 .mobile-menu .nav-link img {
