@@ -9,6 +9,8 @@ import { ForgotPasswordComponent } from './auth/forgot.password.component/forgot
 import { ResetPasswordComponent } from './auth/reset.password.component/reset.password.component';
 import { EstimateFormComponent } from './rides/estimate.form.component/estimate.form.component';
 import { CancelRideComponent } from './rides/cancel-ride.component/cancel-ride.component';
+import { LogedinPageComponent } from './logedin.homepage/logedin.page.component/logedin.page.component';
+
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
@@ -22,4 +24,5 @@ export const routes: Routes = [
     {path: 'estimate', component: EstimateFormComponent},
     {path:'rides/:id/cancel', component:CancelRideComponent},
     {path: 'register-driver', component: RegisterDriversComponent },
+    {path: 'logedin-home/:username', component: LogedinPageComponent },
 ];
