@@ -1,3 +1,20 @@
-<div class="loggedin-page">
-  <!-- za sada prazno -->
+<div class="global-toast" *ngIf="toastMessage">
+  {{ toastMessage }}
+</div>
+
+<div class="page">
+  <button class="order-btn" (click)="togglePanel()">
+    Order a ride
+  </button>
+
+  <div class="content">
+    <div class="panel" *ngIf="panelOpen">
+      <app-panel (rideOrdered)="showToast($event)"></app-panel>
+
+    </div>
+
+    <div class="map" [class.full]="!panelOpen">
+      <app-map></app-map>
+    </div>
+  </div>
 </div>
