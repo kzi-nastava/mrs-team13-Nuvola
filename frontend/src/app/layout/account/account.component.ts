@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
@@ -11,11 +11,12 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 })
 export class AccountComponent {
 
+  profilePreview: string | null = null;
   accountForm: FormGroup;
   successMessage = '';
   errorMessage = '';
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef) {
     this.accountForm = this.fb.group({
       firstName: [
         'Milica',
@@ -59,4 +60,19 @@ export class AccountComponent {
   onChangePassword(): void {
     console.log('Change password clicked');
   }
+  onFileSelected(event: any) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    this.profilePreview = reader.result as string;
+    this.cdr.detectChanges(); 
+  };
+
+  reader.readAsDataURL(file);
+}
+
 }

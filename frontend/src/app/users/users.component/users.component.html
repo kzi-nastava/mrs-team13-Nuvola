@@ -1,0 +1,31 @@
+<div class="users-page">
+
+  <div class="tabs">
+    <button
+      class="tab-btn"
+      [class.active]="isCustomersTab()"
+      (click)="setTab('customers')"
+    >
+      Customers
+    </button>
+
+    <button
+      class="tab-btn"
+      [class.active]="isDriversTab()"
+      (click)="setTab('drivers')"
+    >
+      Drivers
+    </button>
+  </div>
+
+  <h2 class="title">
+    {{ isCustomersTab() ? 'All customers' : 'All drivers' }}
+  </h2>
+
+  <div class="driver-actions" *ngIf="isDriversTab()">
+    <span class="register-driver" (click)="onRegisterNewDriver()">
+      Register a new driver
+    </span>
+  </div>
+
+</div>
