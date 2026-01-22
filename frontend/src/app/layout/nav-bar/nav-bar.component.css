@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   font-family: 'Roboto', sans-serif;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 /* icons and logo */
@@ -31,6 +31,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  cursor: pointer;
 }
 
 .logo img {

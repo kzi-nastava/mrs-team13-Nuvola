@@ -1,0 +1,164 @@
+<div class="panel-card">
+  <h3>Pick a ride</h3>
+
+  <form [formGroup]="form">
+    <!-- From -->
+    <div class="field">
+      <label>From *</label>
+      <input type="text" formControlName="from" placeholder="e.g. Bulevar Oslobođenja 1" />
+
+      <div class="suggestions" *ngIf="fromSuggestions.length > 0">
+        <div class="suggestion" *ngFor="let s of fromSuggestions" (click)="selectFrom(s)">
+          {{ s.address }}
+        </div>
+      </div>
+
+      <div class="error" *ngIf="form.get('from')?.touched && form.get('from')?.invalid">
+        Invalid input.
+      </div>
+    </div>
+
+    <!-- To -->
+    <div class="field">
+      <label>To *</label>
+      <input type="text" formControlName="to" placeholder="e.g. Trg slobode" />
+
+      <div class="suggestions" *ngIf="toSuggestions.length > 0">
+        <div class="suggestion" *ngFor="let s of toSuggestions" (click)="selectTo(s)">
+          {{ s.address }}
+        </div>
+      </div>
+
+      <div class="error" *ngIf="form.get('to')?.touched && form.get('to')?.invalid">
+        Invalid input.
+      </div>
+    </div>
+
+    <!-- Additional stops -->
+    <div class="field">
+      <label>Additional stops</label>
+      <input
+        type="text"
+        formControlName="stopInput"
+        placeholder="Add stop and press Enter"
+        (keydown.enter)="addStopFromInput(); $event.preventDefault()"
+      />
+
+      <div class="chips" *ngIf="stops.length > 0">
+        <div class="chip" *ngFor="let s of stops; let i = index">
+          {{ s.address }}
+          <span class="x" (click)="removeStop(i)">✕</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicle type -->
+    <div class="field">
+      <label>Vehicle type</label>
+
+      <div class="radio-row">
+        <label class="radio-pill">
+          <input type="radio" formControlName="vehicleType" value="standard" />
+          <span>Standard</span>
+        </label>
+
+        <label class="radio-pill">
+          <input type="radio" formControlName="vehicleType" value="luxury" />
+          <span>Luxury</span>
+        </label>
+
+        <label class="radio-pill">
+          <input type="radio" formControlName="vehicleType" value="van" />
+          <span>Van</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Calculate route -->
+    <button type="button" class="btn-primary" (click)="calculateRoute()">
+      Calculate route
+    </button>
+
+    <!-- Passengers -->
+    <div class="field" style="margin-top: 14px;">
+      <label>Passengers</label>
+      <input
+        type="text"
+        formControlName="passengerInput"
+        placeholder="Add passenger email and press Enter"
+        (keydown.enter)="addPassengerFromInput(); $event.preventDefault()"
+      />
+
+      <div class="chips" *ngIf="passengers.length > 0">
+        <div class="chip" *ngFor="let p of passengers; let i = index">
+          {{ p }}
+          <span class="x" (click)="removePassenger(i)">✕</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Options -->
+    <div class="field">
+      <label>Options</label>
+
+      <div class="check-row">
+        <label class="check-item">
+          <input type="checkbox" formControlName="babySeat" />
+          <span>Baby seat</span>
+        </label>
+
+        <label class="check-item">
+          <input type="checkbox" formControlName="petFriendly" />
+          <span>Pet friendly</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Time -->
+    <div class="field">
+      <label>Time</label>
+
+      <div class="radio-row">
+        <label class="radio-pill">
+          <input type="radio" formControlName="rideTimeMode" value="now" />
+          <span>Now</span>
+        </label>
+
+        <label class="radio-pill">
+          <input type="radio" formControlName="rideTimeMode" value="scheduled" />
+          <span>Scheduled</span>
+        </label>
+      </div>
+
+      <div class="scheduled-box" *ngIf="isScheduled">
+        <label style="margin-top: 10px; display:block; font-size: 12px; color:#444;">
+          Pick time (next 5 hours)
+        </label>
+
+        <select class="select-time" formControlName="scheduledTime">
+          <option *ngFor="let opt of scheduledOptions" [value]="opt.value">
+            {{ opt.label }}
+          </option>
+        </select>
+
+        <div class="error"
+          *ngIf="form.get('scheduledTime')?.touched && form.get('scheduledTime')?.errors?.['required']">
+          Please select a time.
+        </div>
+
+        <div class="hint-small">
+          You can schedule only within the next 5 hours (5 min steps).
+        </div>
+      </div>
+    </div>
+
+    <!-- Order and clear -->
+    <button type="button" class="btn-primary" (click)="orderRide()">
+      Order ride
+    </button>
+
+    <button type="button" class="btn-secondary" (click)="clearAll()">
+      Clear
+    </button>
+  </form>
+</div>
