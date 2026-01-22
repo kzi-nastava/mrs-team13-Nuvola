@@ -27,6 +27,11 @@ export class NavBarComponent {
     console.log('Inbox clicked');
   }
 
+  onUsers(): void {
+    this.router.navigate(['/users/', this.authService.username()]);
+    this.menuOpen = false;
+  }
+
   onRideHistory(): void {
     this.router.navigate(['/ride-history/', this.authService.username()]);
     this.menuOpen = false;
@@ -53,4 +58,14 @@ export class NavBarComponent {
     this.router.navigate(['/register']);
     this.menuOpen = false;
   }
+
+  onLogoClick(): void {
+  if (this.authService.isLoggedIn()) {
+    this.router.navigate(['/logedin-home/', this.authService.username()]);
+  } else {
+    this.router.navigate(['/']);
+  }
+
+  this.menuOpen = false;
+}
 }

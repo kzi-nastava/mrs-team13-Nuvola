@@ -56,7 +56,7 @@ export class LoginComponent {
     
     this.authService.login(username);
     this.submittedOk = true;
-    this.router.navigate(['/ride-history/', username]);
+    this.router.navigate(['/logedin-home/', username]);
 
   }
 }

@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   font-family: 'Roboto', sans-serif;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 /* icons and logo */
@@ -31,6 +31,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  cursor: pointer;
 }
 
 .logo img {
@@ -98,6 +99,7 @@
   display: flex;
   flex-direction: column;
   padding: 16px;
+  gap: 12px;
 }
 
 .mobile-menu .nav-link {
@@ -106,6 +108,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  white-space: nowrap;
 }
 
 .mobile-menu .nav-link img {
