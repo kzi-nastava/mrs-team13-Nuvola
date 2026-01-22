@@ -4,15 +4,37 @@
   padding: 20px;
   box-shadow: 0px 6px 18px rgba(0,0,0,0.08);
   width: 320px;
-
+  max-width: 100%;
+  box-sizing: border-box;
   height: 520px;              
   overflow-y: auto;          
 }
 
 h3 {
-  margin-top: 0;
+  margin-top: 12px;
   margin-bottom: 14px;
   font-size: 18px;
+}
+
+.panel-header{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom: 14px;
+}
+
+.btn-fav{
+  background: transparent;
+  border: 1px solid;
+  background: #0A1128;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: white;
+
 }
 
 .field {
@@ -198,4 +220,21 @@ input:focus {
   margin-top: 6px;
   font-size: 11px;
   color: #777;
+}
+
+@media (max-width: 768px) {
+  .panel-card {
+    width: 100%;
+    height: auto;
+    max-height: 75vh;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-fav {
+    width: 100%;
+  }
 }
