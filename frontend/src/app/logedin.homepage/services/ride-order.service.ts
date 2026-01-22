@@ -54,6 +54,11 @@ export class RideOrderService {
     this.stopsSubject.next([...this.stopsSubject.value, loc]);
   }
 
+  setStops(stops: LocationModel[]) {
+  this.stopsSubject.next(stops);
+}
+
+
   removeStop(index: number) {
     const copy = [...this.stopsSubject.value];
     copy.splice(index, 1);
@@ -74,6 +79,11 @@ export class RideOrderService {
   setVehicleType(type: VehicleType) {
     this.vehicleTypeSubject.next(type);
   }
+
+  clearStops() {
+    this.stopsSubject.next([]);
+  }
+
 
   reset() {
     this.setFrom(null);

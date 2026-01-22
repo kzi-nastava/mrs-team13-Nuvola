@@ -37,10 +37,15 @@ export class GeocodingService {
 
 search(query: string): Observable<LocationModel[]> {
   const params = new HttpParams()
-    .set('q', query)
-    .set('format', 'json')
-    .set('addressdetails', '1')
-    .set('limit', '5');
+  .set('q', query)
+  .set('format', 'json')
+  .set('addressdetails', '1')
+  .set('limit', '8')
+  .set('countrycodes', 'rs')
+  .set('dedupe', '1')
+  .set('accept-language', 'en');
+
+
 
   return this.http
     .get<NominatimSearchResult[]>(`${this.baseUrl}/search`, { params })

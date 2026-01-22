@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnDestroy, OnInit, Output, EventEmitter, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subscription, switchMap, of } from 'rxjs';
@@ -14,7 +14,7 @@ import { LocationModel } from '../models/location.model';
   templateUrl: './panel.component.html',
   styleUrls: ['./panel.component.css']
 })
-export class PanelComponent implements OnInit, OnDestroy {
+export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
   form: FormGroup;
 
   fromSuggestions: LocationModel[] = [];
@@ -28,6 +28,9 @@ export class PanelComponent implements OnInit, OnDestroy {
   scheduledOptions: { value: string; label: string }[] = [];
 
   @Output() rideOrdered = new EventEmitter<string>();
+  @Output() openFavorites = new EventEmitter<void>();
+  @Output() cleared = new EventEmitter<void>();
+  @Input() favoriteRouteToLoad: any = null;
 
 
   private subs = new Subscription();
@@ -133,6 +136,52 @@ export class PanelComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subs.unsubscribe();
   }
+
+  // favorite routes 
+    
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['favoriteRouteToLoad'] && this.favoriteRouteToLoad) {
+      this.applyFavoriteRoute(this.favoriteRouteToLoad);
+    }
+  }
+
+  private applyFavoriteRoute(route: { from: LocationModel; to: LocationModel; stops: LocationModel[] }) {
+
+
+    this.form.patchValue({
+      from: route.from.address,
+      to: route.to.address,
+      stopInput: ''
+    }, { emitEvent: false });
+
+    this.fromSuggestions = [];
+    this.toSuggestions = [];
+
+    this.rideOrder.setStops(route.stops ?? []);
+
+    this.geocoding.search(route.from.address + ' Novi Sad').subscribe(res => {
+      if (res.length > 0) this.rideOrder.setFrom(res[0]);
+    });
+
+    this.geocoding.search(route.to.address + ' Novi Sad').subscribe(res => {
+      if (res.length > 0) this.rideOrder.setTo(res[0]);
+    });
+
+    (route.stops ?? []).forEach((stop, index) => {
+      this.geocoding.search(stop.address + ' Novi Sad').subscribe(res => {
+        if (res.length > 0) {
+          const current = this.rideOrder.getStops();
+          const copy = [...current];
+
+          copy[index] = res[0];
+          this.rideOrder.setStops(copy);
+        }
+      });
+    });
+  }
+
+
+
 
   get isScheduled(): boolean {
     return this.form.value.rideTimeMode === 'scheduled';
@@ -256,8 +305,12 @@ export class PanelComponent implements OnInit, OnDestroy {
     });
 
     this.geocoding.search(toText + ' Novi Sad').subscribe((res) => {
-      if (res.length > 0) this.rideOrder.setTo(res[0]);
+      if  (res.length > 0) this.rideOrder.setTo(res[0]);
     });
+  }
+
+  onOpenFavorites() {
+    this.openFavorites.emit();
   }
 
   orderRide() {
@@ -294,6 +347,7 @@ export class PanelComponent implements OnInit, OnDestroy {
 
     this.fromSuggestions = [];
     this.toSuggestions = [];
+    this.cleared.emit();
   }
   
 
