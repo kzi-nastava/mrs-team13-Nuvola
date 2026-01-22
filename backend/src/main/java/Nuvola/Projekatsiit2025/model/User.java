@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,7 @@ public abstract class User implements UserDetails {
     protected String address;
     @Column(nullable = false)
     protected String phone;
+    private Timestamp lastPasswordResetDate;
 
     protected String picture;
 

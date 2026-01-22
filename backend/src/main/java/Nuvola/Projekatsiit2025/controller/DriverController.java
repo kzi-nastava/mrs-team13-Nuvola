@@ -5,9 +5,13 @@ import Nuvola.Projekatsiit2025.dto.CreateDriverDTO;
 import Nuvola.Projekatsiit2025.dto.CreatedDriverDTO;
 
 import Nuvola.Projekatsiit2025.dto.DriverRideHistoryItemDTO;
+import Nuvola.Projekatsiit2025.repositories.DriverRepository;
+import Nuvola.Projekatsiit2025.services.RideService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -18,6 +22,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/drivers")
 public class DriverController {
+    @Autowired
+    private RideService rideService;
 
     //2.2.3
     @PostMapping
@@ -33,34 +39,16 @@ public class DriverController {
     }
 
     // 2.9.2
+    @PreAuthorize("hasRole('DRIVER')")
     @GetMapping(value = "/{driverId}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<DriverRideHistoryItemDTO>> getDriverRideHistory(
             @PathVariable Long driverId,
             @RequestParam(required = false, defaultValue = "startingTime") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String sortOrder) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy. hh:mm a");
-        List<DriverRideHistoryItemDTO> response = new ArrayList<>();
-        DriverRideHistoryItemDTO ride1 = new DriverRideHistoryItemDTO();
-        ride1.setId(1L);
-        ride1.setDriver("John Smith");
-        ride1.setPickup("Location A");
-        ride1.setDropoff("Location B");
-        ride1.setPrice(15);
-        ride1.setStartingTime(LocalDateTime.parse("12.01.2026. 11:00 AM" ,formatter));
-        ride1.setFavouriteRoute(false);
 
-        DriverRideHistoryItemDTO ride2 = new DriverRideHistoryItemDTO();
-        ride2.setId(2L);
-        ride2.setDriver("John Smith");
-        ride2.setPickup("Location C");
-        ride2.setDropoff("Location D");
-        ride2.setPrice(38);
-        ride2.setStartingTime(LocalDateTime.parse("13.01.2026. 10:00 AM",formatter));
-        ride2.setFavouriteRoute(false);
+        List<DriverRideHistoryItemDTO> rides = rideService.getDriverRideHistory(driverId, sortBy, sortOrder);
+        return ResponseEntity.ok(rides);
 
-        response.add(ride1);
-        response.add(ride2);
-        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
