@@ -1,5 +1,11 @@
 <div class="panel-card">
-  <h3>Pick a ride</h3>
+  <div class="panel-header">
+    <h3>Pick a ride</h3>
+
+    <button type="button" class="btn-fav" (click)="onOpenFavorites()">
+      Order from favorite routes
+    </button>
+  </div>
 
   <form [formGroup]="form">
     <!-- From -->
@@ -85,7 +91,7 @@
       <input
         type="text"
         formControlName="passengerInput"
-        placeholder="Add passenger email and press Enter"
+        placeholder="Add passenger email"
         (keydown.enter)="addPassengerFromInput(); $event.preventDefault()"
       />
 
