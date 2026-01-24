@@ -30,6 +30,8 @@ Uber like application
 
 1\. Create environment variables:
 
+&nbsp;  - POSTGRES\_ADMIN\_PASSWORD
+
 &nbsp;  - SMTP\_USERNAME
 
 &nbsp;  - SMTP\_PASSWORD
