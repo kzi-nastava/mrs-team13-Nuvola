@@ -4,7 +4,7 @@
 
 
 
-\## Team 13:
+## Team 13:
 
 Nađa Lučić	sv50-2023
 
@@ -16,7 +16,7 @@ Vuk Đorđević	sv32-2023
 
 
 
-\## Description:
+## Description:
 
 Uber like application
 
@@ -24,7 +24,7 @@ Uber like application
 
 
 
-\## Setup
+## Setup
 
 
 
