@@ -10,7 +10,7 @@ import { ResetPasswordComponent } from './auth/reset.password.component/reset.pa
 import { EstimateFormComponent } from './rides/estimate.form.component/estimate.form.component';
 import { CancelRideComponent } from './rides/cancel-ride.component/cancel-ride.component';
 import { AdminPanicComponent } from './panic/admin-panic.component';
-
+import { DriverRidesComponent } from './rides/driver.rides.component/driver.rides.component';
 import { LogedinPageComponent } from './logedin.homepage/logedin.page.component/logedin.page.component';
 
 export const routes: Routes = [
@@ -27,4 +27,5 @@ export const routes: Routes = [
     {path:'admin/panic', component: AdminPanicComponent},
     {path: 'register-driver', component: RegisterDriversComponent },
     {path: 'logedin-home/:username', component: LogedinPageComponent },
+    {path: 'driver-rides/:username', component: DriverRidesComponent },
 ];
