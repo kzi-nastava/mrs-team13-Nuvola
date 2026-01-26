@@ -1,0 +1,141 @@
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="title">My rides</h1>
+      <p class="subtitle">View your assigned rides and manage the ride status.</p>
+    </div>
+  </div>
+
+  <!-- current ride -->
+  <div class="section" *ngIf="activeRide as ar">
+    <h2 class="section-title">Active ride</h2>
+
+    <div class="ride-card active">
+      <div class="ride-top">
+        <div class="ride-meta">
+          <span class="badge active-badge">In progress</span>
+          <span class="time">{{ ar.scheduledTime }}</span>
+          <span class="price">{{ ar.price }} RSD</span>
+        </div>
+
+        <div class="ride-actions">
+          <button class="btn danger" (click)="panic(ar)">
+            PANIC
+          </button>
+
+          <button class="btn gray" (click)="stopRide(ar)">
+            Stop
+          </button>
+
+          <button class="btn primary" (click)="finishRide(ar)">
+            End ride
+          </button>
+        </div>
+      </div>
+
+      <div class="ride-body">
+        <div class="col">
+          <div class="label">From</div>
+          <div class="value">{{ ar.from.address }}</div>
+        </div>
+
+        <div class="col">
+          <div class="label">To</div>
+          <div class="value">{{ ar.to.address }}</div>
+        </div>
+
+        <div class="col" *ngIf="ar.stops.length > 0">
+          <div class="label">Additional stops</div>
+          <div class="value">
+            <div class="stop" *ngFor="let s of ar.stops">• {{ s.address }}</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="label">Passengers</div>
+          <div class="chips">
+            <span class="chip" *ngFor="let p of ar.passengers">{{ p }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- upcoming rides -->
+  <div class="section">
+    <h2 class="section-title">Upcoming rides</h2>
+
+    <div class="empty" *ngIf="upcomingRides.length === 0">
+      No upcoming rides at the moment.
+    </div>
+
+    <div class="ride-list" *ngIf="upcomingRides.length > 0">
+      <div class="ride-card" *ngFor="let r of upcomingRides">
+        <div class="ride-top">
+          <div class="ride-meta">
+            <span class="badge upcoming-badge">Upcoming</span>
+            <span class="time">{{ r.scheduledTime }}</span>
+            <span class="price">{{ r.price }} RSD</span>
+          </div>
+
+          <div class="ride-actions">
+            <button
+              class="btn primary"
+              [class.disabled]="!r.allPassengersJoined"
+              [disabled]="!r.allPassengersJoined || hasActiveRide"
+              (click)="startRide(r)"
+            >
+              Start
+            </button>
+
+            
+
+            <button
+              class="btn gray"
+              [class.disabled]="r.allPassengersJoined"
+              [disabled]="r.allPassengersJoined"
+              (click)="cancelRide(r)"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div class="ride-body">
+          <div class="col">
+            <div class="label">From</div>
+            <div class="value">{{ r.from.address }}</div>
+          </div>
+
+          <div class="col">
+            <div class="label">To</div>
+            <div class="value">{{ r.to.address }}</div>
+          </div>
+
+          <div class="col" *ngIf="r.stops.length > 0">
+            <div class="label">Additional stops</div>
+            <div class="value">
+              <div class="stop" *ngFor="let s of r.stops">• {{ s.address }}</div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="passengers-header">
+                <div class="label">Passengers</div>
+
+                <div class="arrived-text" [class.ok]="r.allPassengersJoined">
+                    {{ r.allPassengersJoined ? 'Passengers have arrived' : "Passengers haven't arrived yet" }}
+                </div>
+                </div>
+
+                <div class="chips">
+                <span class="chip" *ngFor="let p of r.passengers">{{ p }}</span>
+                </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
