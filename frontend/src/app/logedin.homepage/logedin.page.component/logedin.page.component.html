@@ -1,0 +1,79 @@
+<div class="global-toast" *ngIf="toastMessage">
+  {{ toastMessage }}
+</div>
+
+<div class="page">
+  <button class="order-btn" (click)="togglePanel()">
+    Order a ride
+  </button>
+
+  <div class="content">
+    <div class="panel" *ngIf="panelOpen">
+      <app-panel
+  (rideOrdered)="showToast($event)"
+  (openFavorites)="openFavoritesPopup()"
+  (cleared)="selectedFavoriteRoute = null"
+  [favoriteRouteToLoad]="selectedFavoriteRoute"
+></app-panel>
+
+
+    </div>
+
+    <div class="map" [class.full]="!panelOpen">
+      <app-map></app-map>
+    </div>
+  </div>
+</div>
+<div class="fav-backdrop" *ngIf="favoritesOpen" (click)="closeFavoritesPopup()"></div>
+
+<div class="fav-modal" *ngIf="favoritesOpen">
+  <div class="fav-header">
+    <div>
+      <h2>Your favorite routes</h2>
+      <p>View your favorite routes and order them again in just one click</p>
+    </div>
+
+    <button class="fav-close" (click)="closeFavoritesPopup()">✕</button>
+  </div>
+
+  <div class="fav-list">
+    <div class="fav-card" *ngFor="let r of favoriteRoutes">
+      <div class="fav-info">
+        <div class="fav-col">
+          <div class="fav-label">
+            <span class="dot"></span> From
+          </div>
+          <div class="fav-address">{{ r.from.address }}</div>
+        </div>
+
+        <div class="fav-col">
+          <div class="fav-label">
+            <span class="pin"></span> To
+          </div>
+          <div class="fav-address">{{ r.to.address }}</div>
+        </div>
+
+        <div class="fav-stops" *ngIf="r.stops.length > 0">
+          <div class="fav-stops-title">Additional stops:</div>
+          <div class="fav-stop" *ngFor="let s of r.stops">
+            • {{ s.address }}
+          </div>
+        </div>
+      </div>
+
+      <div class="fav-actions">
+        <button class="fav-order" (click)="orderFromFavorite(r)">
+          Order Again
+        </button>
+
+        <button class="fav-remove" (click)="removeFromFavorites(r.id)">
+          Remove
+        </button>
+      </div>
+    </div>
+
+    <div class="fav-empty" *ngIf="favoriteRoutes.length === 0">
+      You don’t have any favorite routes yet.
+    </div>
+  </div>
+</div>

@@ -2,8 +2,11 @@ package Nuvola.Projekatsiit2025.model;
 
 import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -22,6 +25,11 @@ public class Driver extends User {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id")
     private Chat chat;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_DRIVER"));
+    }
 
     public Driver() {
         super();
