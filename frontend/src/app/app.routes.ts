@@ -7,6 +7,7 @@ import { ForgotPasswordComponent } from './auth/forgot.password.component/forgot
 import { ResetPasswordComponent } from './auth/reset.password.component/reset.password.component';
 import { EstimateFormComponent } from './rides/estimate.form.component/estimate.form.component';
 import { CancelRideComponent } from './rides/cancel-ride.component/cancel-ride.component';
+import { AdminPanicComponent } from './panic/admin-panic.component';
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
@@ -18,4 +19,5 @@ export const routes: Routes = [
     {path: 'reset-password', component: ResetPasswordComponent },
     {path: 'estimate', component: EstimateFormComponent},
     {path:'rides/:id/cancel', component:CancelRideComponent},
+    {path:'admin/panic', component: AdminPanicComponent},
 ];
