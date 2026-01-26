@@ -93,7 +93,7 @@ public class RideController {
     }
     
     
- // 2.6.5 Stop ride while it's active
+    // 2.6.5 Stop ride while it's active
     @PutMapping(value = "/{rideId}/stop", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CreatedRideDTO> stopRide(@PathVariable Long rideId) {
 

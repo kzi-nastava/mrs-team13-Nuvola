@@ -24,19 +24,23 @@ public class Vehicle {
 
     private boolean petFriendly;
 
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "title", column = @Column(name = "location_title")),
-            @AttributeOverride(name = "latitude", column = @Column(name = "location_latitude")),
-            @AttributeOverride(name = "longitude", column = @Column(name = "location_longitude"))
-    })
-    private Location location;
+//    @Embedded
+//    @AttributeOverrides({
+//            @AttributeOverride(name = "title", column = @Column(name = "location_title")),
+//            @AttributeOverride(name = "latitude", column = @Column(name = "location_latitude")),
+//            @AttributeOverride(name = "longitude", column = @Column(name = "location_longitude"))
+//    })
+//    private Location location;
+    @Transient
+    private Double latitude;
+    @Transient
+    private Double longitude;
 
     public Vehicle() {
     }
 
     public Vehicle(Long id, String model, VehicleType type, String regNumber,
-                   int numOfSeats, boolean babyFriendly, boolean petFriendly, Location location) {
+                   int numOfSeats, boolean babyFriendly, boolean petFriendly) {
         super();
         this.id = id;
         this.model = model;
@@ -45,8 +49,9 @@ public class Vehicle {
         this.numOfSeats = numOfSeats;
         this.babyFriendly = babyFriendly;
         this.petFriendly = petFriendly;
-        this.location = location;
     }
+
+
 
 
 }

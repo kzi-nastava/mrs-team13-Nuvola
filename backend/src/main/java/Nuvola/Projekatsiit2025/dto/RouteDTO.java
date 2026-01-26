@@ -1,15 +1,13 @@
 package Nuvola.Projekatsiit2025.dto;
 
+import Nuvola.Projekatsiit2025.model.Location;
+import lombok.Data;
+
 import java.util.List;
 
+@Data
 public class RouteDTO {
-    private List<CoordinateDTO> stops;
+    private List<Location> stops;
 
-    public List<CoordinateDTO> getStops() {
-        return stops;
-    }
 
-    public void setStops(List<CoordinateDTO> stops) {
-        this.stops = stops;
-    }
 }
