@@ -1,0 +1,48 @@
+<div class="panel-card">
+  <div class="panel-header">
+    <h3>Pick a ride</h3>
+  </div>
+
+  <form [formGroup]="form">
+    <!-- From -->
+    <div class="field">
+      <label>From *</label>
+      <input type="text" formControlName="from" placeholder="e.g. Bulevar Oslobođenja 1" />
+
+      <div class="suggestions" *ngIf="fromSuggestions.length > 0">
+        <div class="suggestion" *ngFor="let s of fromSuggestions" (click)="selectFrom(s)">
+          {{ s.address }}
+        </div>
+      </div>
+
+      <div class="error" *ngIf="form.get('from')?.touched && form.get('from')?.invalid">
+        Invalid input.
+      </div>
+    </div>
+
+    <!-- To -->
+    <div class="field">
+      <label>To *</label>
+      <input type="text" formControlName="to" placeholder="e.g. Trg slobode" />
+
+      <div class="suggestions" *ngIf="toSuggestions.length > 0">
+        <div class="suggestion" *ngFor="let s of toSuggestions" (click)="selectTo(s)">
+          {{ s.address }}
+        </div>
+      </div>
+
+      <div class="error" *ngIf="form.get('to')?.touched && form.get('to')?.invalid">
+        Invalid input.
+      </div>
+    </div>
+
+    <!-- Calculate route -->
+    <button type="button" class="btn-primary" (click)="calculateRoute()">
+      Calculate route
+    </button>
+
+    <button type="button" class="btn-secondary" (click)="clearAll()">
+      Clear
+    </button>
+  </form>
+</div>

@@ -1,31 +1,21 @@
 package Nuvola.Projekatsiit2025.dto;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class ActiveVehicleDTO {
-    private CoordinateDTO coordinate;
-    private String status;
-    private Long driverId;
+    private Double latitude;
+    private Double longitude;
+    private boolean occupied;
+    private Long vehicleId;
 
-    public CoordinateDTO getCoordinate() {
-        return coordinate;
+    public ActiveVehicleDTO(Double latitude, Double longitude, boolean occupied, Long vehicleId) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.occupied = occupied;
+        this.vehicleId = vehicleId;
     }
 
-    public void setCoordinate(CoordinateDTO coordinate) {
-        this.coordinate = coordinate;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Long getDriverId() {
-        return driverId;
-    }
-
-    public void setDriverId(Long driverId) {
-        this.driverId = driverId;
-    }
 }

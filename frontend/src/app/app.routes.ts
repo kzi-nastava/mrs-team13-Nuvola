@@ -12,6 +12,7 @@ import { CancelRideComponent } from './rides/cancel-ride.component/cancel-ride.c
 import { AdminPanicComponent } from './panic/admin-panic.component';
 
 import { LogedinPageComponent } from './logedin.homepage/logedin.page.component/logedin.page.component';
+import { HomepageComponent } from './homepage/homepage.component/homepage.component';
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
@@ -27,4 +28,5 @@ export const routes: Routes = [
     {path:'admin/panic', component: AdminPanicComponent},
     {path: 'register-driver', component: RegisterDriversComponent },
     {path: 'logedin-home/:username', component: LogedinPageComponent },
+    {path: 'homepage', component: HomepageComponent }
 ];

@@ -56,8 +56,11 @@ public class DriverController {
     @GetMapping(value="/active-vehicles", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ActiveVehicleDTO>> getActiveVehicles() {
         List<ActiveVehicleDTO> response = new ArrayList<>();
-        ActiveVehicleDTO activeVehicleDTO = new ActiveVehicleDTO();
+        ActiveVehicleDTO activeVehicleDTO = new ActiveVehicleDTO(45.2671, 19.8335, true, 1L);
         response.add(activeVehicleDTO);
+        ActiveVehicleDTO activeVehicleDTO2 = new ActiveVehicleDTO(44.7866, 20.4489, false, 2L);
+        response.add(activeVehicleDTO2);
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

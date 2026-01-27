@@ -63,7 +63,7 @@ export class NavBarComponent {
   if (this.authService.isLoggedIn()) {
     this.router.navigate(['/logedin-home/', this.authService.username()]);
   } else {
-    this.router.navigate(['/']);
+    this.router.navigate(['/homepage']);
   }
 
   this.menuOpen = false;
