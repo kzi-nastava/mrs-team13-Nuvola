@@ -44,7 +44,12 @@ export class NavBarComponent {
   }
 
   onAccount(): void {
-    this.router.navigate(['/account-settings/', this.authService.username()]);
+    //this.router.navigate(['/account-settings/', this.authService.username()]);
+    if (this.authService.role() === 'DRIVER') {
+      this.router.navigate(['/driver-account/', this.authService.username()]);
+    } else {
+      this.router.navigate(['/account-settings/', this.authService.username()]);
+    }
     this.menuOpen = false;
   }
 
@@ -69,9 +74,14 @@ export class NavBarComponent {
   if (this.authService.isLoggedIn()) {
     this.router.navigate(['/logedin-home/', this.authService.username()]);
   } else {
-    this.router.navigate(['/']);
+    this.router.navigate(['/homepage']);
   }
 
   this.menuOpen = false;
 }
+
+  onGrade(): void {
+    this.router.navigate(['/grading/', 2]);
+    this.menuOpen = false;
+  }
 }

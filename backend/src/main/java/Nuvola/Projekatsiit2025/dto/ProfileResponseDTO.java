@@ -11,10 +11,6 @@ public class ProfileResponseDTO {
     private String address;
     private String picture;
 
-    // driver-specific
-    private Vehicle vehicle;
-    private String loginTime;
-
     public ProfileResponseDTO() {}
     public Long getId() {
         return id;
@@ -72,19 +68,4 @@ public class ProfileResponseDTO {
         this.picture = picture;
     }
 
-    public String getLoginTime() {
-        return loginTime;
-    }
-
-    public void setLoginTime(String loginTime) {
-        this.loginTime = loginTime;
-    }
-
-    public Vehicle getVehicle() {
-        return vehicle;
-    }
-
-    public void setVehicle(Vehicle vehicle){
-        this.vehicle = vehicle;
-    }
 }

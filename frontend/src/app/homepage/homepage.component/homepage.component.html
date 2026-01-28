@@ -1,0 +1,26 @@
+<main>
+<div class="global-toast" *ngIf="toastMessage">
+  {{ toastMessage }}
+</div>
+
+<div class="page">
+  <button class="order-btn" (click)="togglePanel()">
+    Choose route
+  </button>
+
+  <div class="content">
+    <div class="panel" *ngIf="panelOpen">
+      <app-route-panel
+      (cleared)="onCleared()"
+></app-route-panel>
+
+
+    </div>
+
+    <div class="map" [class.full]="!panelOpen">
+      <app-vehicles-map></app-vehicles-map>
+    </div>
+  </div>
+</div>
+</main>
+

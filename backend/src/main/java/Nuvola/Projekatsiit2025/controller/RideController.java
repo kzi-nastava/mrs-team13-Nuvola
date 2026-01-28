@@ -2,17 +2,24 @@ package Nuvola.Projekatsiit2025.controller;
 import Nuvola.Projekatsiit2025.dto.*;
 
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
+import Nuvola.Projekatsiit2025.services.EmailService;
+import Nuvola.Projekatsiit2025.util.EmailDetails;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/rides")
 public class RideController {
+
+    @Autowired
+    EmailService emailService;
 
     // 2.4.1
     @PostMapping
@@ -43,17 +50,31 @@ public class RideController {
     // 2.6.1
     @PutMapping("/{rideId}/start")
     public ResponseEntity<Void> startRide(@PathVariable Long rideId) {
+
         return ResponseEntity.ok().build();
     }
 
     //2.6.2
-    @GetMapping(value = "/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/now/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable("id") Long id){
         // find that ride
-        TrackingRideDTO ride = new TrackingRideDTO();
+        RouteDTO route = new RouteDTO();
+        route.appendStop(new CoordinateDTO(45.238796, 19.883819));
+        route.appendStop(new CoordinateDTO(45.242685, 19.841950));
+        route.appendStop(new CoordinateDTO(45.249336, 19.830732));
+        route.appendStop(new CoordinateDTO(45.251135, 19.797931));
+        LocalDateTime now = LocalDateTime.now();
+        TrackingRideDTO ride = new TrackingRideDTO(3L, route, 2L, 1203, "A", "B", now, false);
+
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
 
+    @GetMapping(value = "/now/user/{id}/position", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CoordinateDTO> getDriverPosition(@PathVariable("id") Long id){
+        // find that ride
+        CoordinateDTO position = new CoordinateDTO(45.234116, 19.849381);
+        return new ResponseEntity<>(position, HttpStatus.OK);
+    }
 
     // 2.7
     @PutMapping(value="/{rideId}/end", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -93,7 +114,7 @@ public class RideController {
     }
     
     
- // 2.6.5 Stop ride while it's active
+    // 2.6.5 Stop ride while it's active
     @PutMapping(value = "/{rideId}/stop", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CreatedRideDTO> stopRide(@PathVariable Long rideId) {
 

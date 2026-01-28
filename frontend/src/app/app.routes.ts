@@ -4,6 +4,7 @@ import { LoginComponent } from './auth/login.component/login.component';
 import { UsersComponent } from './users/users.component/users.component';
 import { RegisterDriversComponent } from './users/register.drivers.component/register.drivers.component';
 import { AccountComponent } from './layout/account/account.component';
+import { DriverAccountComponent } from './layout/driver.account.component/driver.account.component';
 import { RegisterComponent } from './auth/register.component/register.component';
 import { ForgotPasswordComponent } from './auth/forgot.password.component/forgot.password.component';
 import { ResetPasswordComponent } from './auth/reset.password.component/reset.password.component';
@@ -12,6 +13,10 @@ import { CancelRideComponent } from './rides/cancel-ride.component/cancel-ride.c
 import { AdminPanicComponent } from './panic/admin-panic.component';
 import { DriverRidesComponent } from './rides/driver.rides.component/driver.rides.component';
 import { LogedinPageComponent } from './logedin.homepage/logedin.page.component/logedin.page.component';
+import { HomepageComponent } from './homepage/homepage.component/homepage.component';
+import { RideTrackingComponent } from './rides/ride.tracking.component/ride.tracking.component';
+import { GradingComponent } from './rides/grading.component/grading.component';
+import { ChangePasswordComponent } from './layout/change.password.component/change.password.component';
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
@@ -27,5 +32,11 @@ export const routes: Routes = [
     {path:'admin/panic', component: AdminPanicComponent},
     {path: 'register-driver', component: RegisterDriversComponent },
     {path: 'logedin-home/:username', component: LogedinPageComponent },
+    {path: 'homepage', component: HomepageComponent },
+    {path: 'ride-tracking/:id', component: RideTrackingComponent },
+    {path:'grading/:rideId', component: GradingComponent },
     {path: 'driver-rides/:username', component: DriverRidesComponent },
+    {path: 'activate-account', component: ResetPasswordComponent},
+    {path: 'change-password', component: ChangePasswordComponent },
+    { path: 'driver-account/:username', component: DriverAccountComponent },
 ];
