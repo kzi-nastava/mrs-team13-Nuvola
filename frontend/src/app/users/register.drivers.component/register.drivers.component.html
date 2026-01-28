@@ -49,25 +49,40 @@
           <label>Email Address *</label>
           <input formControlName="email" type="email" placeholder="Enter driver’s email" />
           <div class="error"
-            *ngIf="driverForm.get('email')?.touched && driverForm.get('email')?.invalid">
+            *ngIf="
+              driverForm.get('email')?.touched &&
+              (driverForm.get('email')?.errors?.['required'] ||
+              driverForm.get('email')?.errors?.['email']) &&
+              !driverForm.get('email')?.errors?.['alreadyExists']
+            ">
             Please enter a valid email address
-            </div>
+          </div>
+
+          <div class="error"
+            *ngIf="
+              driverForm.get('email')?.touched &&
+              driverForm.get('email')?.errors?.['alreadyExists']
+            ">
+            This email is already taken.
+          </div>
+
+
         </div>
 
         <div class="field full">
           <label>Phone Number *</label>
-          <input formControlName="phoneNumber" type="text" placeholder="+381 64 556655" />
+          <input formControlName="phone" type="text" placeholder="+381 64 556655" />
           <div class="error"
-            *ngIf="driverForm.get('phoneNumber')?.touched && driverForm.get('phoneNumber')?.invalid">
+            *ngIf="driverForm.get('phone')?.touched && driverForm.get('phone')?.invalid">
             Only numbers, + and space are allowed
             </div>
         </div>
 
         <div class="field full">
           <label>Home Address *</label>
-          <input formControlName="homeAddress" type="text" placeholder="Fruskogorska 37" />
+          <input formControlName="address" type="text" placeholder="Fruskogorska 37" />
           <div class="error"
-            *ngIf="driverForm.get('homeAddress')?.touched && driverForm.get('homeAddress')?.invalid">
+            *ngIf="driverForm.get('address')?.touched && driverForm.get('address')?.invalid">
             First letter should be capitalized, only letters and numbers allowed
             </div>
         </div>
@@ -89,35 +104,50 @@
         <div class="field full">
           <label>Type *</label>
           <select formControlName="type">
-            <option value="Standard">Standard</option>
-            <option value="Luxury">Luxury</option>
-            <option value="Van">Van</option>
+            <option value="STANDARD">Standard</option>
+            <option value="LUXURY">Luxury</option>
+            <option value="VAN">Van</option>
           </select>
         </div>
 
         <div class="field full">
           <label>Registration number *</label>
-          <input formControlName="registrationNumber" type="text" placeholder="BG-123-RV" />
+          <input formControlName="regNumber" type="text" placeholder="BG-123-RV" />
           <div class="error"
-            *ngIf="driverForm.get('registrationNumber')?.touched && driverForm.get('registrationNumber')?.invalid">
+            *ngIf="
+              driverForm.get('regNumber')?.touched &&
+              (driverForm.get('regNumber')?.errors?.['required'] ||
+              driverForm.get('regNumber')?.errors?.['pattern']) &&
+              !driverForm.get('regNumber')?.errors?.['alreadyExists']
+            ">
             All letters should be capitalized, only letters, numbers and - are allowed.
-            </div>
+          </div>
+
+          <div class="error"
+            *ngIf="
+              driverForm.get('regNumber')?.touched &&
+              driverForm.get('regNumber')?.errors?.['alreadyExists']
+            ">
+            This registration number is already in use.
+          </div>
+
+
         </div>
 
         <div class="field full">
           <label>Number of seats *</label>
-          <input class="seats-input" formControlName="seats" type="number" min="4" />
+          <input class="seats-input" formControlName="numOfSeats" type="number" min="4" />
 
         </div>
 
         <div class="checkboxes">
           <label class="checkbox">
-            <input type="checkbox" formControlName="babiesAllowed" />
+            <input type="checkbox" formControlName="babyFriendly" />
             Baby seat
           </label>
 
           <label class="checkbox">
-            <input type="checkbox" formControlName="petsAllowed" />
+            <input type="checkbox" formControlName="petFriendly" />
             Pets allowed 
           </label>
         </div>

@@ -3,7 +3,9 @@ package Nuvola.Projekatsiit2025.controller;
 import Nuvola.Projekatsiit2025.dto.ActiveVehicleDTO;
 import Nuvola.Projekatsiit2025.dto.CreateDriverDTO;
 import Nuvola.Projekatsiit2025.dto.CreatedDriverDTO;
-
+import Nuvola.Projekatsiit2025.model.Driver;
+import Nuvola.Projekatsiit2025.services.DriverService;
+import Nuvola.Projekatsiit2025.dto.ApiErrorResponse;
 import Nuvola.Projekatsiit2025.dto.DriverRideHistoryItemDTO;
 import Nuvola.Projekatsiit2025.repositories.DriverRepository;
 import Nuvola.Projekatsiit2025.services.RideService;
@@ -25,17 +27,22 @@ public class DriverController {
     @Autowired
     private RideService rideService;
 
+    @Autowired
+    private DriverService driverService;
+
     //2.2.3
+    //@PreAuthorize("hasRole('ADMIN')") ovo nakon sto se namesti login kao admin
     @PostMapping
-    public ResponseEntity<CreatedDriverDTO> createDriver(@RequestBody CreateDriverDTO driverDTO) {
+    public ResponseEntity<?> createDriver(@RequestBody CreateDriverDTO dto) {
+        Driver saved = driverService.createDriver(dto);
 
         CreatedDriverDTO response = new CreatedDriverDTO();
-        response.setId(1L);
-        response.setEmail(driverDTO.getEmail());
-        response.setFirstName(driverDTO.getFirstName());
-        response.setLastName(driverDTO.getLastName());
+        response.setId(saved.getId());
+        response.setEmail(saved.getEmail());
+        response.setFirstName(saved.getFirstName());
+        response.setLastName(saved.getLastName());
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // 2.9.2
