@@ -1,13 +1,18 @@
 package Nuvola.Projekatsiit2025.controller;
 import Nuvola.Projekatsiit2025.dto.*;
 
+import Nuvola.Projekatsiit2025.model.Ride;
+import Nuvola.Projekatsiit2025.model.User;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 import Nuvola.Projekatsiit2025.services.EmailService;
+import Nuvola.Projekatsiit2025.services.RideService;
 import Nuvola.Projekatsiit2025.util.EmailDetails;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -21,17 +26,25 @@ public class RideController {
     @Autowired
     EmailService emailService;
 
+    @Autowired
+    private RideService rideService;
+
+
     // 2.4.1
     @PostMapping
-    public ResponseEntity<CreatedRideDTO> createRide(@RequestBody CreateRideDTO dto) {
+    public ResponseEntity<CreatedRideDTO> createRide(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody CreateRideDTO dto) {
+
+        Ride ride = rideService.createRide(user, dto);
 
         CreatedRideDTO response = new CreatedRideDTO();
-        response.setId(1L);
-        response.setStatus(RideStatus.SCHEDULED);
-        response.setPrice(1200.0);
+        response.setId(ride.getId());
+        response.setStatus(ride.getStatus());
+        response.setPrice(ride.getPrice());
         response.setMessage("Ride successfully created");
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // 2.4.3
