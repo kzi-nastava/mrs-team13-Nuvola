@@ -1,20 +1,71 @@
 package Nuvola.Projekatsiit2025.dto;
 
 import Nuvola.Projekatsiit2025.model.enums.VehicleType;
+import jakarta.validation.constraints.*;
 
 public class CreateDriverDTO {
-    // driver
+
+    @NotNull(message = "Email cannot be null")
+    @NotBlank(message = "Email cannot be blank")
+    @Email(message = "Invalid email format")
     private String email;
+
+    @NotNull(message = "First name cannot be null")
+    @NotBlank(message = "First name cannot be blank")
+    @Pattern(
+            regexp = "^[A-ZČĆŠĐŽ][a-zčćšđž]+$",
+            message = "First name must start with a capital letter and contain only letters"
+    )
+    @Size(min = 3, max = 255)
     private String firstName;
+
+    @NotNull(message = "Last name cannot be null")
+    @NotBlank(message = "Last name cannot be blank")
+    @Pattern(
+            regexp = "^[A-ZČĆŠĐŽ][a-zčćšđž]+$",
+            message = "Last name must start with a capital letter and contain only letters"
+    )
+    @Size(min = 3, max = 255)
     private String lastName;
+
+    @NotNull(message = "Phone number cannot be null")
+    @NotBlank(message = "Phone number cannot be blank")
+    @Pattern(regexp = "^[0-9+\\s]+$",  message = "Phone must be of correct pattern")
     private String phone;
+
+    @NotNull(message = "Address cannot be null")
+    @NotBlank(message = "Address cannot be blank")
+    @Pattern(
+            regexp = "^[A-ZČĆŠĐŽ][A-Za-zČĆŠĐŽčćšđž0-9\\s]+$",
+            message = "Address must start with a capital letter and contain only letters, numbers and spaces"
+    )
+    @Size(min = 3, max = 255)
     private String address;
+
     private String picture;
 
     // vehicle
+    @NotNull(message = "Model cannot be null")
+    @NotBlank(message = "Model name cannot be blank")
+    @Pattern(
+            regexp = "^[A-ZČĆŠĐŽ][A-Za-zČĆŠĐŽčćšđž0-9\\s]+$",
+            message = "Model must start with a capital letter and contain only letters, numbers and spaces"
+    )
+
+    @Size(min = 3, max = 255)
     private String model;
+
+    @NotNull
     private VehicleType type;
+
+    @NotNull(message = "Registration number cannot be null")
+    @NotBlank(message = "Registration number cannot be blank")
+    @Pattern(
+            regexp = "^[A-Z]{2}-\\d{3,4}-[A-Z]{2}$",
+            message = "Registration number must be in format NG-123-SV"
+    )
     private String regNumber;
+    @Min(4)
     private int numOfSeats;
     private boolean babyFriendly;
     private boolean petFriendly;

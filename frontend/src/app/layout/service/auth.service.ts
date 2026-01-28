@@ -1,5 +1,7 @@
 import { computed, Injectable, signal, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -7,6 +9,8 @@ import { isPlatformBrowser } from '@angular/common';
 export class AuthService {
   username = signal<string>('');
   hasNotifications = signal<boolean>(false);
+
+  role = signal<'ADMIN' | 'REGISTERED_USER' | 'DRIVER'>('REGISTERED_USER');
 
   private isBrowser: boolean;
 
@@ -30,7 +34,7 @@ export class AuthService {
   } 
 
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private http: HttpClient) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     if (this.isBrowser) {
       const savedUsername = localStorage.getItem('username') || '';
@@ -40,6 +44,28 @@ export class AuthService {
         this.hasNotifications.set(hasNotif);
       }
     }
+  }
+
+    private authApi = 'http://localhost:8080/api/auth';
+    private profileApi = 'http://localhost:8080/api/profile';
+
+    activateAccount(token: string, password: string): Observable<any> {
+      return this.http.post(
+        `${this.authApi}/activate`,
+        null,
+        {
+          params: { token, password }
+        }
+      );
+    }
+    changePassword(data: {
+      currentPassword: string;
+      newPassword: string;
+    }): Observable<void> {
+      return this.http.put<void>(
+        `${this.profileApi}/password`,
+        data
+      );
   }
 
   // // Metoda za login

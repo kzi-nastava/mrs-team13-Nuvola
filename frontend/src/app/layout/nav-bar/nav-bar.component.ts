@@ -44,7 +44,12 @@ export class NavBarComponent {
   }
 
   onAccount(): void {
-    this.router.navigate(['/account-settings/', this.authService.username()]);
+    //this.router.navigate(['/account-settings/', this.authService.username()]);
+    if (this.authService.role() === 'DRIVER') {
+      this.router.navigate(['/driver-account/', this.authService.username()]);
+    } else {
+      this.router.navigate(['/account-settings/', this.authService.username()]);
+    }
     this.menuOpen = false;
   }
 
