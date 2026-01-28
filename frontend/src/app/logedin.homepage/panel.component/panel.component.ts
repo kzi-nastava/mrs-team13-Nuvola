@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged, Subscription, switchMap, of } from 
 import { RideOrderService, VehicleType } from '../services/ride-order.service';
 import { GeocodingService } from '../services/geocoding.service';
 import { LocationModel } from '../models/location.model';
+import { RideApiService } from '../../rides/service/ride-api.service';
 
 @Component({
   selector: 'app-panel',
@@ -38,7 +39,8 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
   constructor(
     private fb: FormBuilder,
     private geocoding: GeocodingService,
-    private rideOrder: RideOrderService
+    private rideOrder: RideOrderService,
+    private rideApi: RideApiService
   ) {
     this.form = this.fb.group({
       from: ['', Validators.required],
@@ -313,21 +315,66 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
     this.openFavorites.emit();
   }
 
+  // orderRide() {
+  //   this.form.get('from')?.markAsTouched();
+  //   this.form.get('to')?.markAsTouched();
+
+  //   const fromValue = this.form.get('from')?.value?.trim();
+  //   const toValue = this.form.get('to')?.value?.trim();
+
+  //   if (!fromValue || !toValue) {
+  //     return; 
+  //   }
+
+  //   this.rideOrdered.emit(
+  //     "Ride request submitted. You'll receive a notification with ride details once a driver is assigned."
+  //   );
+  // }
+
   orderRide() {
-    this.form.get('from')?.markAsTouched();
-    this.form.get('to')?.markAsTouched();
+  this.form.get('from')?.markAsTouched();
+  this.form.get('to')?.markAsTouched();
 
-    const fromValue = this.form.get('from')?.value?.trim();
-    const toValue = this.form.get('to')?.value?.trim();
+  const from = this.rideOrder.getFrom();
+  const to = this.rideOrder.getTo();
 
-    if (!fromValue || !toValue) {
-      return; 
+  if (!from || !to) return;
+
+  const payload = {
+    from: {
+      latitude: from.lat,
+      longitude: from.lng
+    },
+    to: {
+      latitude: to.lat,
+      longitude: to.lng
+    },
+    stops: this.rideOrder.getStops().map(s => ({
+      latitude: s.lat,
+      longitude: s.lng
+    })),
+    passengerEmails: this.passengers,
+    vehicleType: this.form.value.vehicleType.toUpperCase(),
+    babyTransport: this.form.value.babySeat,
+    petTransport: this.form.value.petFriendly,
+    scheduledTime:
+      this.form.value.rideTimeMode === 'scheduled'
+        ? this.form.value.scheduledTime
+        : null
+  };
+
+  this.rideApi.createRide(payload).subscribe({
+    next: (res) => {
+      this.rideOrdered.emit('Ride successfully created!');
+      console.log('Ride created:', res);
+    },
+    error: (err) => {
+      console.error(err);
+      this.rideOrdered.emit('No available drivers at the moment.');
     }
+  });
+}
 
-    this.rideOrdered.emit(
-      "Ride request submitted. You'll receive a notification with ride details once a driver is assigned."
-    );
-  }
 
 
   clearAll() {
