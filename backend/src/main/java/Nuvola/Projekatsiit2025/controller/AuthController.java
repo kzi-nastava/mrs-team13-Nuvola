@@ -1,16 +1,17 @@
 package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.*;
-import Nuvola.Projekatsiit2025.model.ActivationToken;
 import Nuvola.Projekatsiit2025.model.User;
 import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
-import Nuvola.Projekatsiit2025.repositories.ActivationTokenRepository;
 import Nuvola.Projekatsiit2025.repositories.UserRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import Nuvola.Projekatsiit2025.util.TokenUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,32 +21,59 @@ import java.time.LocalDateTime;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired
-    private ActivationTokenRepository activationTokenRepository;
+    private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
+    private final TokenUtils tokenUtils;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public AuthController(AuthenticationManager authenticationManager,
+                          UserDetailsService userDetailsService,
+                          TokenUtils tokenUtils,
+                          UserRepository userRepository) {
+        this.authenticationManager = authenticationManager;
+        this.userDetailsService = userDetailsService;
+        this.tokenUtils = tokenUtils;
+        this.userRepository = userRepository;
+    }
 
-    @Autowired
-    private UserRepository userRepository;
-
-    // 2.2.1 Login (email + password)
+    // 2.2.1 Login (email + password) - REAL
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO dto) {
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO dto) {
 
-        // if driver has "driver" in email, we know that user is driver
-        boolean isDriver = dto.getEmail() != null && dto.getEmail().toLowerCase().contains("driver");
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
+            );
+        } catch (AuthenticationException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("{\"message\":\"Invalid email or password\"}");
+        }
 
+        // 1️⃣ Učitaj User iz baze
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 2️⃣ Generiši JWT (OVO JE KLJUČNO)
+        String token = tokenUtils.generateToken(user);
+
+        // 3️⃣ Izvuci rolu iz authorities
+        String role = user.getAuthorities()
+                .stream()
+                .findFirst()
+                .map(a -> a.getAuthority())
+                .orElse("ROLE_USER")
+                .replace("ROLE_", "");
+
+        // 4️⃣ Response
         LoginResponseDTO response = new LoginResponseDTO();
-        response.setId(1L);
-        response.setEmail(dto.getEmail());
-        response.setFirstName("Test");
-        response.setLastName(isDriver ? "Driver" : "User");
-        response.setToken("fake-token-123");
-        response.setUserType(isDriver ? "DRIVER" : "USER");
+        response.setId(user.getId());
+        response.setEmail(user.getEmail());
+        response.setFirstName(user.getFirstName());
+        response.setLastName(user.getLastName());
+        response.setToken(token);
+        response.setUserType(role);
 
-        if (isDriver) {
-            // when driver do login he is gonna be active in system
+        if ("DRIVER".equals(role)) {
             response.setDriverStatus(DriverStatus.ACTIVE);
             response.setMessage("Driver logged in and is now ACTIVE.");
         } else {
@@ -53,20 +81,9 @@ public class AuthController {
             response.setMessage("User logged in.");
         }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
-    // 2.2.1 Logout
-    // driver can't logout if he has active ride
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(
-            @RequestParam(defaultValue = "false") boolean hasActiveRide
-    ) {
-        if (hasActiveRide) {
-            return new ResponseEntity<>("Driver cannot logout while having an active ride.", HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>("Logout successful.", HttpStatus.OK);
-    }
 
     // 2.2.1 Forgot password (email sent)
     @PostMapping("/forgot-password")
