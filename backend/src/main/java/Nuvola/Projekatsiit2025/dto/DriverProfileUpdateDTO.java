@@ -1,12 +1,9 @@
 package Nuvola.Projekatsiit2025.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.Email;
+import Nuvola.Projekatsiit2025.model.enums.VehicleType;
+import jakarta.validation.constraints.*;
 
-public class UpdateProfileDTO {
+public class DriverProfileUpdateDTO {
 
     @NotNull(message = "First name cannot be null")
     @NotBlank(message = "First name cannot be blank")
@@ -42,8 +39,25 @@ public class UpdateProfileDTO {
 
     private String picture;
 
+    // vehicle
+    @NotNull(message = "Model cannot be null")
+    @NotBlank(message = "Model name cannot be blank")
+    @Pattern(
+            regexp = "^[A-ZČĆŠĐŽ][A-Za-zČĆŠĐŽčćšđž0-9\\s]+$",
+            message = "Model must start with a capital letter and contain only letters, numbers and spaces"
+    )
 
-    public UpdateProfileDTO() {}
+    @Size(min = 3, max = 255)
+    private String model;
+
+    @NotNull
+    private VehicleType type;
+
+    @Min(4)
+    private int numOfSeats;
+
+    private boolean babyFriendly;
+    private boolean petFriendly;
 
     public String getFirstName() {
         return firstName;
@@ -61,20 +75,20 @@ public class UpdateProfileDTO {
         this.lastName = lastName;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public String getPhone() {
         return phone;
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getPicture() {
@@ -85,4 +99,43 @@ public class UpdateProfileDTO {
         this.picture = picture;
     }
 
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public VehicleType getType() {
+        return type;
+    }
+
+    public void setType(VehicleType type) {
+        this.type = type;
+    }
+
+    public int getNumOfSeats() {
+        return numOfSeats;
+    }
+
+    public void setNumOfSeats(int numOfSeats) {
+        this.numOfSeats = numOfSeats;
+    }
+
+    public boolean isBabyFriendly() {
+        return babyFriendly;
+    }
+
+    public void setBabyFriendly(boolean babyFriendly) {
+        this.babyFriendly = babyFriendly;
+    }
+
+    public boolean isPetFriendly() {
+        return petFriendly;
+    }
+
+    public void setPetFriendly(boolean petFriendly) {
+        this.petFriendly = petFriendly;
+    }
 }
