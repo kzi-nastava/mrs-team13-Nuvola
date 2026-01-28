@@ -1,5 +1,7 @@
 <div class="app-background">
-  <main class="auth-wrapper">
+  <main class="planner-wrapper">
+
+    <!-- LEVO: forma -->
     <section class="auth-card">
 
       <div class="titles">
@@ -50,8 +52,20 @@
         </div>
 
         <button class="primary-btn" type="submit">Find Route</button>
+
+        <!-- rezultat -->
+        <div class="result" *ngIf="estimatedMinutes !== null">
+          Estimated time: <b>{{ estimatedMinutes }} min</b>
+        </div>
+
       </form>
 
     </section>
+
+    <!-- DESNO: mapa -->
+    <section class="map-card">
+      <app-map (routeEstimated)="onRouteEstimated($event)"></app-map>
+    </section>
+
   </main>
 </div>
