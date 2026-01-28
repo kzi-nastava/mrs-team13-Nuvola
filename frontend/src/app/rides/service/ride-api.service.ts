@@ -14,8 +14,14 @@ export class RideApiService {
   private http = inject(HttpClient);
   private baseUrl = '/api/rides';
 
+  private apiUrl = 'http://localhost:8080/api/rides';
+
+  createRide(payload: any): Observable<CreatedRideDTO> {
+    return this.http.post<CreatedRideDTO>(this.baseUrl, payload);
+  }
   
   stopRide(rideId: number): Observable<CreatedRideDTO> {
     return this.http.put<CreatedRideDTO>(`${this.baseUrl}/${rideId}/stop`, {});
   }
+
 }
