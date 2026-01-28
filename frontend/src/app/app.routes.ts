@@ -10,7 +10,7 @@ import { ResetPasswordComponent } from './auth/reset.password.component/reset.pa
 import { EstimateFormComponent } from './rides/estimate.form.component/estimate.form.component';
 import { CancelRideComponent } from './rides/cancel-ride.component/cancel-ride.component';
 import { AdminPanicComponent } from './panic/admin-panic.component';
-
+import { DriverRidesComponent } from './rides/driver.rides.component/driver.rides.component';
 import { LogedinPageComponent } from './logedin.homepage/logedin.page.component/logedin.page.component';
 import { HomepageComponent } from './homepage/homepage.component/homepage.component';
 import { RideTrackingComponent } from './rides/ride.tracking.component/ride.tracking.component';
@@ -32,5 +32,7 @@ export const routes: Routes = [
     {path: 'logedin-home/:username', component: LogedinPageComponent },
     {path: 'homepage', component: HomepageComponent },
     {path: 'ride-tracking/:id', component: RideTrackingComponent },
-    {path:'grading/:rideId', component: GradingComponent }
+    {path:'grading/:rideId', component: GradingComponent },
+    {path: 'driver-rides/:username', component: DriverRidesComponent },
+    {path: 'activate-account', component: ResetPasswordComponent},
 ];

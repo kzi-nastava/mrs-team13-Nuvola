@@ -31,6 +31,12 @@ export class NavBarComponent {
     this.router.navigate(['/users/', this.authService.username()]);
     this.menuOpen = false;
   }
+  
+  onMyRides(): void {
+    this.router.navigate(['/driver-rides/', this.authService.username()]);
+    this.menuOpen = false;
+  }
+
 
   onRideHistory(): void {
     this.router.navigate(['/ride-history/', this.authService.username()]);

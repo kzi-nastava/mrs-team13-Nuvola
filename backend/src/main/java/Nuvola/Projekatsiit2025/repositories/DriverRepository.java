@@ -11,7 +11,6 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
     @Query("SELECT d FROM Driver d WHERE d.status = 'ACTIVE' AND d.vehicle IS NOT NULL")
     List<Driver> findActiveDriversWithVehicle();
 
-
-
     Optional<Driver> findByVehicleId(Long vehicleId);
+    boolean existsByEmail(String email);
 }

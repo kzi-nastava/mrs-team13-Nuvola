@@ -9,6 +9,7 @@ public class CreateDriverDTO {
     private String lastName;
     private String phone;
     private String address;
+    private String picture;
 
     // vehicle
     private String model;
@@ -59,6 +60,14 @@ public class CreateDriverDTO {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 
     public String getModel() {

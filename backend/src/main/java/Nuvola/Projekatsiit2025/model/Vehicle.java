@@ -16,6 +16,7 @@ public class Vehicle {
     @Enumerated(EnumType.STRING)
     private VehicleType type;
 
+    @Column(unique = true, nullable = false)
     private String regNumber;
 
     private int numOfSeats;

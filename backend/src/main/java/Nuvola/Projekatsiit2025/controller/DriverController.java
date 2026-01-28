@@ -1,7 +1,9 @@
 package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.*;
-
+import Nuvola.Projekatsiit2025.model.Driver;
+import Nuvola.Projekatsiit2025.services.DriverService;
+import Nuvola.Projekatsiit2025.repositories.DriverRepository;
 import Nuvola.Projekatsiit2025.services.RideService;
 import Nuvola.Projekatsiit2025.services.VehicleTrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +26,22 @@ public class DriverController {
     @Autowired
     private VehicleTrackingService vehicleTrackingService;
 
+    @Autowired
+    private DriverService driverService;
+
     //2.2.3
+    //@PreAuthorize("hasRole('ADMIN')") ovo nakon sto se namesti login kao admin
     @PostMapping
-    public ResponseEntity<CreatedDriverDTO> createDriver(@RequestBody CreateDriverDTO driverDTO) {
+    public ResponseEntity<?> createDriver(@RequestBody CreateDriverDTO dto) {
+        Driver saved = driverService.createDriver(dto);
 
         CreatedDriverDTO response = new CreatedDriverDTO();
-        response.setId(1L);
-        response.setEmail(driverDTO.getEmail());
-        response.setFirstName(driverDTO.getFirstName());
-        response.setLastName(driverDTO.getLastName());
+        response.setId(saved.getId());
+        response.setEmail(saved.getEmail());
+        response.setFirstName(saved.getFirstName());
+        response.setLastName(saved.getLastName());
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // 2.9.2

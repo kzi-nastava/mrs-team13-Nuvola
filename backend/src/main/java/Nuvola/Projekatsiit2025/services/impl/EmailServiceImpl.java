@@ -2,6 +2,7 @@ package Nuvola.Projekatsiit2025.services.impl;
 
 import Nuvola.Projekatsiit2025.services.EmailService;
 import Nuvola.Projekatsiit2025.util.EmailDetails;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,8 @@ public class EmailServiceImpl implements EmailService {
 
         // Catch block to handle the exceptions
         catch (Exception e) {
-            return "Error while Sending Mail";
+            e.printStackTrace();
+            throw e;
         }
     }
 
