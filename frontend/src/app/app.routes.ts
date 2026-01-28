@@ -28,4 +28,5 @@ export const routes: Routes = [
     {path: 'register-driver', component: RegisterDriversComponent },
     {path: 'logedin-home/:username', component: LogedinPageComponent },
     {path: 'driver-rides/:username', component: DriverRidesComponent },
+    {path: 'activate-account', component: ResetPasswordComponent},
 ];
