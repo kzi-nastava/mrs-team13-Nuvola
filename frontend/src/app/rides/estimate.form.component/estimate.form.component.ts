@@ -1,31 +1,21 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-
-import { GeocodingService } from '../../logedin.homepage/services/geocoding.service';
-import { RideOrderService } from '../../logedin.homepage/services/ride-order.service';
-import { LocationModel } from '../../logedin.homepage/models/location.model';
-import { MapComponent } from '../../logedin.homepage/map.component/map.component';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-estimate-form',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MapComponent],
+  selector: 'app-estimate.form.component',
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './estimate.form.component.html',
-  styleUrls: ['./estimate.form.component.css'],
+  styleUrl: './estimate.form.component.css',
 })
 export class EstimateFormComponent {
-  estimatedMinutes: number | null = null;
-
   form = new FormGroup({
     pickup: new FormControl('', [Validators.required, Validators.minLength(3)]),
     destination: new FormControl('', [Validators.required, Validators.minLength(3)]),
   });
 
-  constructor(
-    private geocoding: GeocodingService,
-    private rideOrder: RideOrderService
-  ) {}
+  constructor(private router: Router) {}
 
   get pickup() {
     return this.form.controls.pickup;
@@ -35,35 +25,18 @@ export class EstimateFormComponent {
     return this.form.controls.destination;
   }
 
-  // prima iz MapComponent: (routeEstimated)="onRouteEstimated($event)"
-  onRouteEstimated(minutes: number) {
-    this.estimatedMinutes = minutes;
-  }
-
   submit() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    // resetuj prikaz dok racuna
-    this.estimatedMinutes = null;
+    const pickup = this.pickup.value!.trim();
+    const destination = this.destination.value!.trim();
 
-    const pickupText = this.pickup.value!.trim();
-    const destinationText = this.destination.value!.trim();
-
-    // 1) From
-    this.geocoding.search(pickupText + ' Novi Sad').subscribe((res: LocationModel[]) => {
-      if (res.length > 0) {
-        this.rideOrder.setFrom(res[0]);
-      }
-    });
-
-    // 2) To
-    this.geocoding.search(destinationText + ' Novi Sad').subscribe((res: LocationModel[]) => {
-      if (res.length > 0) {
-        this.rideOrder.setTo(res[0]);
-      }
+    this.router.navigate(['/estimate/result'], {
+      queryParams: { pickup, destination }
     });
   }
+
 }

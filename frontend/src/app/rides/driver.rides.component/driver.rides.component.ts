@@ -1,10 +1,5 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { StopRideComponent, StopRideResult } from '../stop-ride.component/stop-ride.component';
-import { CancelRideComponent } from '../cancel-ride.component/cancel-ride.component';
-
-
 
 
 type RideStatus = 'UPCOMING' | 'IN_PROGRESS' | 'FINISHED' | 'CANCELLED';
@@ -24,19 +19,11 @@ type DriverRide = {
   allPassengersJoined: boolean; 
   status: RideStatus;
   price: number;
-  cancelReason?: string;
-
-  stoppedAt?: string;
-  stoppedLat?: number;
-  stoppedLng?: number;
-  stoppedAddress?: string;
-
 };
 
 @Component({
   selector: 'app-driver.rides.component',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CancelRideComponent, StopRideComponent],
+  imports: [CommonModule],
   templateUrl: './driver.rides.component.html',
   styleUrl: './driver.rides.component.css',
 })
@@ -80,20 +67,6 @@ export class DriverRidesComponent {
     },
   ];
 
-  showCancelModal = false;
-  cancelRideTarget: DriverRide | null = null;
-
-  showStopModal = false;
-  stopRideTarget: DriverRide | null = null;
-
-  cancelForm = new FormGroup({
-    reason: new FormControl('', [Validators.required, Validators.minLength(5)]),
-  });
-
-  get reason() {
-    return this.cancelForm.controls.reason;
-  }
-
   getRandomPrice() {
     return Math.floor(Math.random() * (2000 - 500 + 1)) + 500;
   }
@@ -121,41 +94,13 @@ export class DriverRidesComponent {
     ride.status = 'IN_PROGRESS';
   }
 
-  openCancelModal(ride: DriverRide) {
-    console.log('OPEN MODAL FOR', ride.id);
-    if (ride.allPassengersJoined) return;
-    this.cancelRideTarget = ride;
-    this.cancelForm.reset({ reason: '' });
-    this.showCancelModal = true;
-  }
-  closeCancelModal() {
-    this.showCancelModal = false;
-    this.cancelRideTarget = null;
-    this.cancelForm.reset({ reason: '' });
-  }
-
   cancelRide(ride: DriverRide) {
     if (ride.allPassengersJoined) return;
     ride.status = 'CANCELLED';
   }
 
-  confirmCancel() {
-    if (!this.cancelRideTarget) return;
-
-    if (this.cancelForm.invalid) {
-      this.cancelForm.markAllAsTouched();
-      return;
-    }
-
-    const reason = this.reason.value!.trim();
-    this.cancelRideTarget.status = 'CANCELLED';
-    this.cancelRideTarget.cancelReason = reason;
-
-    this.closeCancelModal();
-  }
-
   stopRide(ride: DriverRide) {
-    this.openStopModal(ride);
+    alert('Ride paused/stopped (UI only).');
   }
 
   finishRide(ride: DriverRide) {
@@ -165,37 +110,4 @@ export class DriverRidesComponent {
   panic(ride: DriverRide) {
     alert('PANIC triggered! (UI only)');
   }
-
-  openStopModal(ride: DriverRide) {
-    // stop samo za active ride
-    if (ride.status !== 'IN_PROGRESS') return;
-    this.stopRideTarget = ride;
-    this.showStopModal = true;
-  }
-  closeStopModal() {
-    this.showStopModal = false;
-    this.stopRideTarget = null;
-  }
-
-  onStopConfirmed(result: StopRideResult) {
-    if (!this.stopRideTarget) return;
-
-    // 1) snimi stop meta
-    this.stopRideTarget.stoppedAt = result.stoppedAtIso;
-    this.stopRideTarget.stoppedLat = result.lat;
-    this.stopRideTarget.stoppedLng = result.lng;
-    this.stopRideTarget.stoppedAddress = result.stopAddress;
-
-    // 2) promeni destination
-    this.stopRideTarget.to.address = result.stopAddress;
-
-    // 3) nova cena
-    this.stopRideTarget.price = result.newPrice;
-
-    // 4) završi vožnju
-    this.stopRideTarget.status = 'FINISHED';
-
-    this.closeStopModal();
-  }
-  
 }

@@ -60,6 +60,16 @@
   opacity: 0.7;
 }
 
+.icon-btn.right {
+  position: absolute;
+  right: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.75;
+}
+
 .primary-btn {
   height: 42px;
   border-radius: 8px;
@@ -76,73 +86,40 @@
   color: #b91c1c;
 }
 
-/* ---------- background ---------- */
+.success {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #047857;
+  text-align: center;
+}
+
+
+
 
 .app-background {
   min-height: 100vh;
   background: #e7e7e7;
 }
 
-/* ---------- NOVO: layout levo + mapa ---------- */
-
-.planner-wrapper{
-  padding: 70px 24px;
+.app-header {
+  height: 74px;
+  background: linear-gradient(90deg, #0b1023, #12193a);
   display: flex;
-  gap: 24px;
+  align-items: center;
   justify-content: center;
-  align-items: stretch;
 }
 
-/* leva kartica */
+.auth-wrapper {
+  padding: 70px 16px;
+  display: flex;
+  justify-content: center;
+}
+
 .auth-card {
-  width: 420px;
+  width: 100%;
+  max-width: 420px;
   background: #fff;
   border-radius: 12px;
   padding: 30px 34px;
   box-shadow: 0 10px 26px rgba(0,0,0,0.10);
-}
-
-/* desno mapa */
-.map-card{
-  flex: 1;
-  min-width: 520px;
-  height: 640px;              /* ⭐ OBAVEZNO za Leaflet */
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.10);
-  overflow: hidden;
-}
-
-/* ---------- rezultat (procenjeno vreme) ---------- */
-
-.result{
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 8px;
-  background: #f8fafc;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: #111827;
-  border: 1px solid #e5e7eb;
-}
-
-/* ---------- responsive ---------- */
-
-@media (max-width: 1100px) {
-  .planner-wrapper{
-    flex-direction: column;
-    padding: 40px 16px;
-  }
-
-  .auth-card{
-    width: 100%;
-    max-width: 520px;
-    margin: 0 auto;
-  }
-
-  .map-card{
-    min-width: 100%;
-    height: 420px;
-  }
 }
