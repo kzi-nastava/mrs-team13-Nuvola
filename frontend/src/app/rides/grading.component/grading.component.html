@@ -1,0 +1,56 @@
+<main class="page">
+  <div class="card">
+    <h2 class="title">Ride rating</h2>
+    <p class="subtitle">Ratings are from 1 to 5. Ride and driver are required.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+      <div class="field">
+        <label class="label" for="vehicleRating">Vehicle rating *</label>
+        <select id="vehicleRating" class="select" formControlName="vehicleRating">
+          <option [ngValue]="null" disabled>Choose a rating</option>
+          <option *ngFor="let r of [1,2,3,4,5]" [ngValue]="r">{{ r }}</option>
+        </select>
+
+        <div class="hint error" *ngIf="hasError('vehicleRating','required')">
+          Vehicle rating is required.
+        </div>
+        <div class="hint error" *ngIf="hasError('vehicleRating','min') || hasError('vehicleRating','max')">
+          Rating must be 1–5.
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="driverRating">Driver rating *</label>
+        <select id="driverRating" class="select" formControlName="driverRating">
+          <option [ngValue]="null" disabled>Choose a rating</option>
+          <option *ngFor="let r of [1,2,3,4,5]" [ngValue]="r">{{ r }}</option>
+        </select>
+
+        <div class="hint error" *ngIf="hasError('driverRating','required')">
+          Driver rating is required.
+        </div>
+        <div class="hint error" *ngIf="hasError('driverRating','min') || hasError('driverRating','max')">
+          Rating must be 1–5.
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="comment">Comment (optional)</label>
+        <textarea
+          id="comment"
+          class="textarea"
+          rows="4"
+          formControlName="comment"
+          placeholder="Write a comment if you want..."
+        ></textarea>
+      </div>
+
+      <p class="msg error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="msg ok" *ngIf="successMessage">{{ successMessage }}</p>
+
+      <button class="btn primary" type="submit" [disabled]="isSending">
+        {{ isSending ? 'Sending...' : 'Submit rating' }}
+      </button>
+    </form>
+  </div>
+</main>

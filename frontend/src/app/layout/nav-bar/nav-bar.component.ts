@@ -68,4 +68,9 @@ export class NavBarComponent {
 
   this.menuOpen = false;
 }
+
+  onGrade(): void {
+    this.router.navigate(['/grading/', 2]);
+    this.menuOpen = false;
+  }
 }
