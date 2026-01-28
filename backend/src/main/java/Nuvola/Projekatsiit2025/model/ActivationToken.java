@@ -1,4 +1,39 @@
 package Nuvola.Projekatsiit2025.model;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.time.LocalDateTime;
+
+@Entity
 public class ActivationToken {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String token;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    private LocalDateTime expiresAt;
+
+    private boolean used = false;
+
+    // GETTERS & SETTERS
+    public Long getId() { return id; }
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+
+    public LocalDateTime getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(LocalDateTime expiresAt) { this.expiresAt = expiresAt; }
+
+    public boolean isUsed() { return used; }
+    public void setUsed(boolean used) { this.used = used; }
 }
