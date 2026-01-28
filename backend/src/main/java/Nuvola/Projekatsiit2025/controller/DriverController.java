@@ -2,18 +2,22 @@ package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.*;
 import Nuvola.Projekatsiit2025.model.Driver;
+import Nuvola.Projekatsiit2025.model.Location;
 import Nuvola.Projekatsiit2025.services.DriverService;
 import Nuvola.Projekatsiit2025.repositories.DriverRepository;
 import Nuvola.Projekatsiit2025.services.RideService;
 import Nuvola.Projekatsiit2025.services.VehicleTrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +49,7 @@ public class DriverController {
     }
 
     // 2.9.2
-    @PreAuthorize("hasRole('DRIVER')")
+    //@PreAuthorize("hasRole('DRIVER')")
     @GetMapping(value = "/{driverId}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<DriverRideHistoryItemDTO>> getDriverRideHistory(
             @PathVariable Long driverId,
@@ -54,10 +58,82 @@ public class DriverController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
 
-        Page<DriverRideHistoryItemDTO> rides = rideService.getDriverRideHistory(
-                driverId, sortBy, sortOrder, page, size
+        // TEMPORARY: Mock data for testing when database is empty
+        List<DriverRideHistoryItemDTO> mockRides = createMockRides();
+
+        // Sort mock data
+        if (sortOrder.equalsIgnoreCase("desc")) {
+            mockRides.sort((a, b) -> b.getStartingTime().compareTo(a.getStartingTime()));
+        } else {
+            mockRides.sort((a, b) -> a.getStartingTime().compareTo(b.getStartingTime()));
+        }
+
+        // Create page from mock data
+        int pageNumber = (page != null) ? page : 0;
+        int pageSize = (size != null) ? size : mockRides.size();
+
+        Page<DriverRideHistoryItemDTO> mockPage = new PageImpl<>(
+                mockRides,
+                PageRequest.of(pageNumber, pageSize),
+                mockRides.size()
         );
-        return ResponseEntity.ok(rides);
+
+        return ResponseEntity.ok(mockPage);
+
+        // TODO: Uncomment this when database has real data
+        // Page<DriverRideHistoryItemDTO> rides = rideService.getDriverRideHistory(
+        //         driverId, sortBy, sortOrder, page, size
+        // );
+        // return ResponseEntity.ok(rides);
+
+    }
+
+    private List<DriverRideHistoryItemDTO> createMockRides() {
+        List<DriverRideHistoryItemDTO> rides = new ArrayList<>();
+
+        // Ride 1: Novi Sad centar -> Petrovaradin tvrđava
+        DriverRideHistoryItemDTO ride1 = new DriverRideHistoryItemDTO();
+        ride1.setId(1L);
+        ride1.setPrice(450.0);
+
+        Location pickup1 = new Location();
+        pickup1.setLatitude(45.2671);  // Trg Slobode, Novi Sad
+        pickup1.setLongitude(19.8335);
+        ride1.setPickup(pickup1);
+
+        Location dropoff1 = new Location();
+        dropoff1.setLatitude(45.2517);  // Petrovaradinska tvrđava
+        dropoff1.setLongitude(19.8659);
+        ride1.setDropoff(dropoff1);
+
+        ride1.setStartingTime(LocalDateTime.of(2026, 1, 25, 10, 30));
+        ride1.setDriver("Marko Marković");
+        ride1.setFavouriteRoute(true);
+
+        rides.add(ride1);
+
+        // Ride 2: Novi Sad železnička stanica -> Futoški park
+        DriverRideHistoryItemDTO ride2 = new DriverRideHistoryItemDTO();
+        ride2.setId(2L);
+        ride2.setPrice(320.0);
+
+        Location pickup2 = new Location();
+        pickup2.setLatitude(45.2559);  // Železnička stanica
+        pickup2.setLongitude(19.8404);
+        ride2.setPickup(pickup2);
+
+        Location dropoff2 = new Location();
+        dropoff2.setLatitude(45.2396);  // Futoški park
+        dropoff2.setLongitude(19.8227);
+        ride2.setDropoff(dropoff2);
+
+        ride2.setStartingTime(LocalDateTime.of(2026, 1, 27, 15, 45));
+        ride2.setDriver("Ana Anić");
+        ride2.setFavouriteRoute(false);
+
+        rides.add(ride2);
+
+        return rides;
     }
 
     // 2.1.1

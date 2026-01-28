@@ -14,7 +14,6 @@ interface RatingRequestDTO {
   vehicleRating: number;    // 1-5
   driverRating: number;
   comment: string;
-  id: number | null;
   rideId: number | null;
   username: string;
 
@@ -80,14 +79,12 @@ export class GradingComponent implements OnInit {
       vehicleRating: Number(this.form.value.vehicleRating),
       driverRating: Number(this.form.value.driverRating),
       comment: (this.form.value.comment ?? '').trim(),
-      id: null,
       rideId: this.rideId,
       username: username,
     };
 
     this.isSending = true;
 
-    // TODO: zameni endpoint svojim
     this.http.post('http://localhost:8080/api/reviews', payload).subscribe({
       next: () => {
         this.isSending = false;
@@ -104,13 +101,13 @@ export class GradingComponent implements OnInit {
           null;
 
         if (err.status === 0) {
-          this.errorMessage = 'Ne mogu da se povežem sa serverom (network/CORS).';
+          this.errorMessage = 'Canrt connect to server (network/CORS).';
         } else if (err.status === 400) {
-          this.errorMessage = backendMsg ?? 'Neispravan unos.';
+          this.errorMessage = backendMsg ?? 'Bad request.';
         } else if (err.status === 401 || err.status === 403) {
-          this.errorMessage = 'Nemaš dozvolu da pošalješ ocenu.';
+          this.errorMessage = 'You do not have permission to send a review.';
         } else {
-          this.errorMessage = backendMsg ?? 'Greška pri slanju ocene. Pokušaj ponovo.';
+          this.errorMessage = backendMsg ?? 'Error sending review. Please try again.';
         }
       },
     });

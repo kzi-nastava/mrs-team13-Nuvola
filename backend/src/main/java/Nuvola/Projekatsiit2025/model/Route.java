@@ -16,7 +16,7 @@ public class Route {
 
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "title", column = @Column(name = "pickup_title")),
+           // @AttributeOverride(name = "title", column = @Column(name = "pickup_title")),
             @AttributeOverride(name = "latitude", column = @Column(name = "pickup_latitude")),
             @AttributeOverride(name = "longitude", column = @Column(name = "pickup_longitude"))
     })
@@ -24,7 +24,7 @@ public class Route {
 
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "title", column = @Column(name = "dropoff_title")),
+           // @AttributeOverride(name = "title", column = @Column(name = "dropoff_title")),
             @AttributeOverride(name = "latitude", column = @Column(name = "dropoff_latitude")),
             @AttributeOverride(name = "longitude", column = @Column(name = "dropoff_longitude"))
     })

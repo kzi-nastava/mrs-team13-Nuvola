@@ -50,7 +50,7 @@ public class Ride {
     private Driver driver;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id", nullable = false)
+    @JoinColumn(name = "creator_id")
     private RegisteredUser creator;
 
     @OneToMany(mappedBy = "ride", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -74,6 +74,7 @@ public class Ride {
         this.creationTime = creationTime;
         this.isPanic = isPanic;
     }
+
 
 
 }

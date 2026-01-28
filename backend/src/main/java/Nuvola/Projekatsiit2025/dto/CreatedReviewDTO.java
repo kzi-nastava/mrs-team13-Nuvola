@@ -11,7 +11,7 @@ public class CreatedReviewDTO {
     private int vehicleRating;
     private String comment;
     private Long rideId;
-    private Long username;
+    private String username;
 
 
 }
