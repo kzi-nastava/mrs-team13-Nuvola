@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface RideService {
     public Page<DriverRideHistoryItemDTO> getDriverRideHistory(Long driverId, String sortBy, String sortOrder, Integer page, Integer size);
-
+    public void startRide(Long rideId);
 
 }

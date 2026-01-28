@@ -50,6 +50,7 @@ public class RideController {
     // 2.6.1
     @PutMapping("/{rideId}/start")
     public ResponseEntity<Void> startRide(@PathVariable Long rideId) {
+
         return ResponseEntity.ok().build();
     }
 
