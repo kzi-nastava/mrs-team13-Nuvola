@@ -16,22 +16,18 @@ import java.util.Date;
 @Component
 public class TokenUtils {
     // Token issuer
-    //@Value("spring-security-example")
-    @Value("${jwt.app-name:nuvola}")
+    @Value("spring-security-example")
     private String APP_NAME;
 
-    //@Value("somesecret")
-    @Value("${jwt.secret}")
+    @Value("somesecret")
     public String SECRET;
 
     // Period vazenja tokena - 30 minuta
-    //@Value("1800000")
-    @Value("${jwt.expires-in:1800000}")
+    @Value("1800000")
     private int EXPIRES_IN;
 
     // Naziv headera kroz koji ce se prosledjivati JWT u komunikaciji server-klijent
-    //@Value("Authorization")
-    @Value("${jwt.auth-header:Authorization}")
+    @Value("Authorization")
     private String AUTH_HEADER;
 
     private static final String AUDIENCE_WEB = "web";

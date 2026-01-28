@@ -1,0 +1,3 @@
+.stop { padding: 10px 14px; border-radius: 12px; border: 1px solid #222; font-weight: 800; cursor: pointer; }
+.err { margin-top: 10px; font-size: 13px; opacity: .85; }
+.info, .result { margin-top: 12px; padding: 10px; border: 1px solid #ddd; border-radius: 12px; }

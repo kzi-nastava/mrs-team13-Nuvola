@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, Output, EventEmitter  } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RideOrderService, VehicleType } from '../services/ride-order.service';
 import { GeocodingService } from '../services/geocoding.service';
@@ -13,8 +13,6 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./map.component.css'],
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
-  @Output() routeEstimated = new EventEmitter<number>();
-
   private subs = new Subscription();
   private map: any;
   private L: any;
@@ -238,10 +236,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
       this.etaText = `Estimated time: ${minutes} min · Distance: ${km} km · Price: ${this.priceRsd} RSD`;
       this.cdr.detectChanges();
-
-      this.routeEstimated.emit(minutes);
-
-
     });
   }
 

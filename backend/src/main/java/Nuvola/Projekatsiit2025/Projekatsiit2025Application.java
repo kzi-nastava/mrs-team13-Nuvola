@@ -11,4 +11,5 @@ public class Projekatsiit2025Application {
 	public static void main(String[] args) {
 		SpringApplication.run(Projekatsiit2025Application.class, args);
 	}
+
 }

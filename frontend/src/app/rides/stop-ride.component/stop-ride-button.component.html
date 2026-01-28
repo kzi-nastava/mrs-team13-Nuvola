@@ -1,0 +1,16 @@
+<button class="stop" (click)="stopRide()" [disabled]="loading()">
+  {{ loading() ? 'STOPPING...' : 'STOP RIDE' }}
+</button>
+
+<p class="err" *ngIf="error()">{{ error() }}</p>
+
+<div class="info" *ngIf="lastStopInfo() as s">
+  <div><b>Stop time:</b> {{ s.time }}</div>
+  <div><b>Location:</b> {{ s.lat }}, {{ s.lng }}</div>
+</div>
+
+<div class="result" *ngIf="response() as r">
+  <div><b>Status:</b> {{ r.status }}</div>
+  <div><b>Price:</b> {{ r.price }}</div>
+  <div><b>Message:</b> {{ r.message }}</div>
+</div>
