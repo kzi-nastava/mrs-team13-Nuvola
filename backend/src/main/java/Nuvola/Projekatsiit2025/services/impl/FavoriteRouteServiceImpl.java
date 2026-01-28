@@ -33,13 +33,19 @@ public class FavoriteRouteServiceImpl implements FavoriteRouteService {
     private FavoriteRouteDTO toDto(FavoriteRoute fr) {
         FavoriteRouteDTO dto = new FavoriteRouteDTO();
         dto.setId(fr.getId());
-        dto.setStartLocation(fr.getFrom().getTitle());
-        dto.setDestination(fr.getTo().getTitle());
+
+        dto.setStartLocation(formatLocation(fr.getFrom()));
+        dto.setDestination(formatLocation(fr.getTo()));
         dto.setStops(
                 fr.getStops().stream()
-                        .map(Location::getTitle)
+                        .map(this::formatLocation)
                         .toList()
         );
+
         return dto;
+    }
+    private String formatLocation(Location loc) {
+        if (loc == null) return null;
+        return loc.getLatitude() + ", " + loc.getLongitude();
     }
 }

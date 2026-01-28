@@ -7,6 +7,7 @@ import Nuvola.Projekatsiit2025.services.DriverService;
 import Nuvola.Projekatsiit2025.repositories.DriverRepository;
 import Nuvola.Projekatsiit2025.services.RideService;
 import Nuvola.Projekatsiit2025.services.VehicleTrackingService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -36,7 +37,7 @@ public class DriverController {
     //2.2.3
     //@PreAuthorize("hasRole('ADMIN')") ovo nakon sto se namesti login kao admin
     @PostMapping
-    public ResponseEntity<?> createDriver(@RequestBody CreateDriverDTO dto) {
+    public ResponseEntity<?> createDriver(@Valid @RequestBody CreateDriverDTO dto) {
         Driver saved = driverService.createDriver(dto);
 
         CreatedDriverDTO response = new CreatedDriverDTO();

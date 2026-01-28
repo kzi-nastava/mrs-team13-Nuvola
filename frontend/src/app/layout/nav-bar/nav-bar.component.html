@@ -17,7 +17,6 @@
 
   <div class="nav-items show-desktop">
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onGrade()">Grade</button>
-    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onUsers()">Users</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onUsers()">Users</button> <!--Only admin -->
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onMyRides()">My rides</button> <!-- only drivers-->
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideHistory()">Ride history</button>

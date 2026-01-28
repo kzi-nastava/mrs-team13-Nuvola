@@ -87,12 +87,10 @@ public class RideServiceImpl implements RideService {
         Location pickup = new Location();
         pickup.setLatitude(dto.getFrom().getLatitude());
         pickup.setLongitude(dto.getFrom().getLongitude());
-        pickup.setTitle("Pickup");
 
         Location dropoff = new Location();
         dropoff.setLatitude(dto.getTo().getLatitude());
         dropoff.setLongitude(dto.getTo().getLongitude());
-        dropoff.setTitle("Dropoff");
 
         route.setPickup(pickup);
         route.setDropoff(dropoff);
@@ -101,7 +99,6 @@ public class RideServiceImpl implements RideService {
             Location l = new Location();
             l.setLatitude(s.getLatitude());
             l.setLongitude(s.getLongitude());
-            l.setTitle("Stop");
             return l;
         }).toList();
 
