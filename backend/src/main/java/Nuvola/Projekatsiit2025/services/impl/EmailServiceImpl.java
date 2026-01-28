@@ -29,8 +29,7 @@ public class EmailServiceImpl implements EmailService {
         try {
 
             // Creating a simple mail message
-            SimpleMailMessage mailMessage
-                    = new SimpleMailMessage();
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
 
             // Setting up necessary details
             mailMessage.setFrom(sender);
@@ -60,8 +59,7 @@ public class EmailServiceImpl implements EmailService {
 
             // Setting multipart as true for attachments to
             // be send
-            mimeMessageHelper
-                    = new MimeMessageHelper(mimeMessage, true);
+            mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
             mimeMessageHelper.setFrom(sender);
             mimeMessageHelper.setTo(details.getRecipient());
             mimeMessageHelper.setText(details.getMsgBody());

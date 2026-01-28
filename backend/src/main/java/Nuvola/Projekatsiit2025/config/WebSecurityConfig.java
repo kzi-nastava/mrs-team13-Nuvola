@@ -83,6 +83,7 @@ public class WebSecurityConfig {
                     .requestMatchers("/api/foo").permitAll()
                     .requestMatchers("/api/drivers/active-vehicles").permitAll()
                     .requestMatchers("/api/rides/now/**").permitAll()
+                    .requestMatchers("/api/drivers/active-vehicles").permitAll()
                     //Da nam lepsu poruku vrati
                     .requestMatchers("/error").permitAll()
                     //.requestMatchers(new AntPathRequestMatcher("/api/whoami")).hasRole("USER")
