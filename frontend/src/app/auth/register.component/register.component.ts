@@ -9,7 +9,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../layout/service/auth.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { LoginModel } from '../model/login.model';
+import { on } from 'events';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const p1 = group.get('password')?.value;
@@ -115,11 +117,28 @@ export class RegisterComponent {
       profileImage: this.form.value.profileImage ? '(file selected)' : null,
     });
 
-    const email = this.email.value;
-    const username = email?.split('@')[0] || 'user';
-    this.authService.login(username);
+    const email = this.email.value || '';
+    const password = this.password.value || '';
+    // const username = email.split('@')[0] || 'user';
+    const loginModel : LoginModel = { username: email, password: password };
+    this.authService.login(loginModel).subscribe({
+      next: () => {
+        this.onRegisterSuccess(email);
+      },
+      error: (err) => {
+        console.error('Registration failed', err);
+      }
+    });
 
-    this.registered = true;
-    this.router.navigate(['/ride-history/', username]);
   }
+
+onRegisterSuccess(email: string): void {
+  console.log('Registration successful for', email);
+  this.registered = true;
+  this.router.navigate(['/logedin-home/', email]);
 }
+
+}
+
+
+

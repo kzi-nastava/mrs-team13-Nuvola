@@ -4,7 +4,7 @@ import {BehaviorSubject, Observable} from "rxjs";
 import {environment} from "../../env/enviroment";
 import {JwtHelperService} from '@auth0/angular-jwt';
 import { AuthResponse } from '../model/auth.response';
-import { Login } from '../model/login.model';
+import { LoginModel } from '../model/login.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +23,7 @@ export class AuthService {
     this.user$.next(this.getRole());
   }
 
-  login(auth: Login): Observable<AuthResponse> {
+  login(auth: LoginModel): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(environment.apiHost + '/logIn', auth, {
       headers: this.headers,
     });

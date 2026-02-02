@@ -1,7 +1,10 @@
 package Nuvola.Projekatsiit2025.services.impl;
 
 import Nuvola.Projekatsiit2025.dto.RegisterRequestDTO;
+import Nuvola.Projekatsiit2025.model.Chat;
+import Nuvola.Projekatsiit2025.model.RegisteredUser;
 import Nuvola.Projekatsiit2025.model.User;
+import Nuvola.Projekatsiit2025.repositories.RegisteredUserRepository;
 import Nuvola.Projekatsiit2025.repositories.UserRepository;
 import Nuvola.Projekatsiit2025.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    RegisteredUserRepository registeredUserRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -39,7 +44,40 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(RegisterRequestDTO registerRequest) {
+
+//        RegisteredUser newUser = new RegisteredUser();
+//        newUser.setEmail(registerRequest.getEmail());
+//        newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+//        newUser.setFirstName(registerRequest.getFirstName());
+//        newUser.setLastName(registerRequest.getLastName());
+//        newUser.setAddress(registerRequest.getAddress());
+//        newUser.setPhone(registerRequest.getPhone());
+//        newUser.setPicture(registerRequest.getPicture());
+//        userRepository.save(newUser);
         return null;
+    }
+
+    @Override
+    public RegisteredUser saveRegisteredUser(RegisterRequestDTO registerRequest) {
+        RegisteredUser newUser = new RegisteredUser();
+        newUser.setEmail(registerRequest.getEmail());
+        newUser.setUsername(registerRequest.getUsername());
+        newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        newUser.setFirstName(registerRequest.getFirstName());
+        newUser.setLastName(registerRequest.getLastName());
+        newUser.setAddress(registerRequest.getAddress());
+        newUser.setPhone(registerRequest.getPhone());
+        newUser.setPicture(registerRequest.getPicture());
+        newUser.setBlocked(false);
+        newUser.setBlockingReason("");
+
+        Chat chat =  new Chat();
+        chat.setOwner(newUser);
+        newUser.setChat(chat);
+
+        // TODO: Ovo staviti na false kada se odradi aktivacija!!!!!!!!!!!!!!!!
+        newUser.setActivated(true);
+        return registeredUserRepository.save(newUser);
     }
 
     @Override
