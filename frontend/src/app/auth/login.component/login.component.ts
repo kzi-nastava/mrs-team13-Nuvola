@@ -4,6 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from "../../auth/services/auth.service";
 import { LoginModel } from '../model/login.model';
+import { AuthResponse } from '../model/auth.response';
 
 
 @Component({
@@ -61,8 +62,9 @@ export class LoginComponent {
     };
 
     this.authService.login(loginData).subscribe({
-      next: () => {
+      next: (response: AuthResponse) => {
         this.submittedOk = true;
+        localStorage.setItem('user', response.accessToken);
         this.router.navigate(['/logedin-home/', email]);
       },
       error: (err) => {
