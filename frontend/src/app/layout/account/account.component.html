@@ -3,12 +3,14 @@
     <h2>Your Account</h2>
     <div class="avatar">
       <div class="avatar-wrapper">
-        <div class="circle"></div>
+        <div class="circle">
+          <img *ngIf="profilePreview" [src]="profilePreview" class="avatar-img" />
+        </div>
 
         <button class="upload-btn" type="button"  (click)="fileInput.click()">
           <img src="/icons/upload.svg" alt="Upload">
         </button>
-        <input type="file" accept="image/*" hidden #fileInput />
+        <input type="file" accept="image/*" hidden #fileInput (change)="onFileSelected($event)" />
       </div>
 
       <span class="upload">Upload profile picture</span>

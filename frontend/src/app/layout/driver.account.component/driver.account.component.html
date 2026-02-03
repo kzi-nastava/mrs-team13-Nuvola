@@ -1,0 +1,114 @@
+<div class="page">
+  <div class="card">
+    <h2 class="title">Your Account</h2>
+
+    <form [formGroup]="driverForm" class="form-grid">
+
+      <!-- LEFT -->
+      <div class="left">
+
+        <div class="avatar-section">
+          <div class="avatar">
+            <div class="avatar-circle">
+              <img *ngIf="profilePreview" [src]="profilePreview" class="avatar-img" />
+            </div>
+
+            <label class="upload-btn">
+              <input
+                #fileInput
+                type="file"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                hidden
+              />
+              <img src="/icons/upload.svg" alt="Upload" />
+            </label>
+          </div>
+          <p class="upload-text">Upload profile picture</p>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>First name *</label>
+            <input formControlName="firstName" />
+          </div>
+
+          <div class="field">
+            <label>Last name *</label>
+            <input formControlName="lastName" />
+          </div>
+        </div>
+
+        <div class="field full">
+          <label>Email Address</label>
+          <input formControlName="email" [disabled]="true" />
+        </div>
+
+        <div class="field full">
+          <label>Phone Number *</label>
+          <input formControlName="phone" />
+        </div>
+
+        <div class="field full">
+          <label>Home Address *</label>
+          <input formControlName="address" />
+        </div>
+
+        <button type="button" class="password-btn" (click)="onChangePassword()">
+          Change your password
+        </button>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="right">
+        <h3 class="section-title">Vehicle Info</h3>
+
+        <div class="field full">
+          <label>Model *</label>
+          <input formControlName="model" />
+        </div>
+
+        <div class="field full">
+          <label>Type *</label>
+          <select formControlName="type">
+            <option value="STANDARD">Standard</option>
+            <option value="LUXURY">Luxury</option>
+            <option value="VAN">Van</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label>Registration number</label>
+          <input formControlName="regNumber" [disabled]="true" />
+        </div>
+
+        <div class="field full">
+          <label>Number of seats *</label>
+          <input type="number" formControlName="numOfSeats" />
+        </div>
+
+        <div class="checkboxes">
+          <label class="checkbox">
+            <input type="checkbox" formControlName="babyFriendly" />
+            Baby seat
+          </label>
+
+          <label class="checkbox">
+            <input type="checkbox" formControlName="petFriendly" />
+            Pets allowed
+          </label>
+        </div>
+      </div>
+
+      <div class="submit-area">
+        <button type="button" class="submit-btn" (click)="onSave()">
+          Save changes
+        </button>
+      </div>
+
+      <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
+      <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    </form>
+  </div>
+</div>

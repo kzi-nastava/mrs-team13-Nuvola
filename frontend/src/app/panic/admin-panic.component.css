@@ -1,0 +1,20 @@
+.wrap { max-width: 900px; margin: 24px auto; padding: 16px; }
+.header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.actions { display:flex; gap:10px; }
+button { padding: 10px 14px; border-radius: 10px; border: 1px solid #ccc; cursor:pointer; }
+.hint { margin: 10px 0 18px; opacity: 0.85; }
+.list { display:flex; flex-direction:column; gap:12px; }
+.card { border: 1px solid #ddd; border-radius: 14px; padding: 12px 14px; cursor:pointer; }
+.card.new { border-color: #c00; box-shadow: 0 0 0 2px rgba(204,0,0,0.15); animation: pulse 1.2s infinite; }
+.top { display:flex; justify-content:space-between; gap:10px; align-items:center; }
+.title { font-weight: 700; display:flex; align-items:center; gap:10px; }
+.badge { font-size: 12px; padding: 3px 8px; border-radius: 999px; border: 1px solid #c00; }
+.time { font-size: 13px; opacity: 0.8; }
+.meta { margin-top: 8px; display:flex; gap:16px; font-size: 13px; opacity: 0.9; }
+.empty { border: 1px dashed #ccc; border-radius: 14px; padding: 24px; text-align:center; opacity:0.8; }
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+  100% { transform: scale(1); }
+}

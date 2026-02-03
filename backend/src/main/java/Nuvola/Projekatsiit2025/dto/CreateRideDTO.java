@@ -1,42 +1,53 @@
 package Nuvola.Projekatsiit2025.dto;
 
-import Nuvola.Projekatsiit2025.model.VehicleType;
+import Nuvola.Projekatsiit2025.model.enums.VehicleType;
+import jakarta.validation.constraints.NotNull;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CreateRideDTO {
-    private String startLocation;
-    private String destination;
-    private List<String> stops;
 
-    private List<String> passengerEmails;
+    @NotNull
+    private CoordinateDTO from;
+
+    @NotNull
+    private CoordinateDTO to;
+
+    private List<CoordinateDTO> stops = new ArrayList<>();
+
+    private List<String> passengerEmails = new ArrayList<>();
+
+    @NotNull
     private VehicleType vehicleType;
+
     private boolean babyTransport;
     private boolean petTransport;
-    private String scheduledTime;
 
-    public CreateRideDTO() {}
+    private LocalDateTime scheduledTime;
 
-    public String getStartLocation() {
-        return startLocation;
+    public CoordinateDTO getFrom() {
+        return from;
     }
 
-    public void setStartLocation(String startLocation) {
-        this.startLocation = startLocation;
+    public void setFrom(CoordinateDTO from) {
+        this.from = from;
     }
 
-    public String getDestination() {
-        return destination;
+    public CoordinateDTO getTo() {
+        return to;
     }
 
-    public void setDestination(String destination) {
-        this.destination = destination;
+    public void setTo(CoordinateDTO to) {
+        this.to = to;
     }
 
-    public List<String> getStops() {
+    public List<CoordinateDTO> getStops() {
         return stops;
     }
 
-    public void setStops(List<String> stops) {
+    public void setStops(List<CoordinateDTO> stops) {
         this.stops = stops;
     }
 
@@ -72,11 +83,11 @@ public class CreateRideDTO {
         this.petTransport = petTransport;
     }
 
-    public String getScheduledTime() {
+    public LocalDateTime getScheduledTime() {
         return scheduledTime;
     }
 
-    public void setScheduledTime(String scheduledTime) {
+    public void setScheduledTime(LocalDateTime scheduledTime) {
         this.scheduledTime = scheduledTime;
     }
 }

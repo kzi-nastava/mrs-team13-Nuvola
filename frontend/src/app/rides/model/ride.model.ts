@@ -1,10 +1,21 @@
+export type RideStatus = 'ASSIGNED' | 'CANCELED'
+
+export interface LocationModel {
+    latitude: number;
+    longitude: number;
+}
+
+
 export interface RideModel {
-    // if needed add other fields from backend entity later
     id: number,
     price: number,
-    dropoff:string,
-    pickup:string,
+    dropoff: LocationModel,
+    pickup: LocationModel,
     statingTime: Date,
     driver: string,
     isFavouriteRoute: boolean
+
+    status?: RideStatus;
+    canceled?: 'DRIVER' | 'PASSENGER';
+    cancelReason?: string;
 }

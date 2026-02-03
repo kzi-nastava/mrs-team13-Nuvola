@@ -1,0 +1,36 @@
+<main class="page">
+    <h1>Ride Tracking</h1>
+    <div id="ride-tracking-map"></div>
+
+
+  <div class="actions">
+    <button class="btn" type="button" (click)="toggleReportForm()">
+      {{ showReportForm ? 'Close report' : 'Create report' }}
+    </button>
+  </div>
+
+  <form
+    class="report-form"
+    *ngIf="showReportForm"
+    (ngSubmit)="submitReport()"
+  >
+    <label class="label" for="reportText">Report</label>
+
+    <textarea
+      id="reportText"
+      class="textarea"
+      name="reportText"
+      [(ngModel)]="reportText"
+      rows="4"
+      placeholder="Unesi tekst reporta..."
+      required
+    ></textarea>
+    <p class="msg error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="msg ok" *ngIf="successMessage">{{ successMessage }}</p>
+
+
+    <button class="btn primary" type="submit" [disabled]="isSending || !reportText.trim()">
+      {{ isSending ? 'Sending...' : 'Send' }}
+    </button>
+  </form>
+</main>

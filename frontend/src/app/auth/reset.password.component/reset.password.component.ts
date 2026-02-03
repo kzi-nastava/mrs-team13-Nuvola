@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../layout/service/auth.service';
 import {
   AbstractControl,
   FormControl,
@@ -40,9 +41,14 @@ export class ResetPasswordComponent {
     { validators: passwordsMatchValidator }
   );
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+constructor(private route: ActivatedRoute, private router: Router, private authService: AuthService) {
+  this.token = this.route.snapshot.queryParamMap.get('token');
+
+  if (!this.token) {
     this.token = this.route.snapshot.paramMap.get('token');
   }
+}
+
 
   get newPassword() {
     return this.form.controls.newPassword;
@@ -57,18 +63,25 @@ export class ResetPasswordComponent {
   }
 
   submit() {
-    this.done = false;
-
-   
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-   
-    console.log('Reset password request with token:', this.token);
-    this.done = true;
-
-    setTimeout(() => this.router.navigate(['/login']), 700);
+  if (this.form.invalid || !this.token) {
+    this.form.markAllAsTouched();
+    return;
   }
+
+  const password = this.form.value.newPassword!;
+
+  this.authService.activateAccount(this.token, password).subscribe({
+    next: () => {
+      this.done = true;
+
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 1000);
+    },
+    error: () => {
+      alert('Activation link is invalid or expired.');
+    }
+  });
+}
+
 }

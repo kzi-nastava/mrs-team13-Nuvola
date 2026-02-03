@@ -27,13 +27,29 @@ export class NavBarComponent {
     console.log('Inbox clicked');
   }
 
+  onUsers(): void {
+    this.router.navigate(['/users/', this.authService.username()]);
+    this.menuOpen = false;
+  }
+  
+  onMyRides(): void {
+    this.router.navigate(['/driver-rides/', this.authService.username()]);
+    this.menuOpen = false;
+  }
+
+
   onRideHistory(): void {
     this.router.navigate(['/ride-history/', this.authService.username()]);
     this.menuOpen = false;
   }
 
   onAccount(): void {
-    this.router.navigate(['/account-settings/', this.authService.username()]);
+    //this.router.navigate(['/account-settings/', this.authService.username()]);
+    if (this.authService.role() === 'DRIVER') {
+      this.router.navigate(['/driver-account/', this.authService.username()]);
+    } else {
+      this.router.navigate(['/account-settings/', this.authService.username()]);
+    }
     this.menuOpen = false;
   }
 
@@ -51,6 +67,21 @@ export class NavBarComponent {
 
   onRegister(): void {
     this.router.navigate(['/register']);
+    this.menuOpen = false;
+  }
+
+  onLogoClick(): void {
+  if (this.authService.isLoggedIn()) {
+    this.router.navigate(['/logedin-home/', this.authService.username()]);
+  } else {
+    this.router.navigate(['/homepage']);
+  }
+
+  this.menuOpen = false;
+}
+
+  onGrade(): void {
+    this.router.navigate(['/grading/', 2]);
     this.menuOpen = false;
   }
 }

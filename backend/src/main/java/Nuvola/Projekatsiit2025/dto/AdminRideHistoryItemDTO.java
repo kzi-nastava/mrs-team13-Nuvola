@@ -1,6 +1,6 @@
 package Nuvola.Projekatsiit2025.dto;
 
-import Nuvola.Projekatsiit2025.model.RideStatus;
+import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 
 public class AdminRideHistoryItemDTO {
 	private Long id;

@@ -1,0 +1,41 @@
+<div class="wrap">
+  <div class="header">
+    <h2>PANIC notifikacije</h2>
+
+    <div class="actions">
+      <button (click)="enableSound()" [disabled]="soundEnabled()">Enable sound</button>
+      <button (click)="markAllSeen()">Mark all seen</button>
+    </div>
+  </div>
+
+  <p class="hint" *ngIf="!soundEnabled()">
+    ⚠️ Browser blokira zvuk bez klika. Klikni “Enable sound” da dobijaš zvučno upozorenje.
+  </p>
+
+  <div class="list" *ngIf="items().length; else empty">
+    <div
+      class="card"
+      *ngFor="let n of items(); trackBy: trackById"
+      [class.new]="n.seen === false"
+      (click)="markSeen(n)"
+      title="Klikni da označiš kao seen"
+    >
+      <div class="top">
+        <div class="title">
+          🚨 PANIC — Ride #{{ n.rideId }}
+          <span class="badge" *ngIf="n.seen === false">NEW</span>
+        </div>
+        <div class="time">{{ n.time }}</div>
+      </div>
+
+      <div class="meta">
+        <span>TriggeredBy: {{ n.triggeredBy }}</span>
+        <span *ngIf="n.location">Loc: {{ n.location.lat }}, {{ n.location.lng }}</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #empty>
+    <div class="empty">Nema PANIC notifikacija.</div>
+  </ng-template>
+</div>

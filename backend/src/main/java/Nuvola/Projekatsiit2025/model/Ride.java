@@ -1,104 +1,80 @@
 package Nuvola.Projekatsiit2025.model;
 
-public class Ride {
+import Nuvola.Projekatsiit2025.model.enums.RideStatus;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.*;
+import lombok.Data;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Entity
+@Data
+public class Ride {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private double price;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private RideStatus status;
-    private String startLocation;
-    private String destination;
-    private String startTime;
-    private String endTime;
-    private String creationDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "route_id")
+    private Route route;
+
+    private LocalDateTime startTime;
+
+    private LocalDateTime endTime;
+
+    @Column(nullable = false)
+    private LocalDateTime creationTime;
+
     private boolean isPanic;
 
+    @ManyToMany
+    @JoinTable(
+            name = "ride_passengers",
+            joinColumns = @JoinColumn(name = "ride_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<RegisteredUser> otherPassengers = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "driver_id")
+    private Driver driver;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id")
+    private RegisteredUser creator;
+
+    @OneToMany(mappedBy = "ride", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Report> reports = new ArrayList<>();
+
+    @OneToMany(mappedBy = "ride", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Rating> ratings = new HashSet<>();
+
+
     public Ride() {
-        this.isPanic = false; // default vrednost
+        this.isPanic = false; // default
     }
 
-    public Ride(Long id, double price, RideStatus status, String startLocation,
-                String destination, String startTime, String endTime,
-                String creationDate, boolean isPanic) {
+    public Ride(Long id, double price, RideStatus status, Route route, LocalDateTime startTime, LocalDateTime endTime,
+                LocalDateTime creationTime, boolean isPanic) {
         this.id = id;
         this.price = price;
         this.status = status;
-        this.startLocation = startLocation;
-        this.destination = destination;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.creationDate = creationDate;
+        this.creationTime = creationTime;
         this.isPanic = isPanic;
     }
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public RideStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(RideStatus status) {
-        this.status = status;
-    }
-
-    public String getStartLocation() {
-        return startLocation;
-    }
-
-    public void setStartLocation(String startLocation) {
-        this.startLocation = startLocation;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-
-    public String getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(String creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public boolean isPanic() {
-        return isPanic;
-    }
-
-    public void setPanic(boolean panic) {
-        isPanic = panic;
-    }
 }

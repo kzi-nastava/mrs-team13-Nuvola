@@ -1,0 +1,164 @@
+<div class="toast success" *ngIf="successToast">
+  Account successfully created. Activation email is sent to the driver.
+</div>
+
+<div class="page">
+  <div class="card">
+    <h2 class="title">Create Driver’s Account</h2>
+
+    <form [formGroup]="driverForm" (ngSubmit)="onSubmit()" class="form-grid">
+
+      <!-- LEFT SIDE -->
+      <div class="left">
+
+        <div class="avatar-section">
+      <div class="avatar">
+        <div class="avatar-circle">
+            <img *ngIf="profilePreview" [src]="profilePreview" class="avatar-img" />
+        </div>
+
+        <label class="upload-btn">
+          <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+           <img src="/icons/upload.svg" alt="Upload">
+        </label>
+      </div>
+      <p class="upload-text">Upload profile picture (optional)</p>
+    </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>First name *</label>
+            <input formControlName="firstName" type="text" placeholder="First name" />
+            <div class="error"
+                *ngIf="driverForm.get('firstName')?.touched && driverForm.get('firstName')?.invalid">
+                First letter should be capitalized and only letters allowed
+                </div>
+          </div>
+
+          <div class="field">
+            <label>Last name *</label>
+            <input formControlName="lastName" type="text" placeholder="Last name" />
+            <div class="error"
+                *ngIf="driverForm.get('lastName')?.touched && driverForm.get('lastName')?.invalid">
+                First letter should be capitalized and only letters allowed
+                </div>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label>Email Address *</label>
+          <input formControlName="email" type="email" placeholder="Enter driver’s email" />
+          <div class="error"
+            *ngIf="
+              driverForm.get('email')?.touched &&
+              (driverForm.get('email')?.errors?.['required'] ||
+              driverForm.get('email')?.errors?.['email']) &&
+              !driverForm.get('email')?.errors?.['alreadyExists']
+            ">
+            Please enter a valid email address
+          </div>
+
+          <div class="error"
+            *ngIf="
+              driverForm.get('email')?.touched &&
+              driverForm.get('email')?.errors?.['alreadyExists']
+            ">
+            This email is already taken.
+          </div>
+
+
+        </div>
+
+        <div class="field full">
+          <label>Phone Number *</label>
+          <input formControlName="phone" type="text" placeholder="+381 64 556655" />
+          <div class="error"
+            *ngIf="driverForm.get('phone')?.touched && driverForm.get('phone')?.invalid">
+            Only numbers, + and space are allowed
+            </div>
+        </div>
+
+        <div class="field full">
+          <label>Home Address *</label>
+          <input formControlName="address" type="text" placeholder="Fruskogorska 37" />
+          <div class="error"
+            *ngIf="driverForm.get('address')?.touched && driverForm.get('address')?.invalid">
+            First letter should be capitalized, only letters and numbers allowed
+            </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE -->
+      <div class="right">
+        <h3 class="section-title">Vehicle Info</h3>
+
+        <div class="field full">
+          <label>Model *</label>
+          <input formControlName="model" type="text" placeholder="Model" />
+          <div class="error"
+            *ngIf="driverForm.get('model')?.touched && driverForm.get('model')?.invalid">
+            First letter should be capitalized
+            </div>
+        </div>
+
+        <div class="field full">
+          <label>Type *</label>
+          <select formControlName="type">
+            <option value="STANDARD">Standard</option>
+            <option value="LUXURY">Luxury</option>
+            <option value="VAN">Van</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label>Registration number *</label>
+          <input formControlName="regNumber" type="text" placeholder="BG-123-RV" />
+          <div class="error"
+            *ngIf="
+              driverForm.get('regNumber')?.touched &&
+              (driverForm.get('regNumber')?.errors?.['required'] ||
+              driverForm.get('regNumber')?.errors?.['pattern']) &&
+              !driverForm.get('regNumber')?.errors?.['alreadyExists']
+            ">
+            All letters should be capitalized, only letters, numbers and - are allowed.
+          </div>
+
+          <div class="error"
+            *ngIf="
+              driverForm.get('regNumber')?.touched &&
+              driverForm.get('regNumber')?.errors?.['alreadyExists']
+            ">
+            This registration number is already in use.
+          </div>
+
+
+        </div>
+
+        <div class="field full">
+          <label>Number of seats *</label>
+          <input class="seats-input" formControlName="numOfSeats" type="number" min="4" />
+
+        </div>
+
+        <div class="checkboxes">
+          <label class="checkbox">
+            <input type="checkbox" formControlName="babyFriendly" />
+            Baby seat
+          </label>
+
+          <label class="checkbox">
+            <input type="checkbox" formControlName="petFriendly" />
+            Pets allowed 
+          </label>
+        </div>
+      </div>
+
+      <div class="submit-area">
+        <button type="submit" class="submit-btn">
+          Create Account
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

@@ -1,0 +1,104 @@
+#ride-tracking-map {
+  /* height: 600px; */
+  width: 90%;
+  height: 470px;
+  border-radius: 14px;
+}
+
+h1 {
+  margin: 7px 0 10px 0;
+}
+
+.page {
+  min-height: 100vh;
+  background: #eeeeee;
+  padding-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.actions {
+  margin-top: 14px;
+  width: 90%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.report-form {
+  margin-top: 14px;
+  width: 90%;
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  font-weight: 600;
+}
+
+.textarea {
+  width: 100%;
+  border: 1px solid #cfcfcf;
+  border-radius: 10px;
+  padding: 10px;
+  resize: vertical;
+  outline: none;
+}
+
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  background: #0A1128;
+  color: white;
+}
+
+.btn.primary {
+  background: #e87810;
+  color: white;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+textarea {
+    box-sizing: border-box;
+}
+
+.msg {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.msg.error {
+  background: #ffe3e3;
+  border: 1px solid #ffb3b3;
+}
+
+.msg.ok {
+  background: #e6ffea;
+  border: 1px solid #a8f0b4;
+}
+
+
+@media (max-width: 768px) {
+  #ride-tracking-map {
+    height: 55vh;
+    width: 100%;
+  }
+
+  .actions,
+  .report-form {
+    width: 100%;
+  }
+}

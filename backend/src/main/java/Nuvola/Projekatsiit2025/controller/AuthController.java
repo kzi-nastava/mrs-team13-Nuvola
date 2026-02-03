@@ -1,14 +1,33 @@
 package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.*;
-import Nuvola.Projekatsiit2025.model.DriverStatus;
+import Nuvola.Projekatsiit2025.model.ActivationToken;
+import Nuvola.Projekatsiit2025.model.User;
+import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
+import Nuvola.Projekatsiit2025.repositories.ActivationTokenRepository;
+import Nuvola.Projekatsiit2025.repositories.UserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    @Autowired
+    private ActivationTokenRepository activationTokenRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // 2.2.1 Login (email + password)
     @PostMapping("/login")
@@ -92,7 +111,40 @@ public class AuthController {
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-  
+    // 2.2.3 Driver registration
+
+    @PostMapping("/activate")
+    public ResponseEntity<Void> activateAccount(
+            @RequestParam String token,
+            @RequestParam String password
+    ) {
+        ActivationToken activationToken =
+                activationTokenRepository.findByToken(token)
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "INVALID_TOKEN"
+                                ));
+
+        if (activationToken.isUsed()
+                || activationToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "TOKEN_EXPIRED"
+            );
+        }
+
+        User user = activationToken.getUser();
+        user.setPassword(passwordEncoder.encode(password));
+        user.setBlocked(false);
+
+        userRepository.save(user);
+
+        activationToken.setUsed(true);
+        activationTokenRepository.save(activationToken);
+
+        return ResponseEntity.ok().build();
+    }
 }
 
 
