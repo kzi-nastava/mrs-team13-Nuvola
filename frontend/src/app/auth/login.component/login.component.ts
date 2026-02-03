@@ -65,6 +65,7 @@ export class LoginComponent {
       next: (response: AuthResponse) => {
         this.submittedOk = true;
         localStorage.setItem('user', response.accessToken);
+        this.authService.setUser();
         this.router.navigate(['/logedin-home/', email]);
       },
       error: (err) => {

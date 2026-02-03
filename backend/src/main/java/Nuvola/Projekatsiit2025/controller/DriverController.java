@@ -24,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/drivers")
+@CrossOrigin(origins = "http://localhost:4200")
 public class DriverController {
     @Autowired
     private RideService rideService;
@@ -50,10 +51,10 @@ public class DriverController {
     }
 
     // 2.9.2
-    @PreAuthorize("hasRole('DRIVER')")
-    @GetMapping(value = "/{driverId}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('REGISTERED_USER')")
+    @GetMapping(value = "/{username}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<DriverRideHistoryItemDTO>> getDriverRideHistory(
-            @PathVariable Long driverId,
+            @PathVariable String username,
             @RequestParam(required = false, defaultValue = "startingTime") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String sortOrder,
             @RequestParam(required = false) Integer page,

@@ -34,7 +34,10 @@ export class AuthService {
     if (this.isLoggedIn()) {
       const accessToken: any = localStorage.getItem('user');
       const helper = new JwtHelperService();
-      return helper.decodeToken(accessToken).role[0].authority;
+      const rolesStr: string | undefined = helper.decodeToken(accessToken).roles;
+      if (!rolesStr) return null;
+      
+      return rolesStr.replace('[', '').replace(']', '').split(',')[0]?.trim() ?? null;
     }
     return null;
   }
@@ -42,6 +45,25 @@ export class AuthService {
   isLoggedIn(): boolean {
     return localStorage.getItem('user') != null;
   }
+
+  getUsername(): string | null {
+    if (this.isLoggedIn()) {
+      const token = localStorage.getItem('user');
+      if (!token) return null;
+
+      const helper = new JwtHelperService();
+      const decoded: any = helper.decodeToken(token);
+
+      return decoded.sub ?? null;
+    }
+    return null;
+  }
+
+  logout(): void {
+    localStorage.removeItem('user');
+    this.user$.next(this.getRole());
+  }
+
 
   setUser(): void {
     this.user$.next(this.getRole());
