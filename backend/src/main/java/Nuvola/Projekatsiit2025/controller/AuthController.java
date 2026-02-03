@@ -1,15 +1,23 @@
 package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.*;
+import Nuvola.Projekatsiit2025.exceptions.ResourceConflictException;
 import Nuvola.Projekatsiit2025.model.ActivationToken;
+import Nuvola.Projekatsiit2025.model.RegisteredUser;
 import Nuvola.Projekatsiit2025.model.User;
 import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
 import Nuvola.Projekatsiit2025.repositories.ActivationTokenRepository;
 import Nuvola.Projekatsiit2025.repositories.UserRepository;
 
+import Nuvola.Projekatsiit2025.services.UserService;
+import Nuvola.Projekatsiit2025.util.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,7 +29,17 @@ import java.time.LocalDateTime;
 public class AuthController {
 
     @Autowired
+    TokenUtils tokenUtils;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
     private ActivationTokenRepository activationTokenRepository;
+
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -31,29 +49,19 @@ public class AuthController {
 
     // 2.2.1 Login (email + password)
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO dto) {
+    public ResponseEntity<UserTokenState> login(@RequestBody LoginRequestDTO dto) {
+        // if credentials are not correct then AuthenticationException
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                dto.getUsername(), dto.getPassword()));
 
-        // if driver has "driver" in email, we know that user is driver
-        boolean isDriver = dto.getEmail() != null && dto.getEmail().toLowerCase().contains("driver");
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        LoginResponseDTO response = new LoginResponseDTO();
-        response.setId(1L);
-        response.setEmail(dto.getEmail());
-        response.setFirstName("Test");
-        response.setLastName(isDriver ? "Driver" : "User");
-        response.setToken("fake-token-123");
-        response.setUserType(isDriver ? "DRIVER" : "USER");
+        // Generate token for user
+        User user = (User) authentication.getPrincipal();
+        String jwt = tokenUtils.generateToken(user);
+        int expiresIn = tokenUtils.getExpiredIn();
 
-        if (isDriver) {
-            // when driver do login he is gonna be active in system
-            response.setDriverStatus(DriverStatus.ACTIVE);
-            response.setMessage("Driver logged in and is now ACTIVE.");
-        } else {
-            response.setDriverStatus(null);
-            response.setMessage("User logged in.");
-        }
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(new UserTokenState(jwt, expiresIn));
     }
 
     // 2.2.1 Logout
@@ -99,14 +107,22 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDTO> register(@RequestBody RegisterRequestDTO dto) {
 
+        User existUser = this.userService.findByUsername(dto.getUsername());
+
+        if (existUser != null) {
+            throw new ResourceConflictException(dto.getUsername(), "Username already exists");
+        }
+
+        RegisteredUser user =  userService.saveRegisteredUser(dto);
+
         RegisterResponseDTO response = new RegisterResponseDTO();
-        response.setId(100L);
-        response.setEmail(dto.getEmail());
-        response.setFirstName(dto.getFirstName());
-        response.setLastName(dto.getLastName());
-        response.setAddress(dto.getAddress());
-        response.setPhone(dto.getPhone());
-        response.setPicture(dto.getPicture());
+        response.setId(user.getId());
+        response.setEmail(user.getEmail());
+        response.setFirstName(user.getFirstName());
+        response.setLastName(user.getLastName());
+        response.setAddress(user.getAddress());
+        response.setPhone(user.getPhone());
+        response.setPicture(user.getPicture());
         response.setMessage("User successfully registered.");
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);

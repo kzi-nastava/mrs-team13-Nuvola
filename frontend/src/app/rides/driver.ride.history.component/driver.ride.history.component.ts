@@ -3,6 +3,7 @@ import { DatePipe, CommonModule } from '@angular/common';
 import { RideService } from '../service/ride.service';
 import { GeocodingService } from '../../logedin.homepage/services/geocoding.service';
 import { RideModel } from '../model/ride.model';
+import { AuthService } from '../../auth/services/auth.service';
 
 interface RideWithAddresses extends RideModel {
   pickupAddress?: string;
@@ -24,13 +25,17 @@ export class DriverRideHistoryComponent implements OnInit {
 
   constructor(
     private service: RideService,
-    private geocodingService: GeocodingService
+    private geocodingService: GeocodingService,
+    private authService: AuthService
   ) {
     this.rides = this.service.rides;
   }
 
   ngOnInit() {
     this.loadRides();
+    console.log('DriverRideHistoryComponent initialized');
+    console.log(this.authService.getUsername());
+    console.log(this.authService.getRole());
   }
 
   loadRides(sortOrder?: string) {
@@ -39,7 +44,7 @@ export class DriverRideHistoryComponent implements OnInit {
 
     const currentOrder = sortOrder || (this.isAscending() ? 'asc' : 'desc');
 
-    this.service.loadDriverRides(this.driverId, 'startingTime', currentOrder)
+    this.service.loadDriverRides(this.authService.getUsername() || '', 'startingTime', currentOrder)
       .subscribe({
         next: (rides) => {
           this.service.setRides(rides);

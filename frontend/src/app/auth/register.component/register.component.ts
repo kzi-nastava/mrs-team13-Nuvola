@@ -9,7 +9,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../layout/service/auth.service';
+import { AuthService } from '../services/auth.service';
+import { RegisterModel } from '../model/register.model';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const p1 = group.get('password')?.value;
@@ -117,9 +118,29 @@ export class RegisterComponent {
 
     const email = this.email.value;
     const username = email?.split('@')[0] || 'user';
-    this.authService.login(username);
+    const password = this.password.value || '';
 
-    this.registered = true;
-    this.router.navigate(['/ride-history/', username]);
+    const registerData : RegisterModel = {
+      email: email || '',
+      password: password,
+      firstName: this.firstName.value || '',
+      lastName: this.lastName.value || '',
+      phone: this.phone.value || '',
+      address: this.address.value || '',
+      picture: this.imagePreviewUrl || '',
+    };
+    this.authService.register(registerData).subscribe({
+      next: (response) => {
+        console.log('Registration successful:', response);
+        this.registered = true;
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Registration failed:', error);
+        alert('Registration failed. Please try again.');
+      },
+    });
+
+
   }
 }

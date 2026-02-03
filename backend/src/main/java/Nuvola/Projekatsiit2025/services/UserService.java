@@ -1,6 +1,7 @@
 package Nuvola.Projekatsiit2025.services;
 
 import Nuvola.Projekatsiit2025.dto.RegisterRequestDTO;
+import Nuvola.Projekatsiit2025.model.RegisteredUser;
 import Nuvola.Projekatsiit2025.model.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -12,4 +13,5 @@ public interface UserService extends UserDetailsService {
     User findByUsername(String username);
     List<User> findAll ();
     User save(RegisterRequestDTO registerRequest);
+    RegisteredUser saveRegisteredUser(RegisterRequestDTO registerRequest);
 }

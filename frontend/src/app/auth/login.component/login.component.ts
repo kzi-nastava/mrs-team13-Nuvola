@@ -2,7 +2,9 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { AuthService } from '../../layout/service/auth.service';
+import { AuthService } from "../../auth/services/auth.service";
+import { LoginModel } from '../model/login.model';
+import { AuthResponse } from '../model/auth.response';
 
 
 @Component({
@@ -52,11 +54,26 @@ export class LoginComponent {
 
     const email = this.email.value;
     
-    const username = email?.split('@')[0] || 'user';
-    
-    this.authService.login(username);
-    this.submittedOk = true;
-    this.router.navigate(['/logedin-home/', username]);
+    //const username = email?.split('@')[0] || 'user';
+
+    const loginData: LoginModel = {
+      username: email || '',
+      password: this.password.value || '',
+    };
+
+    this.authService.login(loginData).subscribe({
+      next: (response: AuthResponse) => {
+        this.submittedOk = true;
+        localStorage.setItem('user', response.accessToken);
+        this.authService.setUser();
+        this.router.navigate(['/logedin-home/', email]);
+      },
+      error: (err) => {
+        // handle error, e.g., show a message
+        this.submittedOk = false;
+        console.error('Login failed', err);
+      }
+    });
 
   }
 }
