@@ -2,6 +2,7 @@ package Nuvola.Projekatsiit2025.config;
 
 import Nuvola.Projekatsiit2025.security.auth.RestAuthenticationEntryPoint;
 import Nuvola.Projekatsiit2025.security.auth.TokenAuthenticationFilter;
+import Nuvola.Projekatsiit2025.services.UserService;
 import Nuvola.Projekatsiit2025.services.impl.UserServiceImpl;
 import Nuvola.Projekatsiit2025.util.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -40,27 +42,32 @@ public class WebSecurityConfig {
     private TokenUtils tokenUtils;
 
     // Servis koji se koristi za citanje podataka o korisnicima aplikacije
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new UserServiceImpl();
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        return new UserServiceImpl();
+//    }
+
+    @Autowired
+    private UserService userService;
 
     // Implementacija PasswordEncoder-a koriscenjem BCrypt hashing funkcije.
     // BCrypt po defalt-u radi 10 rundi hesiranja prosledjene vrednosti.
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public BCryptPasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         // 1. koji servis da koristi da izvuce podatke o korisniku koji zeli da se autentifikuje
         // prilikom autentifikacije, AuthenticationManager ce sam pozivati loadUserByUsername() metodu ovog servisa
-        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setUserDetailsService(userService);
         // 2. kroz koji enkoder da provuce lozinku koju je dobio od klijenta u zahtevu
         // da bi adekvatan hash koji dobije kao rezultat hash algoritma uporedio sa onim koji se nalazi u bazi (posto se u bazi ne cuva plain lozinka)
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoder);
 
         return authProvider;
     }
@@ -79,14 +86,14 @@ public class WebSecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(restAuthenticationEntryPoint));
         http.authorizeHttpRequests(request -> {
-            request.requestMatchers("/auth/login").permitAll()
+            request.requestMatchers("/api/auth/login").permitAll()
+                    .requestMatchers("/api/auth/register").permitAll()
                     .requestMatchers("/api/foo").permitAll()
                     .requestMatchers("/api/drivers/active-vehicles").permitAll()
                     .requestMatchers("/api/rides/now/**").permitAll()
                     .requestMatchers("/api/drivers/active-vehicles").permitAll()
-                    .requestMatchers("/api/drivers/*/rides").permitAll()
-                    .requestMatchers("api/reviews").permitAll()
-                    .requestMatchers("api/reviews/*").permitAll()
+                    .requestMatchers("/api/reviews").permitAll()
+                    .requestMatchers("/api/reviews/*").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/drivers").permitAll() //ovo sam dodala
                     .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll() // i ovo
                     .requestMatchers(HttpMethod.GET, "/api/profile").permitAll() // i ovo
@@ -96,7 +103,7 @@ public class WebSecurityConfig {
                     //.requestMatchers(new AntPathRequestMatcher("/api/whoami")).hasRole("USER")
                     .anyRequest().authenticated();
         });
-        http.addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userDetailsService()), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userService), UsernamePasswordAuthenticationFilter.class);
         http.authenticationProvider(authenticationProvider());
         return http.build();
     }

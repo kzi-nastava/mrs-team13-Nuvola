@@ -50,7 +50,7 @@ public class DriverController {
     }
 
     // 2.9.2
-    //@PreAuthorize("hasRole('DRIVER')")
+    @PreAuthorize("hasRole('DRIVER')")
     @GetMapping(value = "/{driverId}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<DriverRideHistoryItemDTO>> getDriverRideHistory(
             @PathVariable Long driverId,

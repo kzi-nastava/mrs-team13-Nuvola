@@ -5,6 +5,7 @@ import {environment} from "../../env/enviroment";
 import {JwtHelperService} from '@auth0/angular-jwt';
 import { AuthResponse } from '../model/auth.response';
 import { LoginModel } from '../model/login.model';
+import { RegisterModel } from '../model/register.model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,7 @@ export class AuthService {
   }
 
   login(auth: LoginModel): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(environment.apiHost + '/logIn', auth, {
+    return this.http.post<AuthResponse>(environment.apiHost + '/api/auth/login', auth, {
       headers: this.headers,
     });
   }
@@ -44,5 +45,15 @@ export class AuthService {
 
   setUser(): void {
     this.user$.next(this.getRole());
+  }
+
+  register(registerData: RegisterModel): Observable<any> {
+    return this.http.post(
+      environment.apiHost + '/api/auth/register',
+      registerData,
+      {
+        headers: this.headers,
+      }
+    );
   }
 }

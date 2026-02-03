@@ -52,7 +52,8 @@ public class TokenUtils {
                 .setIssuedAt(new Date())
                 .claim("roles", user.getAuthorities().toString())
                 .setExpiration(generateExpirationDate())
-                .signWith(SIGNATURE_ALGORITHM, SECRET).compact();
+                .signWith(SIGNATURE_ALGORITHM, SECRET)
+                .compact();
 
 
         // moguce je postavljanje proizvoljnih podataka u telo JWT tokena pozivom funkcije .claim("key", value), npr. .claim("role", user.getRole())
