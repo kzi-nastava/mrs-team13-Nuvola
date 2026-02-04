@@ -1,17 +1,17 @@
 package Nuvola.Projekatsiit2025.services.impl;
 
+import Nuvola.Projekatsiit2025.dto.CreateReportDTO;
 import Nuvola.Projekatsiit2025.dto.CreateRideDTO;
 import Nuvola.Projekatsiit2025.dto.DriverRideHistoryItemDTO;
 import Nuvola.Projekatsiit2025.dto.ScheduledRideDTO;
+import Nuvola.Projekatsiit2025.exceptions.UserNotFoundException;
 import Nuvola.Projekatsiit2025.exceptions.ride.InvalidRideStateException;
 import Nuvola.Projekatsiit2025.exceptions.ride.RideNotFoundException;
 import Nuvola.Projekatsiit2025.model.*;
 import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 import Nuvola.Projekatsiit2025.model.enums.VehicleType;
-import Nuvola.Projekatsiit2025.repositories.DriverRepository;
-import Nuvola.Projekatsiit2025.repositories.RideRepository;
-import Nuvola.Projekatsiit2025.repositories.UserRepository;
+import Nuvola.Projekatsiit2025.repositories.*;
 import Nuvola.Projekatsiit2025.services.EmailService;
 import Nuvola.Projekatsiit2025.services.RideService;
 import Nuvola.Projekatsiit2025.util.EmailDetails;
@@ -38,6 +38,12 @@ public class RideServiceImpl implements RideService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RegisteredUserRepository registeredUserRepository;
+
+    @Autowired
+    private ReportRepository reportRepository;
 
 
     @Override
@@ -156,7 +162,7 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public ScheduledRideDTO endRide(String username) {
+    public Long endRide(String username) {
         // find current ride of this driver, if not found throw RideNotFoundException
         // return this driver's scheduled ride
         List<Ride> rides = rideRepository.findByDriver_UsernameAndStatus(username, RideStatus.IN_PROGRESS);
@@ -182,22 +188,34 @@ public class RideServiceImpl implements RideService {
 
         //TODO: send notification to passengers
 
-        ScheduledRideDTO response = new ScheduledRideDTO();
         Ride scheduledRide = getNearestScheduledRideForDriver(driver.getId());
         if  (scheduledRide == null) {
-            response.setId(-1L);
-            return  response;
+            return null;
         }
-        Route route = scheduledRide.getRoute();
 
-        response.setId(scheduledRide.getId());
-        response.setPrice(scheduledRide.getPrice());
-        response.setDriver(driver.getFirstName() + " " + driver.getLastName());
-        response.setPickup(route.getPickup());
-        response.setDropoff(route.getDropoff());
-        response.setStartingTime(scheduledRide.getStartTime());
+        return scheduledRide.getId();
+    }
 
-        return response;
+    @Override
+    public void createReport(CreateReportDTO createReportDTO) {
+        Report report = new Report();
+        RegisteredUser author = registeredUserRepository.findByUsername(createReportDTO.getAuthorUsername());
+        if (author == null) throw new UserNotFoundException("Registered user " + createReportDTO.getAuthorUsername() + " not found");
+        Ride ride = rideRepository.findById(createReportDTO.getRideId()).orElse(null);
+        if (ride == null) throw new RideNotFoundException("Ride " + createReportDTO.getRideId() + " not found");
+
+        report.setRide(ride);
+        report.setAuthor(author);
+        report.setReason(createReportDTO.getReason());
+        reportRepository.save(report);
+
+    }
+
+    @Override
+    public ScheduledRideDTO getScheduledRide(Long rideId) {
+        Ride ride = rideRepository.findById(rideId).orElse(null);
+        if (ride == null) throw new RideNotFoundException("Ride " + rideId + " not found");
+        return new  ScheduledRideDTO(ride);
     }
 
     private Ride getNearestScheduledRideForDriver(Long driverId) {

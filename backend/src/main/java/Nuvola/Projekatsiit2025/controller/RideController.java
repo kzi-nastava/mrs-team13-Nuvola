@@ -25,9 +25,6 @@ import java.util.List;
 public class RideController {
 
     @Autowired
-    EmailService emailService;
-
-    @Autowired
     private RideService rideService;
 
 
@@ -69,8 +66,8 @@ public class RideController {
     }
 
     //2.6.2
-    @GetMapping(value = "/now/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable("id") Long id){
+    @GetMapping(value = "/now/user/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable String username){
         // find that ride
         RouteDTO route = new RouteDTO();
         route.appendStop(new CoordinateDTO(45.238796, 19.883819));
@@ -83,8 +80,15 @@ public class RideController {
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
 
+    @PostMapping(value ="/report", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> createReport(@RequestBody CreateReportDTO createReportDTO) {
+        rideService.createReport(createReportDTO);
+
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping(value = "/now/user/{id}/position", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CoordinateDTO> getDriverPosition(@PathVariable("id") Long id){
+    public ResponseEntity<CoordinateDTO> getDriverPosition(@PathVariable Long id){
         // find that ride
         CoordinateDTO position = new CoordinateDTO(45.234116, 19.849381);
         return new ResponseEntity<>(position, HttpStatus.OK);
@@ -92,9 +96,18 @@ public class RideController {
 
     // 2.7
     @PutMapping(value="/{username}/end", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ScheduledRideDTO> endRide(@PathVariable String username) {
-        ScheduledRideDTO rides = rideService.endRide(username);
-        return new ResponseEntity<ScheduledRideDTO>(rides, HttpStatus.OK);
+    public ResponseEntity<Long> endRide(@PathVariable String username) {
+        Long rideId = rideService.endRide(username);
+        if (rideId == null) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(rideId); // 201
+    }
+
+    @GetMapping(value = "/scheduled-ride/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ScheduledRideDTO> getScheduledRide(@PathVariable Long rideId) {
+        ScheduledRideDTO ride = rideService.getScheduledRide(rideId);
+        return ResponseEntity.ok(ride);
     }
 
 
