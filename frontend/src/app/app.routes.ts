@@ -22,7 +22,7 @@ export const routes: Routes = [
     {path: '', component: LoginComponent },
     {path: 'users/:username', component: UsersComponent },
     {path: 'ride-history/:username', component: DriverRideHistoryComponent },
-    {path: 'account-settings/:username', component: AccountComponent },
+    { path: 'account-settings', component: AccountComponent },
     {path: 'login', component: LoginComponent },
     {path: 'register', component: RegisterComponent },
     {path: 'forgot-password/:username', component: ForgotPasswordComponent },
@@ -37,6 +37,6 @@ export const routes: Routes = [
     {path:'grading/:rideId', component: GradingComponent },
     {path: 'driver-rides/:username', component: DriverRidesComponent },
     {path: 'activate-account', component: ResetPasswordComponent},
-    {path: 'change-password', component: ChangePasswordComponent },
-    { path: 'driver-account/:username', component: DriverAccountComponent },
+    { path: 'change-password', component: ChangePasswordComponent },
+    { path: 'driver-account', component: DriverAccountComponent },
 ];

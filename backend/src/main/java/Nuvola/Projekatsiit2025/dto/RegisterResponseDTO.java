@@ -7,7 +7,6 @@ public class RegisterResponseDTO {
     private String lastName;
     private String address;
     private String phone;
-    private String picture;
     private String message;
 
     public RegisterResponseDTO() {}
@@ -29,9 +28,6 @@ public class RegisterResponseDTO {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
-
-    public String getPicture() { return picture; }
-    public void setPicture(String picture) { this.picture = picture; }
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }

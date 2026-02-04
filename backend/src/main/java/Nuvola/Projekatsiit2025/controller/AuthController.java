@@ -122,7 +122,6 @@ public class AuthController {
         response.setLastName(user.getLastName());
         response.setAddress(user.getAddress());
         response.setPhone(user.getPhone());
-        response.setPicture(user.getPicture());
         response.setMessage("User successfully registered.");
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);

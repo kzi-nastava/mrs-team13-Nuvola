@@ -67,7 +67,6 @@ public class UserServiceImpl implements UserService {
         newUser.setLastName(registerRequest.getLastName());
         newUser.setAddress(registerRequest.getAddress());
         newUser.setPhone(registerRequest.getPhone());
-        newUser.setPicture(registerRequest.getPicture());
         newUser.setBlocked(false);
         newUser.setBlockingReason("");
 

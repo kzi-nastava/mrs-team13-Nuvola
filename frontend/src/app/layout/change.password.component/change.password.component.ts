@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {AbstractControl,FormControl,FormGroup,ReactiveFormsModule,ValidationErrors,Validators} from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../service/auth.service';
+import { AuthService } from '../../auth/services/auth.service';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const newPass = group.get('newPassword')?.value;
@@ -51,25 +51,34 @@ hide0 = true;
     return !!this.form.errors?.['passwordsMismatch'];
   }
 
-  submit() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    this.authService.changePassword({
-      currentPassword: this.form.value.currentPassword!,
-      newPassword: this.form.value.newPassword!,
-    }).subscribe({
-      next: () => {
-        this.done = true;
-        setTimeout(() => {
-          this.router.navigate(['/account-settings/', this.authService.username()]);
-        }, 1000);
-      },
-      error: () => {
-        alert('Current password is incorrect.');
-      }
-    });
+ submit() {
+  if (this.form.invalid) {
+    this.form.markAllAsTouched();
+    return;
   }
+
+  this.authService.changePassword({
+    currentPassword: this.form.value.currentPassword!,
+    newPassword: this.form.value.newPassword!,
+  }).subscribe({
+    next: () => {
+      this.done = true;
+
+      setTimeout(() => {
+        const role = this.authService.getRole();
+
+        if (role === 'ROLE_DRIVER') {
+          this.router.navigate(['/driver-account']);
+        } else {
+          // ADMIN ili REGISTERED_USER
+          this.router.navigate(['/account-settings']);
+        }
+      }, 1000);
+    },
+    error: () => {
+      alert('Current password is incorrect.');
+    }
+  });
+}
+
 }

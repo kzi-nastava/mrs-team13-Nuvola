@@ -5,6 +5,5 @@ export interface RegisterModel {
     lastName: string;
     phone: string;
     address: string;
-    picture: string;
 
 }

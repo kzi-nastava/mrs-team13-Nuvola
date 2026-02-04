@@ -98,6 +98,10 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll() // i ovo
                     .requestMatchers(HttpMethod.GET, "/api/profile").permitAll() // i ovo
                     .requestMatchers(HttpMethod.PUT, "/api/profile").permitAll() // i ovo
+                    .requestMatchers(HttpMethod.GET, "/api/profile/picture/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/drivers/*/picture").permitAll()
+
+
                     //Da nam lepsu poruku vrati
                     .requestMatchers("/error").permitAll()
                     //.requestMatchers(new AntPathRequestMatcher("/api/whoami")).hasRole("USER")

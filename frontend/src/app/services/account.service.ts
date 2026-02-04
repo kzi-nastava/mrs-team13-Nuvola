@@ -16,4 +16,12 @@ export class AccountService {
   updateProfile(data: any) {
     return this.http.put(this.api, data);
   }
+
+  uploadPicture(formData: FormData) {
+  return this.http.post<any>(
+    'http://localhost:8080/api/profile/picture',
+    formData
+  );
+}
+
 }

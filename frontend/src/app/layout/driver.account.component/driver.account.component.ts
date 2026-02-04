@@ -46,7 +46,7 @@ export class DriverAccountComponent implements OnInit {
       // user
       firstName: ['', [Validators.required, Validators.pattern(this.namePattern)]],
       lastName: ['', [Validators.required, Validators.pattern(this.namePattern)]],
-      email: [{ value: '', disabled: true }], // email se ne menja
+      email: [{ value: '', disabled: true }],
       phone: ['', [Validators.required, Validators.pattern(this.phonePattern)]],
       address: ['', [Validators.required, Validators.pattern(this.addressPattern)]],
       picture: [null],
@@ -54,7 +54,7 @@ export class DriverAccountComponent implements OnInit {
       // vehicle
       model: ['', [Validators.required, Validators.pattern(this.modelPattern)]],
       type: ['', Validators.required],
-      regNumber: [{ value: '', disabled: true }], // tablice se ne menjaju
+      regNumber: [{ value: '', disabled: true }], 
       numOfSeats: ['', [Validators.required, Validators.min(4)]],
       babyFriendly: [false],
       petFriendly: [false],
@@ -62,10 +62,10 @@ export class DriverAccountComponent implements OnInit {
   }
 
   private loadProfile() {
-    this.driverService.getMyProfile().subscribe({
+    this.driverService.getDriverProfile().subscribe({
       next: (profile) => {
         this.driverForm.patchValue(profile);
-        this.profilePreview = profile.picture;
+        this.profilePreview = this.getImageUrl(profile.picture);
       },
       error: () => {
         this.errorMessage = 'Failed to load profile.';
@@ -73,19 +73,26 @@ export class DriverAccountComponent implements OnInit {
     });
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files?.[0];
-    if (!file || !file.type.startsWith('image/')) return;
+ onFileSelected(event: any) {
+  const file = event.target.files?.[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      this.profilePreview = base64;
-      this.driverForm.patchValue({ picture: base64 });
-      this.cdr.detectChanges();
-    };
-    reader.readAsDataURL(file);
-  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    this.profilePreview = reader.result as string;
+    this.cdr.detectChanges();
+  };
+  reader.readAsDataURL(file);
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  this.driverService.uploadPicture(formData).subscribe(res => {
+    this.profilePreview =
+      `http://localhost:8080/api/profile/picture/${res.picture}`;
+  });
+}
+
 
   onSave() {
     this.successMessage = '';
@@ -98,18 +105,28 @@ export class DriverAccountComponent implements OnInit {
 
     this.driverService.requestProfileChange(this.driverForm.getRawValue())
       .subscribe({
-        next: () => {
-          this.successMessage =
-            'Your changes have been sent to the administrator for approval.';
-        },
-        error: () => {
-          this.errorMessage = 'Failed to submit profile changes.';
-        }
+             next: () => {
+        this.successMessage =
+          'Your changes have been sent to the administrator for approval.';
+        this.errorMessage = '';
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.errorMessage = 'Failed to submit profile changes.';
+        this.successMessage = '';
+        this.cdr.detectChanges();
+      }
       });
   }
 
   onChangePassword() {
     this.router.navigate(['/change-password']);
   }
+
+  private getImageUrl(filename: string | null): string | null {
+  if (!filename) return null;
+  return `http://localhost:8080/api/profile/picture/${filename}`;
+}
+
 
 }

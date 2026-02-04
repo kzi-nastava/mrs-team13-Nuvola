@@ -16,6 +16,7 @@ public class DriverProfileResponseDTO {
     // vehicle
     private String model;
     private VehicleType type;
+    private String regNumber;
     private int numOfSeats;
     private boolean babyFriendly;
     private boolean petFriendly;
@@ -116,5 +117,13 @@ public class DriverProfileResponseDTO {
 
     public void setPetFriendly(boolean petFriendly) {
         this.petFriendly = petFriendly;
+    }
+
+    public String getRegNumber() {
+        return regNumber;
+    }
+
+    public void setRegNumber(String regNumber) {
+        this.regNumber = regNumber;
     }
 }
