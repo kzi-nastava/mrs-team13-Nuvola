@@ -92,6 +92,7 @@ public class WebSecurityConfig {
                     .requestMatchers("/api/drivers/active-vehicles").permitAll()
                     .requestMatchers("/api/rides/now/**").permitAll()
                     .requestMatchers("/api/drivers/active-vehicles").permitAll()
+                    .requestMatchers("/api/rides/**").permitAll()
                     .requestMatchers("/api/reviews").permitAll()
                     .requestMatchers("/api/reviews/*").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/drivers").permitAll() //ovo sam dodala

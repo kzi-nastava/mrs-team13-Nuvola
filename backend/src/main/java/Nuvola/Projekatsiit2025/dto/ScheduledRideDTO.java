@@ -1,72 +1,34 @@
 package Nuvola.Projekatsiit2025.dto;
 
 
+import Nuvola.Projekatsiit2025.model.Driver;
+import Nuvola.Projekatsiit2025.model.Location;
+import Nuvola.Projekatsiit2025.model.Ride;
+import Nuvola.Projekatsiit2025.model.Route;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
+@Data
+@AllArgsConstructor
 public class ScheduledRideDTO {
     private long id;
     private double price;
-    private String dropoff;
-    private String pickup;
+    private Location dropoff;
+    private Location pickup;
     private LocalDateTime startingTime;
     private String driver;
-    private boolean isFavouriteRoute;
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public String getDropoff() {
-        return dropoff;
-    }
-
-    public void setDropoff(String dropoff) {
-        this.dropoff = dropoff;
-    }
-
-    public String getPickup() {
-        return pickup;
-    }
-
-    public void setPickup(String pickup) {
-        this.pickup = pickup;
-    }
-
-    public LocalDateTime getStartingTime() {
-        return startingTime;
-    }
-
-    public void setStartingTime(LocalDateTime startingTime) {
-        this.startingTime = startingTime;
-    }
-
-
-    public String getDriver() {
-        return driver;
-    }
-
-    public void setDriver(String driver) {
-        this.driver = driver;
-    }
-
-    public boolean isFavouriteRoute() {
-        return isFavouriteRoute;
-    }
-
-    public void setFavouriteRoute(boolean favouriteRoute) {
-        isFavouriteRoute = favouriteRoute;
+    public ScheduledRideDTO(Ride ride) {
+        this.id = ride.getId();
+        this.price = ride.getPrice();
+        this.startingTime = ride.getStartTime();
+        Driver driver = ride.getDriver();
+        this.driver = driver.getFirstName() + " " + driver.getLastName();
+        Route route = ride.getRoute();
+        this.dropoff = route.getDropoff();
+        this.pickup = route.getPickup();
     }
 }
 

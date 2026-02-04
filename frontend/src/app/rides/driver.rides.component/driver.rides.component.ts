@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { EndRideService } from '../service/end.ride.service';
+import { AuthService } from '../../auth/services/auth.service';
 
 
 type RideStatus = 'UPCOMING' | 'IN_PROGRESS' | 'FINISHED' | 'CANCELLED';
@@ -28,6 +31,8 @@ type DriverRide = {
   styleUrl: './driver.rides.component.css',
 })
 export class DriverRidesComponent {
+  constructor(private authService: AuthService, private endRideService: EndRideService, private router: Router) {}
+  errorMessage: string | null = null;
  rides: DriverRide[] = [
     {
       id: 1,
@@ -104,7 +109,23 @@ export class DriverRidesComponent {
   }
 
   finishRide(ride: DriverRide) {
-    ride.status = 'FINISHED';
+    //ride.status = 'FINISHED';
+    const username = this.authService.getUsername();
+    if (!username) {
+      this.errorMessage = 'User not authenticated.';
+      return;
+    }
+    this.endRideService.endRide(username).subscribe({
+      next: (resp) => {
+        const rideId = resp.body; // 204 -> body is null
+        if (rideId) {
+          this.router.navigate(['/scheduled-ride', rideId]);
+        }
+        
+      },
+      error: () => this.errorMessage = 'Failed to end ride.'
+    });
+
   }
 
   panic(ride: DriverRide) {
