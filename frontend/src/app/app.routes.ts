@@ -38,7 +38,7 @@ export const routes: Routes = [
     {path: 'ride-tracking/:rideId', component: RideTrackingComponent },
     {path:'grading/:rideId', component: GradingComponent },
     {path: 'driver-rides/:username', component: DriverRidesComponent, canActivate: [AuthGuard],
-    data: {role: ['ROLE_REGISTERED_USER']} },
+    data: {role: ['ROLE_REGISTERED_USER', 'ROLE_DRIVER']} },
     {path: 'activate-account', component: ResetPasswordComponent},
     {path: 'change-password', component: ChangePasswordComponent },
     { path: 'driver-account/:username', component: DriverAccountComponent },
