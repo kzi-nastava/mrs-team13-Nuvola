@@ -102,6 +102,7 @@ public class WebSecurityConfig {
                     //Da nam lepsu poruku vrati
                     .requestMatchers("/error").permitAll()
                     //.requestMatchers(new AntPathRequestMatcher("/api/whoami")).hasRole("USER")
+                    .requestMatchers("/api/rides/estimate").permitAll()
                     .anyRequest().authenticated();
         });
         http.addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userService), UsernamePasswordAuthenticationFilter.class);
