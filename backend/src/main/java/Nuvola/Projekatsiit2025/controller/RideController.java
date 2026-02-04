@@ -30,6 +30,15 @@ public class RideController {
     @Autowired
     private RideService rideService;
 
+    @Autowired
+    private RideEstimateService rideEstimateService;
+
+    // 2.1.2 - Estimate ride
+    @PostMapping(value = "/estimate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RideEstimateResponseDTO> estimateRide(@RequestBody RideEstimateRequestDTO request) {
+        RideEstimateResponseDTO response = rideEstimateService.estimateRide(request);
+        return ResponseEntity.ok(response);
+    }
 
     // 2.4.1
     @PostMapping

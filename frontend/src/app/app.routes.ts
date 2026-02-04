@@ -17,6 +17,8 @@ import { HomepageComponent } from './homepage/homepage.component/homepage.compon
 import { RideTrackingComponent } from './rides/ride.tracking.component/ride.tracking.component';
 import { GradingComponent } from './rides/grading.component/grading.component';
 import { ChangePasswordComponent } from './layout/change.password.component/change.password.component';
+import { EstimateFormComponent } from './rides/estimate.form.component/estimate.form.component';
+import { EstimateResultComponent } from './rides/estimate-result/estimate-result';
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
@@ -39,23 +41,6 @@ export const routes: Routes = [
     {path: 'activate-account', component: ResetPasswordComponent},
     {path: 'change-password', component: ChangePasswordComponent },
     { path: 'driver-account/:username', component: DriverAccountComponent },
-    {
-  path: 'estimate',
-  loadComponent: () =>
-    import('./rides/estimate.form.component/estimate.form.component')
-      .then(m => m.EstimateFormComponent)
-},
-{
-  path: 'estimate/result',
-  loadComponent: () =>
-    import('./rides/estimate-result/estimate-result')
-      .then(m => m.EstimateResultComponent)
-},
-
-{
-  path: '',
-  redirectTo: 'estimate',
-  pathMatch: 'full'
-}
-
+    { path: 'estimate', component: EstimateFormComponent },
+    { path: 'estimate/result', component: EstimateResultComponent }
 ];

@@ -3,6 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-defaulticon-compatibility';
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
+
+
 
 import * as L from 'leaflet';
 
