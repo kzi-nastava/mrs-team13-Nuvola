@@ -45,6 +45,6 @@ export const routes: Routes = [
     { path: 'change-password', component: ChangePasswordComponent },
     { path: 'driver-account', component: DriverAccountComponent },
     { path: 'estimate', component: EstimateFormComponent },
-    { path: 'estimate/result', component: EstimateResultComponent }
+    { path: 'estimate/result', component: EstimateResultComponent },
     { path: 'scheduled-ride-start/:rideId', component: ScheduledRideStartComponent },
 ];
