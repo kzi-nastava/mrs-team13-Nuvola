@@ -21,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/rides")
+@CrossOrigin(origins = "http://localhost:4200")
 public class RideController {
 
     @Autowired
@@ -90,12 +91,10 @@ public class RideController {
     }
 
     // 2.7
-    @PutMapping(value="/{rideId}/end", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ScheduledRideDTO>> endRide(@PathVariable Long rideId) {
-        List<ScheduledRideDTO> rides = new ArrayList<>();
-        // via service find scheduled ride for this driver and for current time
-
-        return new ResponseEntity<List<ScheduledRideDTO>>(rides, HttpStatus.OK);
+    @PutMapping(value="/{username}/end", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ScheduledRideDTO> endRide(@PathVariable String username) {
+        ScheduledRideDTO rides = rideService.endRide(username);
+        return new ResponseEntity<ScheduledRideDTO>(rides, HttpStatus.OK);
     }
 
 

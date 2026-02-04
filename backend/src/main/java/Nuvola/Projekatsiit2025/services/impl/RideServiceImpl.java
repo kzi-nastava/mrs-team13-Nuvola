@@ -2,7 +2,11 @@ package Nuvola.Projekatsiit2025.services.impl;
 
 import Nuvola.Projekatsiit2025.dto.CreateRideDTO;
 import Nuvola.Projekatsiit2025.dto.DriverRideHistoryItemDTO;
+import Nuvola.Projekatsiit2025.dto.ScheduledRideDTO;
+import Nuvola.Projekatsiit2025.exceptions.ride.InvalidRideStateException;
+import Nuvola.Projekatsiit2025.exceptions.ride.RideNotFoundException;
 import Nuvola.Projekatsiit2025.model.*;
+import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 import Nuvola.Projekatsiit2025.model.enums.VehicleType;
 import Nuvola.Projekatsiit2025.repositories.DriverRepository;
@@ -70,6 +74,7 @@ public class RideServiceImpl implements RideService {
         // Send email notification to passengers
         EmailDetails emailDetails = new EmailDetails();
         String baseLink = "http://localhost:4200/ride-tracking/";
+        emailDetails.setSubject("Track your ride");
         for (RegisteredUser ru : ride.getOtherPassengers()) {
             emailDetails.setRecipient(ru.getEmail());
 
@@ -78,6 +83,7 @@ public class RideServiceImpl implements RideService {
         }
         emailDetails.setLink(baseLink + ride.getCreator().getId());
         emailDetails.setRecipient(ride.getCreator().getEmail());
+        emailService.sendTrackingPage(emailDetails);
 
     }
 
@@ -148,6 +154,62 @@ public class RideServiceImpl implements RideService {
 
         return rideRepository.save(ride);
     }
+
+    @Override
+    public ScheduledRideDTO endRide(String username) {
+        // find current ride of this driver, if not found throw RideNotFoundException
+        // return this driver's scheduled ride
+        List<Ride> rides = rideRepository.findByDriver_UsernameAndStatus(username, RideStatus.IN_PROGRESS);
+        if (rides.isEmpty()) throw new RideNotFoundException("Ride of " + username + " not found");
+        if (rides.size() > 1) throw new InvalidRideStateException(username + " has multiple rides in progress");
+
+        Ride ride = rides.get(0);
+        ride.setStatus(RideStatus.FINISHED);
+        ride.setEndTime(LocalDateTime.now());
+
+        Driver driver = ride.getDriver();
+        driver.setStatus(DriverStatus.ACTIVE);
+
+        // send email to passengers
+        String messageBody = "Ride ID: " + ride.getId() + "\n" + "Price: " + ride.getPrice() + " RSD\n";
+        EmailDetails emailDetails = new EmailDetails("", messageBody, "Ride Ended");
+        for (RegisteredUser u : ride.getOtherPassengers()) {
+            emailDetails.setRecipient(u.getEmail());
+            emailService.sendRideFinished(emailDetails);
+        }
+        emailDetails.setRecipient(ride.getCreator().getEmail());
+        emailService.sendRideFinished(emailDetails);
+
+        //TODO: send notification to passengers
+
+        ScheduledRideDTO response = new ScheduledRideDTO();
+        Ride scheduledRide = getNearestScheduledRideForDriver(driver.getId());
+        if  (scheduledRide == null) {
+            response.setId(-1L);
+            return  response;
+        }
+        Route route = scheduledRide.getRoute();
+
+        response.setId(scheduledRide.getId());
+        response.setPrice(scheduledRide.getPrice());
+        response.setDriver(driver.getFirstName() + " " + driver.getLastName());
+        response.setPickup(route.getPickup());
+        response.setDropoff(route.getDropoff());
+        response.setStartingTime(scheduledRide.getStartTime());
+
+        return response;
+    }
+
+    private Ride getNearestScheduledRideForDriver(Long driverId) {
+        return rideRepository
+                .findFirstByDriverIdAndStatusAndStartTimeIsNotNullAndStartTimeGreaterThanEqualOrderByStartTimeAsc(
+                        driverId,
+                        RideStatus.SCHEDULED,
+                        LocalDateTime.now()
+                )
+                .orElse(null);
+    }
+
 
     private double calculatePrice(double distanceKm, VehicleType type) {
         double basePrice;
