@@ -5,6 +5,7 @@ import Nuvola.Projekatsiit2025.model.Ride;
 import Nuvola.Projekatsiit2025.model.User;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 import Nuvola.Projekatsiit2025.services.EmailService;
+import Nuvola.Projekatsiit2025.services.RideEstimateService;
 import Nuvola.Projekatsiit2025.services.RideService;
 import Nuvola.Projekatsiit2025.util.EmailDetails;
 import jakarta.validation.Valid;
@@ -100,18 +101,6 @@ public class RideController {
 
 
 
-    // 2.1.2
-    @PostMapping(value = "/estimate", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RideEstimateResponseDTO> estimateRide(@RequestBody RideEstimateRequestDTO dto) {
-
-        RideEstimateResponseDTO response = new RideEstimateResponseDTO(
-                dto.getStartAddress(),
-                dto.getDestinationAddress(),
-                12 // stub procena
-        );
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }    
     
     // 2.5 Cancel ride
     @PutMapping(value = "/{rideId}/cancel", produces = MediaType.APPLICATION_JSON_VALUE)

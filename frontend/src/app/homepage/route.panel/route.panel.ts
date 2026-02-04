@@ -6,6 +6,8 @@ import { debounceTime, distinctUntilChanged, of, Subscription, switchMap } from 
 import { GeocodingService } from '../../logedin.homepage/services/geocoding.service';
 import { Route } from '@angular/router';
 import { RouteDataService } from '../service/route.data.service';
+import { RouteEstimateService } from '../service/route.estimate.service';
+
 
 @Component({
   selector: 'app-route-panel',
@@ -30,7 +32,8 @@ export class RoutePanel implements OnInit, OnDestroy{
   constructor(
     private fb: FormBuilder,
     private geocoding: GeocodingService,
-    private routeDataService: RouteDataService
+    private routeDataService: RouteDataService,
+    private routeEstimateService: RouteEstimateService
   ) {
     this.form = this.fb.group({
       from: ['', Validators.required],
@@ -106,7 +109,7 @@ export class RoutePanel implements OnInit, OnDestroy{
 
   // buttons
 
-  calculateRoute() {
+  /*calculateRoute() {
     if (this.form.get('from')?.invalid || this.form.get('to')?.invalid) {
       this.form.get('from')?.markAsTouched();
       this.form.get('to')?.markAsTouched();
@@ -123,7 +126,54 @@ export class RoutePanel implements OnInit, OnDestroy{
     this.geocoding.search(toText + ' Novi Sad').subscribe((res) => {
       if  (res.length > 0) this.routeDataService.setTo(res[0]);
     });
+  }*/
+
+    calculateRoute() {
+  if (this.form.get('from')?.invalid || this.form.get('to')?.invalid) {
+    this.form.get('from')?.markAsTouched();
+    this.form.get('to')?.markAsTouched();
+    return;
   }
+
+  const fromText = this.form.value.from;
+  const toText = this.form.value.to;
+
+  // 1) Prvo geokodiramo obe adrese (da mapa dobije lokacije)
+  this.geocoding.search(fromText + ' Novi Sad')
+    .pipe(
+      switchMap((fromRes) => {
+        if (!fromRes.length) return of(null);
+
+        this.routeDataService.setFrom(fromRes[0]);
+
+        return this.geocoding.search(toText + ' Novi Sad').pipe(
+          switchMap((toRes) => {
+            if (!toRes.length) return of(null);
+
+            this.routeDataService.setTo(toRes[0]);
+
+            // 2) Kad imamo obe lokacije, zovemo backend procenu
+            const startAddress = fromRes[0].address;
+            const endAddress = toRes[0].address;
+
+            return this.routeEstimateService.estimateRoute({ startAddress, endAddress });
+          })
+        );
+      })
+    )
+    .subscribe({
+      next: (estimate) => {
+        if (!estimate) return;
+        this.routeDataService.setEstimate(estimate);
+      },
+      error: (err) => {
+        console.error('Estimate error:', err);
+        this.toastMessage = 'Ne mogu da izračunam procenu vožnje (backend).';
+        clearTimeout(this.toastTimeout);
+        this.toastTimeout = setTimeout(() => (this.toastMessage = ''), 3000);
+      }
+    });
+}
 
   clearAll() {
     this.routeDataService.reset();

@@ -1,0 +1,17 @@
+<div *ngIf="loading" class="status">Računam...</div>
+
+<p *ngIf="error" class="error">{{ error }}</p>
+
+<div class="map-wrap">
+  <div id="map" class="map"></div>
+
+  <div *ngIf="!loading && result" class="eta-badge">
+    ⏱ {{ result.estimatedTimeMinutes }} min
+  </div>
+</div>
+
+<div *ngIf="!loading && result" class="estimate-info">
+  <p class="eta"><b>Procena vremena:</b> {{ result.estimatedTimeMinutes }} min</p>
+  <p><b>Od:</b> {{ result.startAddress }}</p>
+  <p><b>Do:</b> {{ result.destinationAddress }}</p>
+</div>
