@@ -1,8 +1,7 @@
 package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.CreateReviewDTO;
-import Nuvola.Projekatsiit2025.dto.CreatedDriverDTO;
-import Nuvola.Projekatsiit2025.exceptions.RideNotFoundException;
+import Nuvola.Projekatsiit2025.exceptions.ride.RideNotFoundException;
 import Nuvola.Projekatsiit2025.services.RatingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

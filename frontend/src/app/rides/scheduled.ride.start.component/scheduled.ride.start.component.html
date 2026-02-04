@@ -1,0 +1,71 @@
+<main>
+<section class="nearest-ride">
+  <div class="nearest-ride__header">
+    <h2>Nearest scheduled ride</h2>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="nearest-ride__state">
+    Loading nearest ride...
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && errorMessage" class="nearest-ride__state nearest-ride__state--error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- No ride -->
+  <div *ngIf="!loading && !errorMessage && !nearestRide" class="nearest-ride__state">
+    No scheduled rides found.
+  </div>
+
+  <!-- Ride card -->
+  <article *ngIf="!loading && !errorMessage && nearestRide" class="ride-card">
+    <div class="ride-card__top">
+      <div class="ride-card__id">
+        <span class="label">Ride ID</span>
+        <span class="value">#{{ nearestRide.id }}</span>
+      </div>
+
+      <div class="ride-card__price">
+        <span class="label">Price</span>
+        <span class="value">{{ nearestRide.price | number:'1.0-2' }} RSD</span>
+      </div>
+    </div>
+
+    <div class="ride-card__grid">
+      <div class="ride-card__item">
+        <span class="label">Scheduled for</span>
+        <!-- startTime ISO string -->
+        <span class="value">{{ nearestRide.startingTime | date:'dd.MM.yyyy HH:mm' }}</span>
+      </div>
+
+      <div class="ride-card__item">
+        <span class="label">Driver</span>
+        <span class="value">
+          {{ nearestRide.driver || '—' }}
+        </span>
+      </div>
+
+      <div class="ride-card__item ride-card__item--full">
+        <span class="label">From</span>
+        <span class="value">
+          {{ nearestRide.pickup || '—' }}
+        </span>
+      </div>
+
+      <div class="ride-card__item ride-card__item--full">
+        <span class="label">To</span>
+        <span class="value">
+          {{ nearestRide.dropoff || '—' }}
+        </span>
+      </div>
+    </div>
+  </article>
+  <div class="nearest-ride__actions" *ngIf="!loading && !errorMessage && nearestRide">
+    <button class="btn">
+      Start Ride
+    </button>
+  </div>
+</section>
+</main>

@@ -8,7 +8,7 @@ import { DriverAccountComponent } from './layout/driver.account.component/driver
 import { RegisterComponent } from './auth/register.component/register.component';
 import { ForgotPasswordComponent } from './auth/forgot.password.component/forgot.password.component';
 import { ResetPasswordComponent } from './auth/reset.password.component/reset.password.component';
-import { EstimateFormComponent } from './rides/estimate.form.component/estimate.form.component';
+//port { EstimateFormComponent } from './rides/estimate.form.component/estimate.form.component';
 import { CancelRideComponent } from './rides/cancel-ride.component/cancel-ride.component';
 import { AdminPanicComponent } from './panic/admin-panic.component';
 import { DriverRidesComponent } from './rides/driver.rides.component/driver.rides.component';
@@ -17,6 +17,10 @@ import { HomepageComponent } from './homepage/homepage.component/homepage.compon
 import { RideTrackingComponent } from './rides/ride.tracking.component/ride.tracking.component';
 import { GradingComponent } from './rides/grading.component/grading.component';
 import { ChangePasswordComponent } from './layout/change.password.component/change.password.component';
+import { EstimateFormComponent } from './rides/estimate.form.component/estimate.form.component';
+import { EstimateResultComponent } from './rides/estimate-result/estimate-result';
+import { AuthGuard } from './auth/services/auth.guard';
+import { ScheduledRideStartComponent } from './rides/scheduled.ride.start.component/scheduled.ride.start.component';
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
@@ -27,16 +31,20 @@ export const routes: Routes = [
     {path: 'register', component: RegisterComponent },
     {path: 'forgot-password/:username', component: ForgotPasswordComponent },
     {path: 'reset-password', component: ResetPasswordComponent },
-    {path: 'estimate', component: EstimateFormComponent},
+    //{path: 'estimate', component: EstimateFormComponent},
     {path:'rides/:id/cancel', component:CancelRideComponent},
     {path:'admin/panic', component: AdminPanicComponent},
     {path: 'register-driver', component: RegisterDriversComponent },
     {path: 'logedin-home/:username', component: LogedinPageComponent },
     {path: 'homepage', component: HomepageComponent },
-    {path: 'ride-tracking/:id', component: RideTrackingComponent },
+    {path: 'ride-tracking/:rideId', component: RideTrackingComponent },
     {path:'grading/:rideId', component: GradingComponent },
-    {path: 'driver-rides/:username', component: DriverRidesComponent },
+    {path: 'driver-rides/:username', component: DriverRidesComponent, canActivate: [AuthGuard],
+    data: {role: ['ROLE_REGISTERED_USER', 'ROLE_DRIVER']} },
     {path: 'activate-account', component: ResetPasswordComponent},
     { path: 'change-password', component: ChangePasswordComponent },
     { path: 'driver-account', component: DriverAccountComponent },
+    { path: 'estimate', component: EstimateFormComponent },
+    { path: 'estimate/result', component: EstimateResultComponent }
+    { path: 'scheduled-ride-start/:rideId', component: ScheduledRideStartComponent },
 ];

@@ -92,6 +92,7 @@ public class WebSecurityConfig {
                     .requestMatchers("/api/drivers/active-vehicles").permitAll()
                     .requestMatchers("/api/rides/now/**").permitAll()
                     .requestMatchers("/api/drivers/active-vehicles").permitAll()
+                    .requestMatchers("/api/rides/**").permitAll()
                     .requestMatchers("/api/reviews").permitAll()
                     .requestMatchers("/api/reviews/*").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/drivers").permitAll() //ovo sam dodala
@@ -105,6 +106,7 @@ public class WebSecurityConfig {
                     //Da nam lepsu poruku vrati
                     .requestMatchers("/error").permitAll()
                     //.requestMatchers(new AntPathRequestMatcher("/api/whoami")).hasRole("USER")
+                    .requestMatchers("/api/rides/estimate").permitAll()
                     .anyRequest().authenticated();
         });
         http.addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userService), UsernamePasswordAuthenticationFilter.class);
