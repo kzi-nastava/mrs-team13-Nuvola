@@ -17,6 +17,8 @@ import { HomepageComponent } from './homepage/homepage.component/homepage.compon
 import { RideTrackingComponent } from './rides/ride.tracking.component/ride.tracking.component';
 import { GradingComponent } from './rides/grading.component/grading.component';
 import { ChangePasswordComponent } from './layout/change.password.component/change.password.component';
+import { AuthGuard } from './auth/services/auth.guard';
+import { ScheduledRideStartComponent } from './rides/scheduled.ride.start.component/scheduled.ride.start.component';
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
@@ -33,10 +35,12 @@ export const routes: Routes = [
     {path: 'register-driver', component: RegisterDriversComponent },
     {path: 'logedin-home/:username', component: LogedinPageComponent },
     {path: 'homepage', component: HomepageComponent },
-    {path: 'ride-tracking/:id', component: RideTrackingComponent },
+    {path: 'ride-tracking/:rideId', component: RideTrackingComponent },
     {path:'grading/:rideId', component: GradingComponent },
-    {path: 'driver-rides/:username', component: DriverRidesComponent },
+    {path: 'driver-rides/:username', component: DriverRidesComponent, canActivate: [AuthGuard],
+    data: {role: ['ROLE_REGISTERED_USER', 'ROLE_DRIVER']} },
     {path: 'activate-account', component: ResetPasswordComponent},
     {path: 'change-password', component: ChangePasswordComponent },
     { path: 'driver-account/:username', component: DriverAccountComponent },
+    { path: 'scheduled-ride-start/:rideId', component: ScheduledRideStartComponent },
 ];

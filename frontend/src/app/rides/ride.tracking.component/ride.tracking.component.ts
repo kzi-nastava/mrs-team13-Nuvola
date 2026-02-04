@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   Inject,
   OnDestroy,
@@ -10,6 +11,8 @@ import {
 } from '@angular/core';
 import { Observable, Subscription, interval, startWith, switchMap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../env/enviroment';
+import { AuthService } from '../../auth/services/auth.service';
 
 interface LocationDTO {
   latitude: number;
@@ -32,7 +35,9 @@ interface TrackingRideDTO {
 }
 
 interface ReportRequestDTO {
-  text: string;
+  reason: string;
+  authorUsername: string;
+  rideId: number;
 }
 
 @Component({
@@ -59,11 +64,13 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
   errorMessage: string | null = null;
   successMessage: string | null = null;
 
-  private userId!: number;
+  private rideId!: number;
 
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
@@ -85,12 +92,22 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
     if (!text || this.isSending) return;
 
     this.isSending = true;
+    
 
-    this.sendReport(this.userId, { text }).subscribe({
+    const username: string = this.authService.getUsername() || '';
+    if (username.length === 0) {
+      this.isSending = false;
+      this.errorMessage = 'You must be logged in to send a report.';
+      return;
+    }
+
+    this.sendReport({ reason: this.reportText, authorUsername: username, rideId: this.rideId }).subscribe({
       next: () => {
         this.isSending = false;
         this.reportText = '';
         this.successMessage = 'Report sent successfully.';
+        this.errorMessage = null;
+        this.cdr.detectChanges();
         // this.showReportForm = false;
       },
       error: (err: HttpErrorResponse) => {
@@ -111,13 +128,15 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
         } else {
           this.errorMessage = backendMsg ?? 'Error sending report. Please try again.';
         }
+        this.cdr.detectChanges();
+        
       },
     });
   }
 
   // rest call to send report
-  private sendReport(userId: number, body: ReportRequestDTO): Observable<any> {
-    return this.http.post(`http://localhost:8080/api/reports/user/${userId}`, body);
+  private sendReport(body: ReportRequestDTO): Observable<any> {
+    return this.http.post(environment.apiHost + `/api/rides/report`, body);
   }
 
 
@@ -158,12 +177,12 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
 
     // getting userId from route param
-    const idParam = this.route.snapshot.paramMap.get('id');
+    const idParam = this.route.snapshot.paramMap.get('rideId');
     const parsed = Number(idParam);
-    this.userId = Number.isFinite(parsed) ? parsed : 0;
+    this.rideId = Number.isFinite(parsed) ? parsed : 0;
 
-    if (!this.userId) {
-      console.error('Missing or invalid userId param in route.');
+    if (!this.rideId) {
+      console.error('Missing or invalid rideId param in route.');
       this.initMap();
       return;
     }
@@ -189,7 +208,7 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
     this.buildIcons();
 
     // 1) Učitaj trenutnu vožnju i nacrtaj rutu (sa uputstvima)
-    this.fetchCurrentRide(this.userId).subscribe({
+    this.fetchCurrentRide().subscribe({
       next: (ride) => {
         const stops = ride?.route?.stops ?? [];
         if (stops.length < 2) {
@@ -213,7 +232,7 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
     this.posSub = interval(2000)
       .pipe(
         startWith(0),
-        switchMap(() => this.fetchVehiclePosition(this.userId))
+        switchMap(() => this.fetchVehiclePosition())
       )
       .subscribe({
         next: (pos) => this.updateVehicleMarker(pos),
@@ -222,12 +241,22 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
   }
 
   // ---------- REST ----------
-  private fetchCurrentRide(userId: number): Observable<TrackingRideDTO> {
-    return this.http.get<TrackingRideDTO>(`http://localhost:8080/api/rides/now/user/${userId}`);
+  private fetchCurrentRide(): Observable<TrackingRideDTO> {
+    const username: string = this.authService.getUsername() || '';
+    if (username.length === 0) {
+      this.errorMessage = 'You must be logged in to track the ride.';
+      return new Observable<TrackingRideDTO>();
+    }
+    return this.http.get<TrackingRideDTO>(`http://localhost:8080/api/rides/now/user/${username}`);
   }
 
-  private fetchVehiclePosition(userId: number): Observable<LocationDTO> {
-    return this.http.get<LocationDTO>(`http://localhost:8080/api/rides/now/user/${userId}/position`);
+  private fetchVehiclePosition(): Observable<LocationDTO> {
+    const username: string = this.authService.getUsername() || '';
+    if (username.length === 0) {
+      this.errorMessage = 'You must be logged in to track the ride.';
+      return new Observable<LocationDTO>();
+    }
+    return this.http.get<LocationDTO>(`http://localhost:8080/api/rides/now/user/${username}/position`);
   }
 
   // ---------- MAP ----------
