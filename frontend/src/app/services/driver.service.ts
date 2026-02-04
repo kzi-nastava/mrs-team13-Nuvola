@@ -15,15 +15,33 @@ export class DriverService {
     return this.http.post(this.apiUrl, payload);
   }
 
-   /** Dohvatanje profila ulogovanog vozača */
   getMyProfile(): Observable<any> {
     return this.http.get(this.profileApi);
   }
-
-  /** Slanje zahteva adminu za izmenu profila */
   requestProfileChange(payload: any): Observable<void> {
     //return this.http.put<void>(`${this.profileApi}/driver-request`, payload);
     return this.http.put<void>(this.profileApi, payload);
 
   }
+
+  getDriverProfile(): Observable<any> {
+  return this.http.get('http://localhost:8080/api/driver/profile');
+}
+
+
+    uploadPicture(formData: FormData) {
+  return this.http.post<any>(
+    'http://localhost:8080/api/profile/picture',
+    formData
+  );
+}
+
+uploadDriverPicture(driverId: number, formData: FormData) {
+  return this.http.post<any>(
+    `http://localhost:8080/api/drivers/${driverId}/picture`,
+    formData
+  );
+}
+
+
 }

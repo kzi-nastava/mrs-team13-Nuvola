@@ -43,15 +43,15 @@ export class NavBarComponent {
     this.menuOpen = false;
   }
 
-  onAccount(): void {
-    //this.router.navigate(['/account-settings/', this.authService.username()]);
-    if (this.authService.getRole() === 'ROLE_DRIVER') {
-      this.router.navigate(['/driver-account/', this.authService.getUsername()]);
-    } else {
-      this.router.navigate(['/account-settings/', this.authService.getUsername()]);
-    }
-    this.menuOpen = false;
+onAccount(): void {
+  if (this.authService.getRole() === 'ROLE_DRIVER') {
+    this.router.navigate(['/driver-account']);
+  } else {
+    this.router.navigate(['/account-settings']);
   }
+  this.menuOpen = false;
+}
+
 
   onLogout(): void {
     

@@ -22,6 +22,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+
 @RestController
 @RequestMapping("/api/drivers")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -34,6 +43,9 @@ public class DriverController {
 
     @Autowired
     private DriverService driverService;
+
+    @Autowired
+    private DriverRepository driverRepository;
 
     //2.2.3
     //@PreAuthorize("hasRole('ADMIN')") ovo nakon sto se namesti login kao admin
@@ -49,6 +61,28 @@ public class DriverController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @PostMapping("/{id}/picture")
+    public ResponseEntity<?> uploadDriverPicture(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+        Driver driver = driverRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        String filename = "profile_" + driver.getId() + ".png";
+
+        Path uploadPath = Paths.get("C:/uploads/profile-pictures/");
+        Files.createDirectories(uploadPath);
+
+        Files.write(uploadPath.resolve(filename), file.getBytes());
+
+        driver.setPicture(filename);
+        driverRepository.save(driver);
+
+        return ResponseEntity.ok(Map.of("picture", filename));
+    }
+
 
     // 2.9.2
     @PreAuthorize("hasRole('REGISTERED_USER')")
@@ -81,12 +115,6 @@ public class DriverController {
         );
 
         return ResponseEntity.ok(mockPage);
-
-        // TODO: Uncomment this when database has real data
-        // Page<DriverRideHistoryItemDTO> rides = rideService.getDriverRideHistory(
-        //         driverId, sortBy, sortOrder, page, size
-        // );
-        // return ResponseEntity.ok(rides);
 
     }
 

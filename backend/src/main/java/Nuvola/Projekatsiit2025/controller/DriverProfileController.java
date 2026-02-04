@@ -69,6 +69,7 @@ public class DriverProfileController {
         // vehicle
         dto.setModel(driver.getVehicle().getModel());
         dto.setType(driver.getVehicle().getType());
+        dto.setRegNumber(driver.getVehicle().getRegNumber());
         dto.setNumOfSeats(driver.getVehicle().getNumOfSeats());
         dto.setBabyFriendly(driver.getVehicle().isBabyFriendly());
         dto.setPetFriendly(driver.getVehicle().isPetFriendly());
@@ -98,7 +99,6 @@ public class DriverProfileController {
         req.setLastName(dto.getLastName());
         req.setPhone(dto.getPhone());
         req.setAddress(dto.getAddress());
-        req.setPicture(dto.getPicture());
 
         req.setModel(dto.getModel());
         req.setType(dto.getType());

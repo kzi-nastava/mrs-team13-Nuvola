@@ -78,4 +78,21 @@ export class AuthService {
       }
     );
   }
+
+  changePassword(data: {
+  currentPassword: string;
+  newPassword: string;
+}): Observable<void> {
+  return this.http.put<void>(
+    environment.apiHost + '/api/profile/password',
+    data
+  );
+}
+uploadProfilePicture(formData: FormData) {
+  return this.http.post(
+    'http://localhost:8080/api/profile/picture',
+    formData
+  );
+}
+
 }

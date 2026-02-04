@@ -127,19 +127,28 @@ export class RegisterComponent {
       lastName: this.lastName.value || '',
       phone: this.phone.value || '',
       address: this.address.value || '',
-      picture: this.imagePreviewUrl || '',
+
     };
-    this.authService.register(registerData).subscribe({
-      next: (response) => {
-        console.log('Registration successful:', response);
-        this.registered = true;
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
-        console.error('Registration failed:', error);
-        alert('Registration failed. Please try again.');
-      },
-    });
+  this.authService.register(registerData).subscribe({
+  next: (response) => {
+
+    const file = this.form.value.profileImage;
+
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      this.authService.uploadProfilePicture(formData).subscribe();
+    }
+
+    this.registered = true;
+    this.router.navigate(['/login']);
+  },
+  error: (error) => {
+    console.error('Registration failed:', error);
+    alert('Registration failed. Please try again.');
+  },
+});
 
 
   }

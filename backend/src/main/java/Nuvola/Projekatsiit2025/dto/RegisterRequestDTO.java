@@ -7,7 +7,6 @@ public class RegisterRequestDTO {
     private String lastName;
     private String address;
     private String phone;
-    private String picture;
 
     public RegisterRequestDTO() {}
 
@@ -31,7 +30,4 @@ public class RegisterRequestDTO {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
-
-    public String getPicture() { return picture; }
-    public void setPicture(String picture) { this.picture = picture; }
 }

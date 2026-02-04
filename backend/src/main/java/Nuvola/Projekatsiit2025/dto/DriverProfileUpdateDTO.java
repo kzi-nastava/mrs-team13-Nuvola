@@ -37,8 +37,6 @@ public class DriverProfileUpdateDTO {
     @Size(min = 3, max = 255)
     private String address;
 
-    private String picture;
-
     // vehicle
     @NotNull(message = "Model cannot be null")
     @NotBlank(message = "Model name cannot be blank")
@@ -91,13 +89,6 @@ public class DriverProfileUpdateDTO {
         this.address = address;
     }
 
-    public String getPicture() {
-        return picture;
-    }
-
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
 
     public String getModel() {
         return model;
