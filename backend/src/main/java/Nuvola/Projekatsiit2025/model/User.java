@@ -55,9 +55,6 @@ public abstract class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        if (this instanceof RegisteredUser ru) {
-            return ru.isActivated();   // ne može login dok nije aktiviran
-        }
         return true; // ili return isActivated;
     }
 

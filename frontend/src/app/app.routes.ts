@@ -21,7 +21,6 @@ import { EstimateFormComponent } from './rides/estimate.form.component/estimate.
 import { EstimateResultComponent } from './rides/estimate-result/estimate-result';
 import { AuthGuard } from './auth/services/auth.guard';
 import { ScheduledRideStartComponent } from './rides/scheduled.ride.start.component/scheduled.ride.start.component';
-import { ActivateEmailComponent } from './auth/activate.email.component/activate.email.component';
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
@@ -48,6 +47,4 @@ export const routes: Routes = [
     { path: 'estimate', component: EstimateFormComponent },
     { path: 'estimate/result', component: EstimateResultComponent },
     { path: 'scheduled-ride-start/:rideId', component: ScheduledRideStartComponent },
-    { path: 'activate', component: ActivateEmailComponent },
-
 ];
