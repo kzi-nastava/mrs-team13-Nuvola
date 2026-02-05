@@ -73,6 +73,9 @@ public class RideServiceImpl implements RideService {
         Ride ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new RuntimeException("Ride not found with id: " + rideId));
 
+        Driver driver = ride.getDriver();
+        driver.setStatus(DriverStatus.BUSY);
+        driverRepository.save(driver);
         ride.setStatus(RideStatus.IN_PROGRESS);
         ride.setStartTime(java.time.LocalDateTime.now());
         rideRepository.save(ride);
