@@ -113,7 +113,7 @@ public class AuthController {
             throw new ResourceConflictException(dto.getUsername(), "Username already exists");
         }
 
-        RegisteredUser user = userService.saveRegisteredUser(dto);
+        RegisteredUser user =  userService.saveRegisteredUser(dto);
 
         RegisterResponseDTO response = new RegisterResponseDTO();
         response.setId(user.getId());
@@ -126,39 +126,6 @@ public class AuthController {
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
-    @GetMapping("/activate-email")
-    public ResponseEntity<String> activateEmail(@RequestParam String token) {
-
-        ActivationToken activationToken =
-                activationTokenRepository.findByToken(token)
-                        .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.BAD_REQUEST, "INVALID_TOKEN"
-                        ));
-
-        if (activationToken.isUsed() ||
-                activationToken.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TOKEN_EXPIRED");
-        }
-
-        User user = activationToken.getUser();
-
-        // ✅ aktiviraj nalog
-        if (user instanceof RegisteredUser ru) {
-            ru.setActivated(true);
-            userRepository.save(ru);
-        } else {
-            // ako ikad dođe neki drugi tip
-            userRepository.save(user);
-        }
-
-        activationToken.setUsed(true);
-        activationTokenRepository.save(activationToken);
-
-        return ResponseEntity.ok("Account activated successfully.");
-    }
-
-
     // 2.2.3 Driver registration
 
     @PostMapping("/activate")

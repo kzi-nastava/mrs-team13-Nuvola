@@ -3,12 +3,10 @@ package Nuvola.Projekatsiit2025.dto;
 public class RegisterRequestDTO {
     private String email;
     private String password;
-    private String confirmPassword;
     private String firstName;
     private String lastName;
     private String address;
     private String phone;
-    private String picture;
 
     public RegisterRequestDTO() {}
 
@@ -16,13 +14,10 @@ public class RegisterRequestDTO {
     public void setEmail(String email) { this.email = email; }
 
     public String getUsername() { return email; }
-    public void setUsername(String username) { this.email = username; }
+    public void setUsername(String firstName) { this.email = email; }
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-
-    public String getConfirmPassword() { return confirmPassword; }
-    public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -35,7 +30,4 @@ public class RegisterRequestDTO {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
-
-    public String getPicture() { return picture; }
-    public void setPicture(String picture) { this.picture = picture; }
 }
