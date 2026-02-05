@@ -79,6 +79,16 @@ export class AuthService {
     );
   }
 
+  activateEmail(token: string): Observable<string> {
+    return this.http.get(
+      environment.apiHost + '/api/auth/activate-email',
+      {
+        params: { token },
+        responseType: 'text' // backend vraća plain text
+      }
+    );
+  }
+
   changePassword(data: {
   currentPassword: string;
   newPassword: string;
@@ -89,11 +99,10 @@ export class AuthService {
   );
 }
 uploadProfilePicture(formData: FormData) {
-  return this.http.post(
-    'http://localhost:8080/api/profile/picture',
-    formData
-  );
-}
-
-
+    // bolje ovako:
+    return this.http.post(
+      environment.apiHost + '/api/profile/picture',
+      formData
+    );
+  }
 }
