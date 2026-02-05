@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {AbstractControl,FormControl,FormGroup,ReactiveFormsModule,ValidationErrors,Validators} from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -24,6 +24,11 @@ hide0 = true;
   hide2 = true;
 
   done = false;
+    successMessage = '';
+  errorMessage = '';
+  messageType = ''; 
+  messageTimeout: any;
+
 
   form = new FormGroup(
     {
@@ -36,7 +41,8 @@ hide0 = true;
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   get currentPassword() {
@@ -51,34 +57,45 @@ hide0 = true;
     return !!this.form.errors?.['passwordsMismatch'];
   }
 
- submit() {
-  if (this.form.invalid) {
-    this.form.markAllAsTouched();
-    return;
+  submit() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.authService.changePassword({
+      currentPassword: this.form.value.currentPassword!,
+      newPassword: this.form.value.newPassword!,
+    }).subscribe({
+      next: () => {
+        this.successMessage = 'Password changed successfully. Please log in again.';
+        this.messageType = 'success';
+        this.displayMessage();
+        this.cdr.detectChanges();
+
+        this.authService.logout();
+      
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 2000); 
+      },
+      error: () => {
+        this.errorMessage = 'There was an error changing your password. Please try again.';
+        this.messageType = 'error';  
+        this.displayMessage();
+      }
+    });
   }
 
-  this.authService.changePassword({
-    currentPassword: this.form.value.currentPassword!,
-    newPassword: this.form.value.newPassword!,
-  }).subscribe({
-    next: () => {
-      this.done = true;
+  private displayMessage() {
+    if (this.messageTimeout) clearTimeout(this.messageTimeout);
+    this.messageTimeout = setTimeout(() => {
+      this.successMessage = '';
+      this.errorMessage = '';
+      this.messageType = '';
+      this.cdr.detectChanges();
+    }, 2000);
+  }
 
-      setTimeout(() => {
-        const role = this.authService.getRole();
-
-        if (role === 'ROLE_DRIVER') {
-          this.router.navigate(['/driver-account']);
-        } else {
-          // ADMIN ili REGISTERED_USER
-          this.router.navigate(['/account-settings']);
-        }
-      }, 1000);
-    },
-    error: () => {
-      alert('Current password is incorrect.');
-    }
-  });
-}
 
 }
