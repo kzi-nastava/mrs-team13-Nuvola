@@ -24,12 +24,12 @@ export class EndRideService {
 
 
     endRide(username: string) {
-        const url = `${environment.apiHost}/rides/${username}/end`;
+        const url = `${environment.apiHost}/api/rides/${username}/end`;
         return this.http.put<number>(url, null, { observe: 'response' as const });
     }
 
     getScheduledRide(rideId: number): Observable<ScheduledRide> {
-        const url = `${environment.apiHost}/rides/scheduled-ride/${rideId}`;
+        const url = `${environment.apiHost}/api/rides/scheduled-ride/${rideId}`;
         return this.http.get<ScheduledRide>(url);
     }
 

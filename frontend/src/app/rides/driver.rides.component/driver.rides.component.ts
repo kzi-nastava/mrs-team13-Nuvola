@@ -119,11 +119,16 @@ export class DriverRidesComponent {
       next: (resp) => {
         const rideId = resp.body; // 204 -> body is null
         if (rideId) {
-          this.router.navigate(['/scheduled-ride', rideId]);
+          this.router.navigate(['/scheduled-ride-start', rideId]);
         }
-        
+        // TODO: If backend returns 204 No Content, RELOAD DATA FROM BACKEND to get updated ride status and details
+
       },
-      error: () => this.errorMessage = 'Failed to end ride.'
+      error: () => { 
+        this.errorMessage = 'Failed to end ride.';
+        this.router.navigate(['/scheduled-ride-start', 2]);
+      }
+      
     });
 
   }
