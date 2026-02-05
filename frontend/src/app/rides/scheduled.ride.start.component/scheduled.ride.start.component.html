@@ -20,7 +20,7 @@
   </div>
 
   <!-- Ride card -->
-  <article *ngIf="!loading && !errorMessage && nearestRide" class="ride-card">
+  <article *ngIf="nearestRide" class="ride-card">
     <div class="ride-card__top">
       <div class="ride-card__id">
         <span class="label">Ride ID</span>
@@ -50,14 +50,14 @@
       <div class="ride-card__item ride-card__item--full">
         <span class="label">From</span>
         <span class="value">
-          {{ nearestRide.pickup || '—' }}
+          {{ nearestRide.pickup.latitude }}, {{ nearestRide.pickup.longitude }}
         </span>
       </div>
 
       <div class="ride-card__item ride-card__item--full">
         <span class="label">To</span>
         <span class="value">
-          {{ nearestRide.dropoff || '—' }}
+          {{ nearestRide.dropoff.latitude }}, {{ nearestRide.dropoff.longitude }}
         </span>
       </div>
     </div>
