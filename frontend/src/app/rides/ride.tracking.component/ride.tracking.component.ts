@@ -14,9 +14,19 @@ import { FormsModule } from '@angular/forms';
 import { environment } from '../../env/enviroment';
 import { AuthService } from '../../auth/services/auth.service';
 
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+
 interface LocationDTO {
   latitude: number;
   longitude: number;
+}
+
+interface DriverPositionUpdate {
+  latitude: number;
+  longitude: number;
+  toRemove: boolean;
+  driverId: number;
 }
 
 interface RouteDTO {
@@ -55,7 +65,52 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
   private vehicleMarker?: any;
   private carIcon?: any;
 
-  private posSub?: Subscription;
+  private driverId!: number;
+  private stompClient?: Client;
+  private wsSub?: any;           // StompSubscription
+  private useWebSocket = true;
+
+
+  // ------- WEBSOCKETS -------
+
+  initializeWebSocketConnection() {
+    if (this.stompClient?.active) return;
+
+    this.stompClient = new Client({
+      webSocketFactory: () => new SockJS(environment.apiHost + '/ws'),
+      reconnectDelay: 3000,
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000,
+      debug: () => {},
+      onConnect: () => {
+        this.wsSub = this.stompClient!.subscribe(`/topic/position/${this.driverId}`, (msg) => {
+          const update: DriverPositionUpdate = JSON.parse(msg.body);
+          this.handlePositionUpdate(update);
+        });
+      },
+      onStompError: (frame) => {
+        console.error('STOMP error', frame);
+      },
+    });
+
+    this.stompClient.activate();
+  }
+
+
+  handlePositionUpdate(update: DriverPositionUpdate) {
+    if (!this.map) return;
+
+    if (update.toRemove) {
+      // ako backend šalje "remove" signal
+      if (this.vehicleMarker) {
+        this.map.removeLayer(this.vehicleMarker);
+        this.vehicleMarker = undefined;
+      }
+      return;
+    }
+
+    this.updateVehicleMarker({ latitude: update.latitude, longitude: update.longitude });
+  }
 
    // ------- REPORT UI STATE -------
   showReportForm = false;
@@ -75,7 +130,14 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
   ) {}
 
   ngOnDestroy(): void {
-    this.posSub?.unsubscribe();
+    try {
+      this.wsSub?.unsubscribe();
+    } catch {}
+
+    if (this.stompClient) {
+      this.stompClient.deactivate();
+      this.stompClient = undefined;
+    }
   }
 
   // ----------REPORTING ----------
@@ -217,10 +279,18 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
           return;
         }
 
+        if (this.vehicleMarker) {
+          this.map.removeLayer(this.vehicleMarker);
+          this.vehicleMarker = undefined;
+        }
+
+        this.driverId = ride.driverId;
+
         // inicijalni centar = prva stanica
         this.initMap([stops[0].latitude, stops[0].longitude]);
 
         this.renderRouteWithInstructions(stops);
+        this.initializeWebSocketConnection();
       },
       error: (e) => {
         console.error(e);
@@ -228,16 +298,7 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
       },
     });
 
-    // 2) Polling pozicije vozila (npr. na 2s)
-    this.posSub = interval(2000)
-      .pipe(
-        startWith(0),
-        switchMap(() => this.fetchVehiclePosition())
-      )
-      .subscribe({
-        next: (pos) => this.updateVehicleMarker(pos),
-        error: (e) => console.error(e),
-      });
+    
   }
 
   // ---------- REST ----------
@@ -296,12 +357,12 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
   private updateVehicleMarker(pos: LocationDTO): void {
     const latlng: [number, number] = [pos.latitude, pos.longitude];
 
-    if (!this.map) return; // ako vožnja još nije učitana
+    if (!this.map) return; // if the ride is not yet loaded
 
     if (!this.vehicleMarker) {
       this.vehicleMarker = this.L.marker(latlng, { icon: this.carIcon })
         .addTo(this.map)
-        .bindPopup('Vozilo');
+        .bindPopup('Vehicle');
     } else {
       this.vehicleMarker.setLatLng(latlng);
     }

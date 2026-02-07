@@ -50,11 +50,11 @@ public class VehiclePositionController {
         store.update(vehiclePosition);
 
         // 1) Ride tracking - sends vehicle's position to its subscribers
-        simpMessagingTemplate.convertAndSend("/topic/vehicles/" + vehiclePosition.getVehicleId(), vehiclePosition);
+        simpMessagingTemplate.convertAndSend("/topic/position/" + vehiclePosition.getVehicleId(), vehiclePosition);
 
         // 2) Active vehicles and their status - send snapshot of all active vehicles to subscribers
 
-        simpMessagingTemplate.convertAndSend("/topic/vehicles/active", activeVehicleDTO);
+        simpMessagingTemplate.convertAndSend("/topic/position/all", activeVehicleDTO);
     }
 
 }
