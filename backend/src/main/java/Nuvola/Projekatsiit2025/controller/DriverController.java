@@ -39,9 +39,6 @@ public class DriverController {
     private RideService rideService;
 
     @Autowired
-    private VehicleTrackingService vehicleTrackingService;
-
-    @Autowired
     private DriverService driverService;
 
     @Autowired
@@ -178,30 +175,26 @@ public class DriverController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    // public ResponseEntity<List<VehicleLocationDTO>> getActiveVehicles() {
-    //     List<VehicleLocationDTO> vehicles = vehicleTrackingService.getAllActiveVehicleLocations();
-    //     return ResponseEntity.ok(vehicles);
-    // }
 
-    @PreAuthorize("hasRole('DRIVER')")
-    @PutMapping("/{vehicleId}/location")
-    public ResponseEntity<Void> updateLocation(
-            @PathVariable Long vehicleId,
-            @RequestBody LocationUpdateRequestDTO request) {
-
-        try {
-            vehicleTrackingService.updateVehicleLocation(
-                    new VehiclePositionDTO(
-                            vehicleId,
-                            request.getLatitude(),
-                            request.getLongitude()
-                    )
-            );
-        }  catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok().build();
-    }
+//    @PreAuthorize("hasRole('DRIVER')")
+//    @PutMapping("/{vehicleId}/location")
+//    public ResponseEntity<Void> updateLocation(
+//            @PathVariable Long vehicleId,
+//            @RequestBody LocationUpdateRequestDTO request) {
+//
+//        try {
+//            vehicleTrackingService.updateVehicleLocation(
+//                    new VehiclePositionDTO(
+//                            vehicleId,
+//                            request.getLatitude(),
+//                            request.getLongitude()
+//                    )
+//            );
+//        }  catch (Exception e) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//
+//        return ResponseEntity.ok().build();
+//    }
 
 }
