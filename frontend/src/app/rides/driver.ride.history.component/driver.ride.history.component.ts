@@ -48,7 +48,7 @@ export class DriverRideHistoryComponent implements OnInit {
       .subscribe({
         next: (rides) => {
           this.service.setRides(rides);
-          this.loadAddresses(rides);
+          //this.loadAddresses(rides);
           this.isLoading = false;
         },
         error: (err) => {
@@ -59,45 +59,45 @@ export class DriverRideHistoryComponent implements OnInit {
       });
   }
 
-  private loadAddresses(rides: RideModel[]) {
-    // Inicijalizujte sa koordinatama kao fallback
-    this.ridesWithAddresses = rides.map(ride => ({
-      ...ride,
-      pickupAddress: `${ride.pickup.latitude.toFixed(4)}, ${ride.pickup.longitude.toFixed(4)}`,
-      dropoffAddress: `${ride.dropoff.latitude.toFixed(4)}, ${ride.dropoff.longitude.toFixed(4)}`
-    }));
+  // private loadAddresses(rides: RideModel[]) {
+  //   // Inicijalizujte sa koordinatama kao fallback
+  //   this.ridesWithAddresses = rides.map(ride => ({
+  //     ...ride,
+  //     pickupAddress: `${ride.pickup.latitude.toFixed(4)}, ${ride.pickup.longitude.toFixed(4)}`,
+  //     dropoffAddress: `${ride.dropoff.latitude.toFixed(4)}, ${ride.dropoff.longitude.toFixed(4)}`
+  //   }));
 
-    // Učitaj adrese asinkrono koristeći vaš geocoding servis
-    rides.forEach((ride, index) => {
-      // Reverse geocoding za pickup
-      this.geocodingService.reverse(
-        ride.pickup.latitude,
-        ride.pickup.longitude
-      ).subscribe({
-        next: (location) => {
-          this.ridesWithAddresses[index].pickupAddress = location.address;
-        },
-        error: (err) => {
-          console.error('Geocoding error for pickup:', err);
-          // Ostaje fallback koordinata
-        }
-      });
+  //   // Učitaj adrese asinkrono koristeći vaš geocoding servis
+  //   rides.forEach((ride, index) => {
+  //     // Reverse geocoding za pickup
+  //     this.geocodingService.reverse(
+  //       ride.pickup.latitude,
+  //       ride.pickup.longitude
+  //     ).subscribe({
+  //       next: (location) => {
+  //         this.ridesWithAddresses[index].pickupAddress = location.address;
+  //       },
+  //       error: (err) => {
+  //         console.error('Geocoding error for pickup:', err);
+  //         // Ostaje fallback koordinata
+  //       }
+  //     });
 
-      // Reverse geocoding za dropoff
-      this.geocodingService.reverse(
-        ride.dropoff.latitude,
-        ride.dropoff.longitude
-      ).subscribe({
-        next: (location) => {
-          this.ridesWithAddresses[index].dropoffAddress = location.address;
-        },
-        error: (err) => {
-          console.error('Geocoding error for dropoff:', err);
-          // Ostaje fallback koordinata
-        }
-      });
-    });
-  }
+  //     // Reverse geocoding za dropoff
+  //     this.geocodingService.reverse(
+  //       ride.dropoff.latitude,
+  //       ride.dropoff.longitude
+  //     ).subscribe({
+  //       next: (location) => {
+  //         this.ridesWithAddresses[index].dropoffAddress = location.address;
+  //       },
+  //       error: (err) => {
+  //         console.error('Geocoding error for dropoff:', err);
+  //         // Ostaje fallback koordinata
+  //       }
+  //     });
+  //   });
+  // }
 
   isAscending(): boolean {
     const currentRides = this.rides();

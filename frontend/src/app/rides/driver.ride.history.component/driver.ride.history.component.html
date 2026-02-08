@@ -4,7 +4,7 @@
     </button>
 
     <div class="list">
-    @for (ride of ridesWithAddresses; track ride.id) { 
+    @for (ride of rides(); track ride.id) { 
         <div class="ride-card">
             <div class="ride-header">
                 <div class="ride-info">
@@ -45,7 +45,7 @@
                             <span>Pickup</span>
                         </div>
                         <div class="location-address">
-                            {{ride.pickupAddress}}
+                            {{ride.pickup}}
                         </div>
                     </div>
 
@@ -59,7 +59,7 @@
                             <span>Dropoff</span>
                         </div>
                         <div class="location-address">
-                            {{ride.dropoffAddress}}
+                            {{ride.dropoff}}
                         </div>
                     </div>
                 </div>
