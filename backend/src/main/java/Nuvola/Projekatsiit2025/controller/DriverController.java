@@ -85,7 +85,7 @@ public class DriverController {
 
 
     // 2.9.2
-    @PreAuthorize("hasRole('REGISTERED_USER')")
+    //@PreAuthorize("hasRole('DRIVER')")
     @GetMapping(value = "/{username}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<DriverRideHistoryItemDTO>> getDriverRideHistory(
             @PathVariable String username,

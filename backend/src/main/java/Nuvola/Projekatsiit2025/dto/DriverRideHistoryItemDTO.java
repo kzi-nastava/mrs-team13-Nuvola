@@ -16,6 +16,7 @@ public class DriverRideHistoryItemDTO {
     private Location pickup;
     private LocalDateTime startingTime;
     private String driver;
+
     private boolean isFavouriteRoute;
 
     public DriverRideHistoryItemDTO() {}

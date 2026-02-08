@@ -91,6 +91,7 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/auth/activate-email").permitAll()
                     .requestMatchers("/api/foo").permitAll()
                     .requestMatchers("/api/drivers/active-vehicles").permitAll()
+                    .requestMatchers("/api/drivers/*/rides").permitAll()
                     .requestMatchers("/api/rides/now/**").permitAll()
                     .requestMatchers("/api/drivers/active-vehicles").permitAll()
                     .requestMatchers("/api/rides/**").permitAll()

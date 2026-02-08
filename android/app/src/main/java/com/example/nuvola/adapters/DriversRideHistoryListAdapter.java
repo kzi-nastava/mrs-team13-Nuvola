@@ -69,6 +69,7 @@ public class DriversRideHistoryListAdapter extends ArrayAdapter<Ride> {
             updateFavoriteIcon(favoriteIcon, ride.isFavouriteRoute);
             favoriteIcon.setOnClickListener(null);
             favoriteIcon.setOnClickListener(v -> {
+
                 ride.isFavouriteRoute = !ride.isFavouriteRoute;
                 updateFavoriteIcon(favoriteIcon, ride.isFavouriteRoute);
             });

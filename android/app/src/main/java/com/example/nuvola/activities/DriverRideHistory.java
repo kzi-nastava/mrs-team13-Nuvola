@@ -61,8 +61,9 @@ public class DriverRideHistory extends AppCompatActivity
         toggle.syncState();
 
         if (savedInstanceState == null) {
-            ArrayList<Ride> rides = createTestRides();
-            DriversRideHistoryFragment fragment = DriversRideHistoryFragment.newInstance(rides);
+            // ArrayList<Ride> rides = createTestRides();
+            //DriversRideHistoryFragment fragment = DriversRideHistoryFragment.newInstance(rides);
+            DriversRideHistoryFragment fragment = new DriversRideHistoryFragment();
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container, fragment);
