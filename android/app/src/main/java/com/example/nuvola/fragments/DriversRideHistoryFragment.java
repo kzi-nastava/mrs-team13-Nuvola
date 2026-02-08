@@ -110,16 +110,8 @@ public class DriversRideHistoryFragment extends ListFragment {
         r.price = dto.price;
         r.driver = dto.driver;
         r.isFavouriteRoute = dto.favouriteRoute;
-
-        // privremeno prikazi koordinate kao string dok ne ubacis reverse geocode
-        if (dto.pickup != null) {
-            r.pickup = dto.pickup.latitude + ", " + dto.pickup.longitude;
-        }
-        if (dto.dropoff != null) {
-            r.dropoff = dto.dropoff.latitude + ", " + dto.dropoff.longitude;
-        }
-
-        // očekujem ISO: 2026-02-08T12:34:56
+        r.pickup = dto.pickup;
+        r.dropoff = dto.dropoff;
         try {
             r.startingTime = java.time.LocalDateTime.parse(dto.startingTime);
         } catch (Exception e) {
