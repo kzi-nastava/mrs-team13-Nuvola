@@ -105,4 +105,21 @@ uploadProfilePicture(formData: FormData) {
       formData
     );
   }
+
+  forgotPassword(email: string): Observable<string> {
+  return this.http.post(
+    environment.apiHost + '/api/auth/forgot-password',
+    { email },
+    { headers: this.headers, responseType: 'text' }
+  );
+}
+
+resetPassword(token: string, newPassword: string, confirmNewPassword: string): Observable<string> {
+  return this.http.post(
+    `http://localhost:8080/api/auth/reset-password?token=${encodeURIComponent(token)}`,
+    { newPassword, confirmNewPassword },
+    { headers: this.headers, responseType: 'text' }
+  );
+}
+
 }
