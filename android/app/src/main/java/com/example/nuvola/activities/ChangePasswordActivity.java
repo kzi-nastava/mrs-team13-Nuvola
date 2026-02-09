@@ -45,9 +45,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         // Initialize API based on user type
         if (isDriver()) {
-            driverProfileApi = ApiClient.getRetrofit(this).create(DriverProfileApi.class);
+            driverProfileApi = ApiClient.getRetrofit().create(DriverProfileApi.class);
         } else {
-            profileApi = ApiClient.getRetrofit(this).create(ProfileApi.class);
+            profileApi = ApiClient.getRetrofit().create(ProfileApi.class);
         }
 
         // On click listener for change password button
