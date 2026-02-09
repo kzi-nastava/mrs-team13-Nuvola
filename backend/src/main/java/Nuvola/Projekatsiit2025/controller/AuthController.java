@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired

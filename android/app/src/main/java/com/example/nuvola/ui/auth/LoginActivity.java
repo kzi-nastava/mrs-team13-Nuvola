@@ -106,8 +106,10 @@ public class LoginActivity extends AppCompatActivity {
                                     String userType = JwtRoleHelper.getUserType(token);
 
                                     if ("DRIVER".equals(userType)) {
+                                        Log.d("LoginActivity", "User type is DRIVER -> opening DriverRideHistory");
                                         startActivity(new Intent(LoginActivity.this,
                                                 DriverRideHistory.class));
+
                                     } else {
                                         // PASSENGER ili ADMIN
                                         startActivity(new Intent(LoginActivity.this,

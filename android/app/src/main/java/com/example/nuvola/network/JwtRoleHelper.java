@@ -1,6 +1,7 @@
 package com.example.nuvola.network;
 
 import android.util.Base64;
+import android.util.Log;
 
 import org.json.JSONObject;
 
@@ -22,6 +23,7 @@ public class JwtRoleHelper {
 
             return "UNKNOWN";
         } catch (Exception e) {
+            Log.e("JwtRoleHelper", "Failed to parse JWT roles. tokenPresent=" + (token != null), e);
             return "UNKNOWN";
         }
     }
