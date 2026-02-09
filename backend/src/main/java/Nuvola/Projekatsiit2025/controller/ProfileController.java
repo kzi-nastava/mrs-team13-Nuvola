@@ -13,8 +13,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.multipart.MultipartFile;
+
 @RestController
 @RequestMapping("/api/profile")
+@CrossOrigin(origins = "*")
 public class ProfileController {
 
     private final UserRepository userRepository;
@@ -65,12 +79,14 @@ public class ProfileController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+        String existingPicture = user.getPicture();
 
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setPhone(dto.getPhone());
         user.setAddress(dto.getAddress());
-        user.setPicture(dto.getPicture());
+
+        user.setPicture(existingPicture);
 
         userRepository.save(user);
 
@@ -106,4 +122,43 @@ public class ProfileController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/picture")
+    public ResponseEntity<?> uploadProfilePicture(
+            @RequestParam("file") MultipartFile file,
+            Authentication auth
+    ) throws IOException {
+
+        String email = auth.getName(); // email == username
+        User user = userRepository.findByUsername(email);
+
+        String filename = "profile_" + user.getId() + ".png";
+
+        Path uploadPath = Paths.get("C:/uploads/profile-pictures/");
+        Files.createDirectories(uploadPath);
+
+        Path filePath = uploadPath.resolve(filename);
+        Files.write(filePath, file.getBytes());
+
+        user.setPicture(filename);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of(
+                "picture", filename
+        ));
+    }
+
+    @GetMapping("/picture/{filename}")
+    public ResponseEntity<Resource> getProfilePicture(@PathVariable String filename)
+            throws IOException {
+
+        Path filePath = Paths.get("C:/uploads/profile-pictures/").resolve(filename);
+
+        Resource resource = new UrlResource(filePath.toUri());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(resource);
+    }
+
 }

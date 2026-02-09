@@ -60,19 +60,17 @@ export class RegisterDriversComponent {
   });
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files?.[0];
-    if (!file || !file.type.startsWith('image/')) return;
+onFileSelected(event: any) {
+  const file = event.target.files?.[0];
+  if (!file || !file.type.startsWith('image/')) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      this.profilePreview = base64;
-      this.driverForm.patchValue({ picture: base64 });
-      this.cdr.detectChanges();
-    };
-    reader.readAsDataURL(file);
-  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    this.profilePreview = reader.result as string;
+    this.cdr.detectChanges();
+  };
+  reader.readAsDataURL(file);
+}
 
 onSubmit() {
   if (this.driverForm.invalid) {
@@ -80,10 +78,23 @@ onSubmit() {
     return;
   }
 
-  const payload = this.driverForm.value;
+  const { picture, ...payload } = this.driverForm.value;
 
   this.driverService.createDriver(payload).subscribe({
-    next: () => {
+    next: (createdDriver) => {
+
+      const fileInputEl = this.fileInput.nativeElement;
+      const file = fileInputEl.files?.[0];
+
+      if (file && createdDriver?.id) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        this.driverService
+           .uploadDriverPicture(createdDriver.id, formData)
+          .subscribe();
+      }
+
       this.showToast('success');
 
       this.driverForm.reset({
@@ -92,7 +103,6 @@ onSubmit() {
         email: '',
         phone: '',
         address: '',
-        picture: null,
         model: '',
         type: 'STANDARD',
         regNumber: '',
@@ -105,26 +115,24 @@ onSubmit() {
       this.fileInput.nativeElement.value = '';
     },
 
-  error: (err) => {
-  const code = err?.error?.code;
+    error: (err) => {
+      const code = err?.error?.code;
 
-  if (code === 'EMAIL_ALREADY_EXISTS') {
-    this.driverForm.get('email')?.setErrors({ alreadyExists: true });
-    this.driverForm.get('email')?.markAsTouched();
-    return;
-  }
+      if (code === 'EMAIL_ALREADY_EXISTS') {
+        this.driverForm.get('email')?.setErrors({ alreadyExists: true });
+        return;
+      }
 
-  if (code === 'REG_NUMBER_ALREADY_EXISTS') {
-    this.driverForm.get('regNumber')?.setErrors({ alreadyExists: true });
-    this.driverForm.get('regNumber')?.markAsTouched();
-    return;
-  }
+      if (code === 'REG_NUMBER_ALREADY_EXISTS') {
+        this.driverForm.get('regNumber')?.setErrors({ alreadyExists: true });
+        return;
+      }
 
-  console.error('Unexpected error', err);
-}
-
+      console.error('Unexpected error', err);
+    }
   });
 }
+
 
 
 private showToast(type: 'success' | 'email' | 'reg', duration = 2500) {

@@ -12,17 +12,27 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.nuvola.R;
+import com.example.nuvola.activities.DriverRideHistory;
 import com.example.nuvola.adapters.DriversRideHistoryListAdapter;
+import com.example.nuvola.network.ApiClient;
 import com.example.nuvola.databinding.FragmentDriversRideHistoryBinding;
 import com.example.nuvola.model.Ride;
+import com.example.nuvola.network.AuthApi;
+import com.example.nuvola.network.DriverApi;
+import com.example.nuvola.ui.auth.LoginActivity;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+
+import dto.DriverRideHistoryItemDTO;
+import dto.PageResponse;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link DriversRideHistoryFragment#newInstance} factory method to
+ * Use the {@link DriversRideHistoryFragment - newInstance} factory method to
  * create an instance of this fragment.
  */
 public class DriversRideHistoryFragment extends ListFragment {
@@ -30,31 +40,88 @@ public class DriversRideHistoryFragment extends ListFragment {
     private DriversRideHistoryListAdapter adapter;
     private ArrayList<Ride> mRides;
     private FragmentDriversRideHistoryBinding binding;
-    private static final String ARG_PARAM1 = "param";
+//    private static final String ARG_PARAM1 = "param";
 
+    private DriverApi api;
     private boolean isDateAscending = false;
 
     public DriversRideHistoryFragment() {
         // Required empty public constructor
     }
 
-    public static DriversRideHistoryFragment newInstance(ArrayList<Ride> rides) {
-        DriversRideHistoryFragment fragment = new DriversRideHistoryFragment();
-        Bundle args = new Bundle();
-        args.putParcelableArrayList(ARG_PARAM1, rides);
-        fragment.setArguments(args);
-        return fragment;
-    }
+//    public static DriversRideHistoryFragment newInstance(ArrayList<Ride> rides) {
+//        DriversRideHistoryFragment fragment = new DriversRideHistoryFragment();
+//        Bundle args = new Bundle();
+//        args.putParcelableArrayList(ARG_PARAM1, rides);
+//        fragment.setArguments(args);
+//        return fragment;
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mRides = getArguments().getParcelableArrayList(ARG_PARAM1, Ride.class);
-            adapter = new DriversRideHistoryListAdapter(getActivity(), mRides);
-            setListAdapter(adapter);
+//        if (getArguments() != null) {
+//            mRides = getArguments().getParcelableArrayList(ARG_PARAM1, Ride.class);
+//            adapter = new DriversRideHistoryListAdapter(getActivity(), mRides);
+//            setListAdapter(adapter);
+//
+//        }
+        mRides = new ArrayList<>();
+        api =  ApiClient.getRetrofit().create(DriverApi.class);
 
+
+
+        adapter = new DriversRideHistoryListAdapter(requireActivity(), mRides);
+        setListAdapter(adapter);
+
+        loadRidesFromBackend();
+    }
+
+    private void loadRidesFromBackend() {
+        String username = "testuser"; // TODO take from auth service
+        String sortOrder = isDateAscending ? "asc" : "desc";
+
+        api.getDriverRideHistory(username, "startingTime", sortOrder, 0, 20)
+                .enqueue(new Callback<PageResponse<DriverRideHistoryItemDTO>>() {
+                    @Override
+                    public void onResponse(Call<PageResponse<DriverRideHistoryItemDTO>> call,
+                                           Response<PageResponse<DriverRideHistoryItemDTO>> response) {
+                        if (!response.isSuccessful() || response.body() == null) {
+                            Log.e("RideHistory", "HTTP error: " + response.code());
+                            return;
+                        }
+
+                        mRides.clear();
+
+                        for (DriverRideHistoryItemDTO dto : response.body().content) {
+                            mRides.add(mapDtoToRide(dto));
+                        }
+
+                        adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onFailure(Call<PageResponse<DriverRideHistoryItemDTO>> call, Throwable t) {
+                        Log.e("RideHistory", "Network fail", t);
+                    }
+                });
+    }
+
+    private Ride mapDtoToRide(DriverRideHistoryItemDTO dto) {
+        Ride r = new Ride();
+        r.id = dto.id;
+        r.price = dto.price;
+        r.driver = dto.driver;
+        r.isFavouriteRoute = dto.favouriteRoute;
+        r.pickup = dto.pickup;
+        r.dropoff = dto.dropoff;
+        try {
+            r.startingTime = java.time.LocalDateTime.parse(dto.startingTime);
+        } catch (Exception e) {
+            r.startingTime = java.time.LocalDateTime.now(); // fallback
         }
+
+        return r;
     }
 
     @Override
@@ -69,23 +136,26 @@ public class DriversRideHistoryFragment extends ListFragment {
     }
 
     private void sortByDate(Button button) {
+//        isDateAscending = !isDateAscending;
+//
+//        Collections.sort(mRides, new Comparator<Ride>() {
+//            @Override
+//            public int compare(Ride r1, Ride r2) {
+//                if (isDateAscending) {
+//                    return r1.startingTime.compareTo(r2.startingTime);
+//                } else {
+//                    return r2.startingTime.compareTo(r1.startingTime);
+//                }
+//            }
+//        });
+//
+//        adapter.notifyDataSetChanged();
+//        button.setText(isDateAscending ? "Date ↑" : "Date ↓");
+//
+//        Log.d("RideHistoryFragment", "Sorted by date: " + (isDateAscending ? "ascending" : "descending"));
         isDateAscending = !isDateAscending;
-
-        Collections.sort(mRides, new Comparator<Ride>() {
-            @Override
-            public int compare(Ride r1, Ride r2) {
-                if (isDateAscending) {
-                    return r1.startingTime.compareTo(r2.startingTime);
-                } else {
-                    return r2.startingTime.compareTo(r1.startingTime);
-                }
-            }
-        });
-
-        adapter.notifyDataSetChanged();
         button.setText(isDateAscending ? "Date ↑" : "Date ↓");
-
-        Log.d("RideHistoryFragment", "Sorted by date: " + (isDateAscending ? "ascending" : "descending"));
+        loadRidesFromBackend();
     }
 
     @Override

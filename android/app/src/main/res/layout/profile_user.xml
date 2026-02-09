@@ -217,11 +217,11 @@
                     <!-- DRIVER INFO -->
                     <include
                         android:id="@+id/driverInfoContainer"
-                        layout="@layout/layout_driver_info"
-                        android:visibility="gone"/>
+                        layout="@layout/layout_driver_info" />
 
                     <!-- Change password -->
                     <Button
+                        android:id="@+id/btnChangePassword"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:text="Change your password"

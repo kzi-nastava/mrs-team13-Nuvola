@@ -64,11 +64,12 @@ public class DriversRideHistoryListAdapter extends ArrayAdapter<Ride> {
             driverName.setText(ride.driver);
             pickup.setText(ride.pickup);
             dropoff.setText(ride.dropoff);
-            price.setText(String.valueOf(ride.price));
+            price.setText(String.valueOf(ride.price + " RSD"));
 
             updateFavoriteIcon(favoriteIcon, ride.isFavouriteRoute);
             favoriteIcon.setOnClickListener(null);
             favoriteIcon.setOnClickListener(v -> {
+
                 ride.isFavouriteRoute = !ride.isFavouriteRoute;
                 updateFavoriteIcon(favoriteIcon, ride.isFavouriteRoute);
             });

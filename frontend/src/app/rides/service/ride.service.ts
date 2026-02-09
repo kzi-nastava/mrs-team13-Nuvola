@@ -150,8 +150,8 @@ import { map } from 'rxjs/operators';
 interface RideDTO {
   id: number;
   price: number;
-  dropoff: LocationModel;
-  pickup: LocationModel;
+  dropoff: string;
+  pickup: string;
   startingTime: string;
   driver: string;
   isFavouriteRoute: boolean;
@@ -176,12 +176,12 @@ export class RideService {
 
   constructor(private http: HttpClient) {}
 
-  loadDriverRides(driverId: number, sortBy: string = 'startingTime', sortOrder: string = 'desc'): Observable<RideModel[]> {
+  loadDriverRides(username: string, sortBy: string = 'startingTime', sortOrder: string = 'desc'): Observable<RideModel[]> {
     const params = new HttpParams()
       .set('sortBy', sortBy)
       .set('sortOrder', sortOrder);
 
-    return this.http.get<PageResponse>(`${this.apiUrl}/${driverId}/rides`, { params })
+    return this.http.get<PageResponse>(`${this.apiUrl}/${username}/rides`, { params })
       .pipe(
         map(response => {
           const rides = response.content || [];

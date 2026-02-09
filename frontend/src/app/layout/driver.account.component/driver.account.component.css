@@ -216,12 +216,33 @@ input:focus, select:focus {
   text-align: center;
 }
 
+
 .error {
   margin-top: 14px;
   color: #b91c1c;
   font-size: 13px;
   text-align: center;
 }
+
+.actions-area {
+  grid-column: 1 / -1; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 0px;
+}
+
+.password-btn.centered {
+  width: 260px;
+  margin: 0;
+}
+
+.success,
+.error {
+  text-align: center;
+}
+
 
 
 @keyframes slideDown {

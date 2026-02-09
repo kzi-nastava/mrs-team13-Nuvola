@@ -33,7 +33,8 @@ public abstract class User implements UserDetails {
     protected String phone;
     private Timestamp lastPasswordResetDate;
 
-    protected String picture;
+    @Column(length = 255)
+    private String picture;
 
     @Column(nullable = false)
     protected boolean isBlocked;
@@ -46,6 +47,30 @@ public abstract class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id")
     private Chat chat;
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !isBlocked;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        if (this instanceof RegisteredUser ru) {
+            return ru.isActivated();   // ne može login dok nije aktiviran
+        }
+        return true; // ili return isActivated;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
 
     public User() {
     }

@@ -37,4 +37,8 @@ Uber like application
 &nbsp;  - SMTP\_PASSWORD
 
 
+2\. Install:
+
+&nbsp;  - npm install @auth0/angular-jwt
+
 

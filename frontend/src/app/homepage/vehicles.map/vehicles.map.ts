@@ -198,6 +198,27 @@ private renderVehiclesSnapshot(vehicles: VehicleLocationDTO[]): void {
         this.updateRoute();
       })
     );
+    this.subs.add(
+      this.routeDataService.estimate$.subscribe((est) => {
+        if (!est) {
+          this.etaText = '';
+          this.distanceKm = null;
+          this.durationMin = null;
+          this.priceRsd = null;
+          this.cdr.detectChanges();
+          return;
+        }
+
+        this.durationMin = est.durationMin;
+        this.distanceKm = Number(est.distanceKm.toFixed(1));
+        this.priceRsd = this.calculatePrice(this.distanceKm, this.currentVehicleType);
+
+        this.etaText = `Estimated time: ${this.durationMin} min · Distance: ${this.distanceKm} km · Price: ${this.priceRsd} RSD`;
+        this.cdr.detectChanges();
+      })
+    );
+
+
   }
 
   private redPinIcon() {
@@ -310,6 +331,8 @@ private renderVehiclesSnapshot(vehicles: VehicleLocationDTO[]): void {
     this.routeControl.on('routesfound', (e: any) => {
       const route = e.routes?.[0];
       if (!route) return;
+      
+      if (this.routeDataService.getEstimate()) return; //added if we hace estimate from backend
 
       const seconds = route.summary.totalTime;
       const meters = route.summary.totalDistance;

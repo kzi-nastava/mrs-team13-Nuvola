@@ -12,10 +12,11 @@ import java.time.LocalDateTime;
 public class DriverRideHistoryItemDTO {
     private long id;
     private double price;
-    private Location dropoff;
-    private Location pickup;
+    private String dropoff;
+    private String pickup;
     private LocalDateTime startingTime;
     private String driver;
+
     private boolean isFavouriteRoute;
 
     public DriverRideHistoryItemDTO() {}
@@ -24,8 +25,8 @@ public class DriverRideHistoryItemDTO {
         id = ride.getId();
         price = ride.getPrice();
         Route route = ride.getRoute();
-        dropoff = route.getDropoff();
-        pickup = route.getPickup();
+        dropoff = route.getDropoff().toString();
+        pickup = route.getPickup().toString();
         startingTime = ride.getStartTime();
         Driver rideDriver = ride.getDriver();
         driver = rideDriver.getFirstName() + " " + rideDriver.getLastName();

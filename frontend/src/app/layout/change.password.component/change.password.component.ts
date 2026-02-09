@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {AbstractControl,FormControl,FormGroup,ReactiveFormsModule,ValidationErrors,Validators} from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../service/auth.service';
+import { AuthService } from '../../auth/services/auth.service';
 
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const newPass = group.get('newPassword')?.value;
@@ -24,6 +24,11 @@ hide0 = true;
   hide2 = true;
 
   done = false;
+    successMessage = '';
+  errorMessage = '';
+  messageType = ''; 
+  messageTimeout: any;
+
 
   form = new FormGroup(
     {
@@ -36,7 +41,8 @@ hide0 = true;
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   get currentPassword() {
@@ -62,14 +68,34 @@ hide0 = true;
       newPassword: this.form.value.newPassword!,
     }).subscribe({
       next: () => {
-        this.done = true;
+        this.successMessage = 'Password changed successfully. Please log in again.';
+        this.messageType = 'success';
+        this.displayMessage();
+        this.cdr.detectChanges();
+
+        this.authService.logout();
+      
         setTimeout(() => {
-          this.router.navigate(['/account-settings/', this.authService.username()]);
-        }, 1000);
+          this.router.navigate(['/login']);
+        }, 2000); 
       },
       error: () => {
-        alert('Current password is incorrect.');
+        this.errorMessage = 'There was an error changing your password. Please try again.';
+        this.messageType = 'error';  
+        this.displayMessage();
       }
     });
   }
+
+  private displayMessage() {
+    if (this.messageTimeout) clearTimeout(this.messageTimeout);
+    this.messageTimeout = setTimeout(() => {
+      this.successMessage = '';
+      this.errorMessage = '';
+      this.messageType = '';
+      this.cdr.detectChanges();
+    }, 2000);
+  }
+
+
 }

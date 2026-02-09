@@ -1,11 +1,7 @@
 package Nuvola.Projekatsiit2025.services.impl;
 
 import Nuvola.Projekatsiit2025.dto.CreateReviewDTO;
-import Nuvola.Projekatsiit2025.dto.CreatedReviewDTO;
-import Nuvola.Projekatsiit2025.exceptions.RideNotFoundException;
 import Nuvola.Projekatsiit2025.model.Rating;
-import Nuvola.Projekatsiit2025.model.RegisteredUser;
-import Nuvola.Projekatsiit2025.model.Ride;
 import Nuvola.Projekatsiit2025.repositories.RatingRepository;
 import Nuvola.Projekatsiit2025.repositories.RegisteredUserRepository;
 import Nuvola.Projekatsiit2025.repositories.RideRepository;

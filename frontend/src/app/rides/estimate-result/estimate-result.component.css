@@ -1,0 +1,39 @@
+.map-wrap {
+  position: relative;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.map {
+  height: 420px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.eta-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.status { padding: 12px; font-weight: 600; }
+.error { color: #b00020; padding: 12px; font-weight: 600; }
+
+.estimate-info {
+  margin: 16px auto;
+  padding: 16px;
+  max-width: 900px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.eta { font-size: 16px; font-weight: 700; }

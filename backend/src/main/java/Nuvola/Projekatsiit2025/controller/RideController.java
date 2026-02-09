@@ -5,6 +5,7 @@ import Nuvola.Projekatsiit2025.model.Ride;
 import Nuvola.Projekatsiit2025.model.User;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 import Nuvola.Projekatsiit2025.services.EmailService;
+import Nuvola.Projekatsiit2025.services.RideEstimateService;
 import Nuvola.Projekatsiit2025.services.RideService;
 import Nuvola.Projekatsiit2025.util.EmailDetails;
 import jakarta.validation.Valid;
@@ -21,14 +22,21 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/rides")
+@CrossOrigin(origins = "http://localhost:4200")
 public class RideController {
-
-    @Autowired
-    EmailService emailService;
 
     @Autowired
     private RideService rideService;
 
+    @Autowired
+    private RideEstimateService rideEstimateService;
+
+    // 2.1.2 - Estimate ride
+    @PostMapping(value = "/estimate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RideEstimateResponseDTO> estimateRide(@RequestBody RideEstimateRequestDTO request) {
+        RideEstimateResponseDTO response = rideEstimateService.estimateRide(request);
+        return ResponseEntity.ok(response);
+    }
 
     // 2.4.1
     @PostMapping
@@ -68,8 +76,8 @@ public class RideController {
     }
 
     //2.6.2
-    @GetMapping(value = "/now/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable("id") Long id){
+    @GetMapping(value = "/now/user/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable String username){
         // find that ride
         RouteDTO route = new RouteDTO();
         route.appendStop(new CoordinateDTO(45.238796, 19.883819));
@@ -82,36 +90,38 @@ public class RideController {
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
 
+    @PostMapping(value ="/report", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> createReport(@RequestBody CreateReportDTO createReportDTO) {
+        rideService.createReport(createReportDTO);
+
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping(value = "/now/user/{id}/position", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CoordinateDTO> getDriverPosition(@PathVariable("id") Long id){
+    public ResponseEntity<CoordinateDTO> getDriverPosition(@PathVariable Long id){
         // find that ride
         CoordinateDTO position = new CoordinateDTO(45.234116, 19.849381);
         return new ResponseEntity<>(position, HttpStatus.OK);
     }
 
     // 2.7
-    @PutMapping(value="/{rideId}/end", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ScheduledRideDTO>> endRide(@PathVariable Long rideId) {
-        List<ScheduledRideDTO> rides = new ArrayList<>();
-        // via service find scheduled ride for this driver and for current time
+    @PutMapping(value="/{username}/end", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Long> endRide(@PathVariable String username) {
+        Long rideId = rideService.endRide(username);
+        if (rideId == null) {
+            return ResponseEntity.noContent().build(); // 204
+        }
+        return ResponseEntity.ok(rideId); // 201
+    }
 
-        return new ResponseEntity<List<ScheduledRideDTO>>(rides, HttpStatus.OK);
+    @GetMapping(value = "/scheduled-ride/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ScheduledRideDTO> getScheduledRide(@PathVariable Long rideId) {
+        ScheduledRideDTO ride = rideService.getScheduledRide(rideId);
+        return ResponseEntity.ok(ride);
     }
 
 
 
-    // 2.1.2
-    @PostMapping(value = "/estimate", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RideEstimateResponseDTO> estimateRide(@RequestBody RideEstimateRequestDTO dto) {
-
-        RideEstimateResponseDTO response = new RideEstimateResponseDTO(
-                dto.getStartAddress(),
-                dto.getDestinationAddress(),
-                12 // stub procena
-        );
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }    
     
     // 2.5 Cancel ride
     @PutMapping(value = "/{rideId}/cancel", produces = MediaType.APPLICATION_JSON_VALUE)

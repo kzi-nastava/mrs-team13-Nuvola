@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { LocationModel } from '../../logedin.homepage/models/location.model';
+import { RouteEstimateResponse } from './route.estimate.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,8 +29,22 @@ export class RouteDataService {
     this.toSubject.next(loc);
   }
 
+  //estimate
+  private estimateSubject =
+    new BehaviorSubject<RouteEstimateResponse | null>(null);
+
+  estimate$ = this.estimateSubject.asObservable();
+
+  setEstimate(estimate: RouteEstimateResponse) {
+    this.estimateSubject.next(estimate);
+  }
+  getEstimate(): RouteEstimateResponse | null {
+    return this.estimateSubject.value;
+  }
+
   reset() {
     this.setFrom(null);
     this.setTo(null);
+    this.estimateSubject.next(null);
   }
 }

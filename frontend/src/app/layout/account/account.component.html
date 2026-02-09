@@ -4,13 +4,18 @@
     <div class="avatar">
       <div class="avatar-wrapper">
         <div class="circle">
-          <img *ngIf="profilePreview" [src]="profilePreview" class="avatar-img" />
+          <img *ngIf="profilePreview" [src]="profilePreview" width="150" class="avatar-img" />
         </div>
 
         <button class="upload-btn" type="button"  (click)="fileInput.click()">
           <img src="/icons/upload.svg" alt="Upload">
         </button>
-        <input type="file" accept="image/*" hidden #fileInput (change)="onFileSelected($event)" />
+        <input
+  #fileInput
+  type="file"
+  (change)="onFileSelected($event)"
+  hidden
+>
       </div>
 
       <span class="upload">Upload profile picture</span>
@@ -81,10 +86,14 @@
         (click)="onSave()">
         Save changes
       </button>
+       
+      <p class="success-msg" *ngIf="successMessage">
+  {{ successMessage }}
+</p>
 
-      <p class="success" *ngIf="successMessage">
-        {{ successMessage }}
-      </p>
+<p class="error-msg" *ngIf="errorMessage">
+  {{ errorMessage }}
+</p>
 
     </form>
   </div>

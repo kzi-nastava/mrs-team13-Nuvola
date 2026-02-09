@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../service/auth.service';
+import { AuthService } from '../../auth/services/auth.service';
 import { Console } from 'console';
 
 @Component({
@@ -28,30 +28,30 @@ export class NavBarComponent {
   }
 
   onUsers(): void {
-    this.router.navigate(['/users/', this.authService.username()]);
+    this.router.navigate(['/users/', this.authService.getUsername()]);
     this.menuOpen = false;
   }
   
   onMyRides(): void {
-    this.router.navigate(['/driver-rides/', this.authService.username()]);
+    this.router.navigate(['/driver-rides/', this.authService.getUsername()]);
     this.menuOpen = false;
   }
 
 
   onRideHistory(): void {
-    this.router.navigate(['/ride-history/', this.authService.username()]);
+    this.router.navigate(['/ride-history/', this.authService.getUsername()]);
     this.menuOpen = false;
   }
 
-  onAccount(): void {
-    //this.router.navigate(['/account-settings/', this.authService.username()]);
-    if (this.authService.role() === 'DRIVER') {
-      this.router.navigate(['/driver-account/', this.authService.username()]);
-    } else {
-      this.router.navigate(['/account-settings/', this.authService.username()]);
-    }
-    this.menuOpen = false;
+onAccount(): void {
+  if (this.authService.getRole() === 'ROLE_DRIVER') {
+    this.router.navigate(['/driver-account']);
+  } else {
+    this.router.navigate(['/account-settings']);
   }
+  this.menuOpen = false;
+}
+
 
   onLogout(): void {
     
@@ -72,7 +72,7 @@ export class NavBarComponent {
 
   onLogoClick(): void {
   if (this.authService.isLoggedIn()) {
-    this.router.navigate(['/logedin-home/', this.authService.username()]);
+    this.router.navigate(['/logedin-home/', this.authService.getUsername()]);
   } else {
     this.router.navigate(['/homepage']);
   }

@@ -54,9 +54,6 @@
           <input formControlName="address" />
         </div>
 
-        <button type="button" class="password-btn" (click)="onChangePassword()">
-          Change your password
-        </button>
       </div>
 
       <!-- RIGHT -->
@@ -100,14 +97,33 @@
         </div>
       </div>
 
-      <div class="submit-area">
-        <button type="button" class="submit-btn" (click)="onSave()">
-          Save changes
-        </button>
-      </div>
+     <div class="actions-area">
 
-      <p class="success" *ngIf="successMessage">{{ successMessage }}</p>
-      <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <button
+    type="button"
+    class="password-btn centered"
+    (click)="onChangePassword()"
+  >
+    Change your password
+  </button>
+
+  <button
+    type="button"
+    class="submit-btn"
+    (click)="onSave()"
+  >
+    Save changes
+  </button>
+
+  <p class="success" *ngIf="successMessage">
+    {{ successMessage }}
+  </p>
+
+  <p class="error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </p>
+
+</div>
 
     </form>
   </div>

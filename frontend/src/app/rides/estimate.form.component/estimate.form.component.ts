@@ -4,11 +4,13 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-estimate.form.component',
+  selector: 'app-estimate-form',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './estimate.form.component.html',
   styleUrl: './estimate.form.component.css',
 })
+
 export class EstimateFormComponent {
   form = new FormGroup({
     pickup: new FormControl('', [Validators.required, Validators.minLength(3)]),

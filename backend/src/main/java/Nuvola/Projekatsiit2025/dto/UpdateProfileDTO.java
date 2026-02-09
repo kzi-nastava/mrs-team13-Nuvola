@@ -40,8 +40,6 @@ public class UpdateProfileDTO {
     @Size(min = 3, max = 255)
     private String address;
 
-    private String picture;
-
 
     public UpdateProfileDTO() {}
 
@@ -77,12 +75,5 @@ public class UpdateProfileDTO {
         this.phone = phone;
     }
 
-    public String getPicture() {
-        return picture;
-    }
-
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
 
 }
