@@ -90,7 +90,10 @@ public class LoginActivity extends AppCompatActivity {
                 String email = etEmail.getText().toString().trim();
                 String password = etPassword.getText().toString();
 
-                AuthApi api = ApiClient.getRetrofit().create(AuthApi.class);
+//                AuthApi api = ApiClient.getRetrofit().create(AuthApi.class);
+                AuthApi api = ApiClient.getRetrofit(LoginActivity.this)
+                        .create(AuthApi.class);
+
 
                 api.login(new LoginRequest(email, password))
                         .enqueue(new Callback<UserTokenState>() {
@@ -104,16 +107,9 @@ public class LoginActivity extends AppCompatActivity {
                                     TokenStorage.saveToken(LoginActivity.this, token);
 
                                     String userType = JwtRoleHelper.getUserType(token);
-
-                                    if ("DRIVER".equals(userType)) {
-                                        startActivity(new Intent(LoginActivity.this,
-                                                DriversRideHistoryFragment.class));
-                                    } else {
-                                        // PASSENGER ili ADMIN
-                                        startActivity(new Intent(LoginActivity.this,
-                                                MainActivity.class));
-                                    }
-
+                                    TokenStorage.saveUserRole(LoginActivity.this, userType);
+                                    startActivity(new Intent(LoginActivity.this,
+                                            com.example.nuvola.activities.ProfileActivity.class));
                                     finish();
 
                                 } else {

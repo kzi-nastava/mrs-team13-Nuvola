@@ -11,8 +11,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Nuvola"
-        android:usesCleartextTraffic="true">
+        android:theme="@style/Theme.Nuvola">
         <activity
             android:name=".activities.DriverRideHistory"
             android:exported="false"/>
@@ -22,6 +21,10 @@
         <activity
             android:name=".ui.auth.ResetPasswordActivity"
             android:exported="false" />
+
+        <activity android:name=".activities.ChangePasswordActivity"
+            android:exported="false"/>
+
 
         <activity
             android:name=".ui.auth.ForgotPasswordActivity"
