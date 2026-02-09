@@ -12,11 +12,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.nuvola.R;
+import com.example.nuvola.activities.DriverRideHistory;
 import com.example.nuvola.adapters.DriversRideHistoryListAdapter;
 import com.example.nuvola.network.ApiClient;
 import com.example.nuvola.databinding.FragmentDriversRideHistoryBinding;
 import com.example.nuvola.model.Ride;
+import com.example.nuvola.network.AuthApi;
 import com.example.nuvola.network.DriverApi;
+import com.example.nuvola.ui.auth.LoginActivity;
 
 import java.util.ArrayList;
 
@@ -65,6 +68,8 @@ public class DriversRideHistoryFragment extends ListFragment {
 //        }
         mRides = new ArrayList<>();
         api =  ApiClient.getRetrofit().create(DriverApi.class);
+
+
 
         adapter = new DriversRideHistoryListAdapter(requireActivity(), mRides);
         setListAdapter(adapter);

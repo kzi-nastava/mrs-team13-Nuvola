@@ -15,9 +15,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.nuvola.R;
-import com.example.nuvola.activities.DriverRideHistory;
-import com.example.nuvola.activities.MainActivity;
-import com.example.nuvola.fragments.DriversRideHistoryFragment;
 import com.example.nuvola.network.ApiClient;
 import com.example.nuvola.network.AuthApi;
 import com.example.nuvola.network.JwtRoleHelper;
@@ -35,6 +32,8 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private static final String TAG = "LoginActivity";
+
     private TextInputLayout tilEmail, tilPassword;
     private TextInputEditText etEmail, etPassword;
 
@@ -43,7 +42,26 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // Initialize ApiClient with context
+        ApiClient.init(this);
+
         // ===== Drawer =====
+        setupDrawer();
+
+        // ===== Inputs =====
+        initInputs();
+
+        // ===== LOGIN =====
+        MaterialButton btnLogin = findViewById(R.id.btnLogin);
+        if (btnLogin != null) {
+            btnLogin.setOnClickListener(v -> performLogin());
+        }
+
+        // ===== Links =====
+        setupLinks();
+    }
+
+    private void setupDrawer() {
         DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
         NavigationView navView = findViewById(R.id.navView);
 
@@ -61,14 +79,13 @@ public class LoginActivity extends AppCompatActivity {
                 return true;
             });
         }
+    }
 
-        // ===== Inputs =====
+    private void initInputs() {
         tilEmail = findViewById(R.id.tilEmail);
         tilPassword = findViewById(R.id.tilPassword);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
-
-        MaterialButton btnLogin = findViewById(R.id.btnLogin);
 
         if (etEmail != null) {
             etEmail.addTextChangedListener(simpleWatcher(() -> {
@@ -81,74 +98,9 @@ public class LoginActivity extends AppCompatActivity {
                 if (tilPassword != null) tilPassword.setError(null);
             }));
         }
+    }
 
-        // ===== LOGIN =====
-        if (btnLogin != null) {
-            btnLogin.setOnClickListener(v -> {
-                if (!validateLogin()) return;
-
-                String email = etEmail.getText().toString().trim();
-                String password = etPassword.getText().toString();
-
-                AuthApi api = ApiClient.getRetrofit().create(AuthApi.class);
-
-                api.login(new LoginRequest(email, password))
-                        .enqueue(new Callback<UserTokenState>() {
-                            @Override
-                            public void onResponse(Call<UserTokenState> call,
-                                                   Response<UserTokenState> response) {
-
-                                if (response.isSuccessful() && response.body() != null) {
-
-                                    String token = response.body().getAccessToken();
-                                    TokenStorage.saveToken(LoginActivity.this, token);
-
-                                    String userType = JwtRoleHelper.getUserType(token);
-
-                                    if ("DRIVER".equals(userType)) {
-                                        Log.d("LoginActivity", "User type is DRIVER -> opening DriverRideHistory");
-                                        startActivity(new Intent(LoginActivity.this,
-                                                DriverRideHistory.class));
-
-                                    } else {
-                                        // PASSENGER ili ADMIN
-                                        startActivity(new Intent(LoginActivity.this,
-                                                DriverRideHistory.class));
-                                    }
-
-                                    finish();
-
-                                } else {
-                                    String err = "no error body";
-                                    try {
-                                        if (response.errorBody() != null) {
-                                            err = response.errorBody().string();
-                                        }
-                                    } catch (Exception e) {
-                                        err = e.getMessage();
-                                    }
-
-                                    Toast.makeText(
-                                            LoginActivity.this,
-                                            "Login failed (" + response.code() + ")\n" + err,
-                                            Toast.LENGTH_LONG
-                                    ).show();
-
-                                    Log.e("LOGIN_ERROR", "Code: " + response.code() + " Body: " + err);
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<UserTokenState> call, Throwable t) {
-                                Toast.makeText(LoginActivity.this,
-                                        "Network error: " + t.getMessage(),
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        });
-            });
-        }
-
-        // ===== Links =====
+    private void setupLinks() {
         TextView tvGoToRegister = findViewById(R.id.tvGoToRegister);
         if (tvGoToRegister != null) {
             tvGoToRegister.setOnClickListener(v ->
@@ -160,6 +112,92 @@ public class LoginActivity extends AppCompatActivity {
             tvForgotPassword.setOnClickListener(v ->
                     startActivity(new Intent(this, ForgotPasswordActivity.class)));
         }
+    }
+
+    private void performLogin() {
+        if (!validateLogin()) return;
+
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString();
+
+        Log.d(TAG, "Attempting login for: " + email);
+
+        AuthApi api = ApiClient.getRetrofit().create(AuthApi.class);
+
+        api.login(new LoginRequest(email, password))
+                .enqueue(new Callback<UserTokenState>() {
+                    @Override
+                    public void onResponse(Call<UserTokenState> call,
+                                           Response<UserTokenState> response) {
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            handleSuccessfulLogin(response.body());
+                        } else {
+                            handleLoginError(response);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<UserTokenState> call, Throwable t) {
+                        Log.e(TAG, "Login network error", t);
+                        Toast.makeText(LoginActivity.this,
+                                "Network error: " + t.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    private void handleSuccessfulLogin(UserTokenState userTokenState) {
+        String token = userTokenState.getAccessToken();
+
+        Log.d(TAG, "Login successful!");
+        Log.d(TAG, "Token received: " + token.substring(0, Math.min(50, token.length())) + "...");
+
+        // Debug the token
+        JwtRoleHelper.debugToken(token);
+
+        // Save token
+        TokenStorage.saveToken(LoginActivity.this, token);
+
+        // Extract and save user role
+        String userType = JwtRoleHelper.getUserType(token);
+        Log.d(TAG, "Extracted user type: " + userType);
+
+        TokenStorage.saveUserRole(LoginActivity.this, userType);
+
+        // Navigate to profile
+        Intent intent = new Intent(LoginActivity.this,
+                com.example.nuvola.activities.DriverRideHistory.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void handleLoginError(Response<UserTokenState> response) {
+        String err = "Unknown error";
+        try {
+            if (response.errorBody() != null) {
+                err = response.errorBody().string();
+            }
+        } catch (Exception e) {
+            err = e.getMessage();
+        }
+
+        Log.e(TAG, "Login failed - Code: " + response.code() + " Body: " + err);
+
+        String userMessage;
+        switch (response.code()) {
+            case 401:
+                userMessage = "Invalid email or password";
+                break;
+            case 403:
+                userMessage = "Account not activated or blocked";
+                break;
+            default:
+                userMessage = "Login failed (" + response.code() + ")";
+                break;
+        }
+
+        Toast.makeText(LoginActivity.this, userMessage, Toast.LENGTH_LONG).show();
     }
 
     // ===== Validation =====
@@ -194,11 +232,18 @@ public class LoginActivity extends AppCompatActivity {
 
     private TextWatcher simpleWatcher(Runnable onTextChanged) {
         return new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 onTextChanged.run();
             }
-            @Override public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
         };
     }
 }

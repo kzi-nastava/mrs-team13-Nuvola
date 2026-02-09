@@ -21,6 +21,10 @@
             android:name=".ui.auth.ResetPasswordActivity"
             android:exported="false" />
 
+        <activity android:name=".activities.ChangePasswordActivity"
+            android:exported="false"/>
+
+
         <activity
             android:name=".ui.auth.ForgotPasswordActivity"
             android:exported="false" />
