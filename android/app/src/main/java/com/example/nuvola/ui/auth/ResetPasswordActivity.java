@@ -13,11 +13,21 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.nuvola.R;
+import com.example.nuvola.network.AuthApi;
+import dto.ResetPasswordRequestDTO;
+
+import com.example.nuvola.network.AuthService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ResetPasswordActivity extends AppCompatActivity {
+
+    private MaterialButton btnReset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +61,8 @@ public class ResetPasswordActivity extends AppCompatActivity {
         TextInputLayout tilConfirm = findViewById(R.id.tilConfirmPassword);
         TextInputEditText etNew = findViewById(R.id.etNewPassword);
         TextInputEditText etConfirm = findViewById(R.id.etConfirmPassword);
-        MaterialButton btnReset = findViewById(R.id.btnResetPassword);
+
+        btnReset = findViewById(R.id.btnResetPassword);
         TextView tvBack = findViewById(R.id.tvBackToLoginFromReset);
 
         Runnable validate = () -> validateAll(tilNew, tilConfirm, etNew, etConfirm);
@@ -61,11 +72,45 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
         if (btnReset != null) {
             btnReset.setOnClickListener(v -> {
-                if (validateAll(tilNew, tilConfirm, etNew, etConfirm)) {
-                    Toast.makeText(this, "Password updated", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, LoginActivity.class));
-                    finish();
+                if (!validateAll(tilNew, tilConfirm, etNew, etConfirm)) return;
+
+                String newPass = etNew.getText() == null ? "" : etNew.getText().toString();
+
+                // Token idealno dolazi iz email linka / deep linka / prethodnog ekrana
+                String token = getIntent().getStringExtra("RESET_TOKEN");
+                if (token == null || token.trim().isEmpty()) {
+                    token = "demo-token"; // fallback (dok ne uvedete pravi flow)
                 }
+
+                btnReset.setEnabled(false);
+
+                AuthService.api()
+                        .resetPassword(token, new ResetPasswordRequestDTO(newPass))
+                        .enqueue(new Callback<String>() {
+                            @Override
+                            public void onResponse(Call<String> call, Response<String> response) {
+                                btnReset.setEnabled(true);
+
+                                if (response.isSuccessful()) {
+                                    Toast.makeText(ResetPasswordActivity.this,
+                                            "Password updated ✅", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(ResetPasswordActivity.this, LoginActivity.class));
+                                    finish();
+                                } else {
+                                    Toast.makeText(ResetPasswordActivity.this,
+                                            "Reset failed: " + response.code(),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<String> call, Throwable t) {
+                                btnReset.setEnabled(true);
+                                Toast.makeText(ResetPasswordActivity.this,
+                                        "Network error: " + (t.getMessage() == null ? "unknown" : t.getMessage()),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
             });
         }
 
