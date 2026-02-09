@@ -13,14 +13,12 @@ import android.widget.Button;
 
 import com.example.nuvola.R;
 import com.example.nuvola.adapters.DriversRideHistoryListAdapter;
-import com.example.nuvola.apis.ApiClient;
-import com.example.nuvola.apis.NuvolaApi;
+import com.example.nuvola.network.ApiClient;
 import com.example.nuvola.databinding.FragmentDriversRideHistoryBinding;
 import com.example.nuvola.model.Ride;
+import com.example.nuvola.network.DriverApi;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import dto.DriverRideHistoryItemDTO;
 import dto.PageResponse;
@@ -41,7 +39,7 @@ public class DriversRideHistoryFragment extends ListFragment {
     private FragmentDriversRideHistoryBinding binding;
 //    private static final String ARG_PARAM1 = "param";
 
-    private NuvolaApi api;
+    private DriverApi api;
     private boolean isDateAscending = false;
 
     public DriversRideHistoryFragment() {
@@ -66,9 +64,9 @@ public class DriversRideHistoryFragment extends ListFragment {
 //
 //        }
         mRides = new ArrayList<>();
-        api = ApiClient.create();
+        api =  ApiClient.getRetrofit().create(DriverApi.class);
 
-        adapter = new DriversRideHistoryListAdapter(getActivity(), mRides);
+        adapter = new DriversRideHistoryListAdapter(requireActivity(), mRides);
         setListAdapter(adapter);
 
         loadRidesFromBackend();

@@ -107,11 +107,11 @@ public class LoginActivity extends AppCompatActivity {
 
                                     if ("DRIVER".equals(userType)) {
                                         startActivity(new Intent(LoginActivity.this,
-                                                DriversRideHistoryFragment.class));
+                                                DriverRideHistory.class));
                                     } else {
                                         // PASSENGER ili ADMIN
                                         startActivity(new Intent(LoginActivity.this,
-                                                MainActivity.class));
+                                                DriverRideHistory.class));
                                     }
 
                                     finish();
