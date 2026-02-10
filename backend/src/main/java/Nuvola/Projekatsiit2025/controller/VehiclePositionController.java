@@ -2,6 +2,8 @@ package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.ActiveVehicleDTO;
 import Nuvola.Projekatsiit2025.dto.VehiclePositionDTO;
+import Nuvola.Projekatsiit2025.dto.position.DriverPositionUpdateDTO;
+import Nuvola.Projekatsiit2025.dto.position.PositionUpdateRequestDTO;
 import Nuvola.Projekatsiit2025.exceptions.ResourceConflictException;
 import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
@@ -31,8 +33,8 @@ public class VehiclePositionController {
 
 
     @MessageMapping("/vehicle/position")
-    public void receiveVehiclePosition(VehiclePositionDTO vehiclePosition) {
-        Driver driver = driverRepository.findByVehicleId(vehiclePosition.getVehicleId()).orElse(null);
+    public void receiveVehiclePosition(PositionUpdateRequestDTO vehiclePosition) {
+        Driver driver = driverRepository.findById(vehiclePosition.getDriverId()).orElse(null);
         if (driver == null) return;
 
         DriverStatus status = driver.getStatus();
@@ -41,20 +43,26 @@ public class VehiclePositionController {
             return;
         }
 
-        ActiveVehicleDTO activeVehicleDTO = new ActiveVehicleDTO();
-        activeVehicleDTO.setVehicleId(vehiclePosition.getVehicleId());
-        activeVehicleDTO.setLatitude(vehiclePosition.getLatitude());
-        activeVehicleDTO.setLongitude(vehiclePosition.getLongitude());
-        activeVehicleDTO.setOccupied(status == DriverStatus.BUSY);
+//        ActiveVehicleDTO activeVehicleDTO = new ActiveVehicleDTO();
+//        activeVehicleDTO.setVehicleId(vehiclePosition.getVehicleId());
+//        activeVehicleDTO.setLatitude(vehiclePosition.getLatitude());
+//        activeVehicleDTO.setLongitude(vehiclePosition.getLongitude());
+//        activeVehicleDTO.setOccupied(status == DriverStatus.BUSY);
 
-        store.update(vehiclePosition);
+        DriverPositionUpdateDTO update = new DriverPositionUpdateDTO();
+        update.setDriverId(vehiclePosition.getDriverId());
+        update.setLatitude(vehiclePosition.getLatitude());
+        update.setLongitude(vehiclePosition.getLongitude());
+        update.setOccupied(status == DriverStatus.BUSY);
+        update.setToRemove(false);
 
-        // 1) Ride tracking - sends vehicle's position to its subscribers
-        simpMessagingTemplate.convertAndSend("/topic/position/" + vehiclePosition.getVehicleId(), vehiclePosition);
+        // store.update(vehiclePosition);
 
-        // 2) Active vehicles and their status - send snapshot of all active vehicles to subscribers
+        // 1) Ride tracking
+        simpMessagingTemplate.convertAndSend("/topic/position/" + vehiclePosition.getDriverId(), update);
 
-        simpMessagingTemplate.convertAndSend("/topic/position/all", activeVehicleDTO);
+        // 2) Active vehicles and their status
+        simpMessagingTemplate.convertAndSend("/topic/position/all", update);
     }
 
 }

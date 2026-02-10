@@ -26,6 +26,7 @@ interface DriverPositionUpdate {
   latitude: number;
   longitude: number;
   toRemove: boolean;
+  occupied: boolean;
   driverId: number;
 }
 

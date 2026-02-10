@@ -1,6 +1,7 @@
 package Nuvola.Projekatsiit2025.services.impl;
 
 import Nuvola.Projekatsiit2025.dto.CreateDriverDTO;
+import Nuvola.Projekatsiit2025.dto.position.DriverPositionUpdateDTO;
 import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.Vehicle;
 import Nuvola.Projekatsiit2025.model.ActivationToken;
@@ -12,6 +13,7 @@ import Nuvola.Projekatsiit2025.services.DriverService;
 import Nuvola.Projekatsiit2025.services.EmailService;
 import Nuvola.Projekatsiit2025.util.VehicleLocationStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -48,7 +50,10 @@ public class DriverServiceImpl implements DriverService {
     private EmailService emailService;
 
     @Autowired
-    private VehicleLocationStore vehicleLocationStore;
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+//    @Autowired
+//    private VehicleLocationStore vehicleLocationStore;
 
     @Override
     public Driver createDriver(CreateDriverDTO dto) {
@@ -114,10 +119,15 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public void logoutDriver(Long driverId) {
-
         // TODO: add more logout logic (e.g. activity session, etc.)
 
-        vehicleLocationStore.remove(driverId);
+        // Update driver status to INACTIVE for web socket clients
+        DriverPositionUpdateDTO update = new DriverPositionUpdateDTO();
+        update.setDriverId(driverId);
+        update.setToRemove(true);
+        simpMessagingTemplate.convertAndSend("/topic/position/" + driverId, update);
+        simpMessagingTemplate.convertAndSend("/topic/position/all", update);
+        //vehicleLocationStore.remove(driverId);
     }
 
 }
