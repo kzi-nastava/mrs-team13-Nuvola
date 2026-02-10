@@ -2,6 +2,7 @@ package Nuvola.Projekatsiit2025.services.impl;
 
 import Nuvola.Projekatsiit2025.dto.CreateDriverDTO;
 import Nuvola.Projekatsiit2025.dto.position.DriverPositionUpdateDTO;
+import Nuvola.Projekatsiit2025.exceptions.UserNotFoundException;
 import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.Vehicle;
 import Nuvola.Projekatsiit2025.model.ActivationToken;
@@ -120,6 +121,10 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public void logoutDriver(Long driverId) {
         // TODO: add more logout logic (e.g. activity session, etc.)
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new UserNotFoundException("Driver " + driverId + " not found"));
+        driver.setStatus(DriverStatus.INACTIVE);
+        driverRepository.save(driver);
 
         // Update driver status to INACTIVE for web socket clients
         DriverPositionUpdateDTO update = new DriverPositionUpdateDTO();
@@ -128,6 +133,16 @@ public class DriverServiceImpl implements DriverService {
         simpMessagingTemplate.convertAndSend("/topic/position/" + driverId, update);
         simpMessagingTemplate.convertAndSend("/topic/position/all", update);
         //vehicleLocationStore.remove(driverId);
+    }
+
+    @Override
+    public void loginDriver(Long driverId) {
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new UserNotFoundException("Driver " + driverId + " not found"));
+        driver.setStatus(DriverStatus.ACTIVE);
+        driverRepository.save(driver);
+
+        // TODO: add more login logic (e.g. activity session, etc.)
     }
 
 }

@@ -9,6 +9,7 @@ import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
 import Nuvola.Projekatsiit2025.repositories.ActivationTokenRepository;
 import Nuvola.Projekatsiit2025.repositories.UserRepository;
 
+import Nuvola.Projekatsiit2025.services.DriverService;
 import Nuvola.Projekatsiit2025.services.UserService;
 import Nuvola.Projekatsiit2025.util.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +49,9 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private DriverService driverService;
+
     // 2.2.1 Login (email + password)
     @PostMapping("/login")
     public ResponseEntity<UserTokenState> login(@RequestBody LoginRequestDTO dto) {
@@ -60,6 +65,10 @@ public class AuthController {
         User user = (User) authentication.getPrincipal();
         String jwt = tokenUtils.generateToken(user);
         int expiresIn = tokenUtils.getExpiredIn();
+
+        if (user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_DRIVER"))) {
+            driverService.loginDriver(user.getId());
+        }
 
         return ResponseEntity.ok(new UserTokenState(jwt, expiresIn));
     }

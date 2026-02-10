@@ -7,5 +7,6 @@ public interface DriverService {
 
     Driver createDriver(CreateDriverDTO dto);
     void logoutDriver(Long driverId);
+    void loginDriver(Long driverId);
 
 }
