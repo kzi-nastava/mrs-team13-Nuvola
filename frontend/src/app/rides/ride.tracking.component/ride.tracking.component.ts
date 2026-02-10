@@ -22,7 +22,7 @@ interface LocationDTO {
   longitude: number;
 }
 
-interface DriverPositionUpdate {
+export interface DriverPositionUpdate {
   latitude: number;
   longitude: number;
   toRemove: boolean;
@@ -102,7 +102,6 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
     if (!this.map) return;
 
     if (update.toRemove) {
-      // ako backend šalje "remove" signal
       if (this.vehicleMarker) {
         this.map.removeLayer(this.vehicleMarker);
         this.vehicleMarker = undefined;
