@@ -6,6 +6,7 @@ import {JwtHelperService} from '@auth0/angular-jwt';
 import { AuthResponse } from '../model/auth.response';
 import { LoginModel } from '../model/login.model';
 import { RegisterModel } from '../model/register.model';
+import { DriverLocationPublisherService } from '../../services/driver.location.publisher.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class AuthService {
   user$ = new BehaviorSubject("");
   userState = this.user$.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private driverLocationPublisher: DriverLocationPublisherService) {
     this.user$.next(this.getRole());
   }
 
@@ -59,9 +60,27 @@ export class AuthService {
     return null;
   }
 
+  getUserId(): number | null {
+    if (!this.isLoggedIn()) return null;
+
+    const token = localStorage.getItem('user');
+    if (!token) return null;
+
+    const helper = new JwtHelperService();
+    const decoded: any = helper.decodeToken(token);
+
+    const id = decoded.userId;
+    if (id === undefined || id === null) return null;
+
+    // in case it's a string, try to convert to number, if it's not a valid number return null
+    const num = Number(id);
+    return Number.isFinite(num) ? num : null;
+  }
+
   logout(): void {
     localStorage.removeItem('user');
     this.user$.next(this.getRole());
+    this.driverLocationPublisher.stop();
   }
 
 

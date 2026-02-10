@@ -5,6 +5,7 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService } from "../../auth/services/auth.service";
 import { LoginModel } from '../model/login.model';
 import { AuthResponse } from '../model/auth.response';
+import { DriverLocationPublisherService } from '../../services/driver.location.publisher.service';
 
 
 @Component({
@@ -24,7 +25,8 @@ export class LoginComponent {
   });
 
   constructor(private authService: AuthService,
-    private router: Router) {}
+    private router: Router,
+    private driverLocationPublisher: DriverLocationPublisherService) {}
 
   get email() {
     return this.form.controls.email;
@@ -66,6 +68,15 @@ export class LoginComponent {
         this.submittedOk = true;
         localStorage.setItem('user', response.accessToken);
         this.authService.setUser();
+        if (this.authService.getRole() === 'ROLE_DRIVER') {
+          const driverId = this.authService.getUserId();
+          if (driverId) {
+            this.driverLocationPublisher.start(driverId);
+          } else {
+            console.error('Driver ID not found, cannot start location publisher');
+          }
+          return;
+        }
         this.router.navigate(['/logedin-home/', email]);
       },
       error: (err) => {
