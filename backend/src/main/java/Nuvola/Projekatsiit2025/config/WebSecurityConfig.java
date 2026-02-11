@@ -42,29 +42,24 @@ public class WebSecurityConfig {
     private TokenUtils tokenUtils;
 
     // Servis koji se koristi za citanje podataka o korisnicima aplikacije
-//    @Bean
-//    public UserDetailsService userDetailsService() {
-//        return new UserServiceImpl();
-//    }
-
-    @Autowired
-    private UserService userService;
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new UserServiceImpl();
+    }
 
     // Implementacija PasswordEncoder-a koriscenjem BCrypt hashing funkcije.
     // BCrypt po defalt-u radi 10 rundi hesiranja prosledjene vrednosti.
-//    @Bean
-//    public BCryptPasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
+    //@Bean
+    //public BCryptPasswordEncoder passwordEncoder() {
+      //  return new BCryptPasswordEncoder();
+    //}
+    @Autowired PasswordEncoder passwordEncoder;
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         // 1. koji servis da koristi da izvuce podatke o korisniku koji zeli da se autentifikuje
         // prilikom autentifikacije, AuthenticationManager ce sam pozivati loadUserByUsername() metodu ovog servisa
-        authProvider.setUserDetailsService(userService);
+        authProvider.setUserDetailsService(userDetailsService());
         // 2. kroz koji enkoder da provuce lozinku koju je dobio od klijenta u zahtevu
         // da bi adekvatan hash koji dobije kao rezultat hash algoritma uporedio sa onim koji se nalazi u bazi (posto se u bazi ne cuva plain lozinka)
         authProvider.setPasswordEncoder(passwordEncoder);
@@ -89,30 +84,27 @@ public class WebSecurityConfig {
             request.requestMatchers("/api/auth/login").permitAll()
                     .requestMatchers("/api/auth/register").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/auth/activate-email").permitAll()
-                    .requestMatchers("/api/foo").permitAll()
-                    .requestMatchers("/api/drivers/active-vehicles").permitAll()
-                    .requestMatchers("/api/drivers/*/rides").permitAll()
-                    .requestMatchers("/api/rides/now/**").permitAll()
-                    .requestMatchers("/api/drivers/active-vehicles").permitAll()
-                    .requestMatchers("/api/rides/**").permitAll()
-                    .requestMatchers("/api/reviews").permitAll()
-                    .requestMatchers("/api/reviews/*").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/drivers").permitAll() //ovo sam dodala
-                    .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll() // i ovo
-                    .requestMatchers(HttpMethod.GET, "/api/profile").permitAll() // i ovo
-                    .requestMatchers(HttpMethod.PUT, "/api/profile").permitAll() // i ovo
-                    .requestMatchers(HttpMethod.GET, "/api/profile/picture/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/drivers/*/picture").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/forgot-password").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/reset-password").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/auth/reset-password/**").permitAll()
+                    .requestMatchers("/api/foo").permitAll()
+                    .requestMatchers("/api/drivers/active-vehicles").permitAll()
+                    .requestMatchers("/api/rides/now/**").permitAll()
+                    .requestMatchers("/api/drivers/active-vehicles").permitAll()
+                    .requestMatchers("/api/drivers/*/rides").permitAll()
+                    .requestMatchers("api/reviews").permitAll()
+                    .requestMatchers("api/reviews/*").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/drivers").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/profile").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/profile").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/auth/reset-password/open").permitAll()
+
                     //Da nam lepsu poruku vrati
                     .requestMatchers("/error").permitAll()
                     //.requestMatchers(new AntPathRequestMatcher("/api/whoami")).hasRole("USER")
-                    .requestMatchers("/api/rides/estimate").permitAll()
                     .anyRequest().authenticated();
         });
-        http.addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userService), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userDetailsService()), UsernamePasswordAuthenticationFilter.class);
         http.authenticationProvider(authenticationProvider());
         return http.build();
     }

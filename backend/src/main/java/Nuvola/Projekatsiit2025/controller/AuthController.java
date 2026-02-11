@@ -37,7 +37,11 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    //@Autowired
+    //private UserService userService;
+
     @Autowired
+    @org.springframework.beans.factory.annotation.Qualifier("userServiceImpl")
     private UserService userService;
 
     @Autowired
@@ -224,6 +228,45 @@ public class AuthController {
 
         return ResponseEntity.ok().build();
     }
+
+
+    @GetMapping(value = "/reset-password/open", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> openResetPassword(@RequestParam String token) {
+
+        // deep link (app)
+        String appLink = "nuvola://reset-password?token=" + token;
+
+        // web fallback (frontend)
+        String webLink = "http://localhost:4200/reset-password?token=" + token;
+
+        String html = "<!doctype html><html><head>" +
+                "<meta charset='utf-8'/>" +
+                "<meta name='viewport' content='width=device-width,initial-scale=1'/>" +
+                "<title>Reset</title>" +
+                "</head><body style='font-family:Arial,sans-serif;padding:24px;'>" +
+                "<h2>Otvaram Nuvola aplikaciju...</h2>" +
+                "<p>Ako se aplikacija ne otvori automatski, bićeš preusmeren na web.</p>" +
+
+                "<script>" +
+                "var app = " + jsString(appLink) + ";" +
+                "var web = " + jsString(webLink) + ";" +
+                "var t = setTimeout(function(){ window.location.href = web; }, 900);" +
+                "window.location.href = app;" +
+                "setTimeout(function(){ clearTimeout(t); }, 1200);" +
+                "</script>" +
+
+                "<p><a href='" + appLink + "'>Otvori u aplikaciji</a></p>" +
+                "<p><a href='" + webLink + "'>Otvori web link</a></p>" +
+                "</body></html>";
+
+        return ResponseEntity.ok(html);
+    }
+
+    private String jsString(String s) {
+        return "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'";
+    }
+
+
 }
 
 

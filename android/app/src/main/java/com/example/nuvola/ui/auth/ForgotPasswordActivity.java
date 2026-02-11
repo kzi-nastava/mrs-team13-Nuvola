@@ -14,11 +14,19 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.nuvola.R;
+import com.example.nuvola.network.AuthService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import dto.ForgotPasswordRequestDTO;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ForgotPasswordActivity extends AppCompatActivity {
+
+    private MaterialButton btnSend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +58,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         TextInputLayout tilEmail = findViewById(R.id.tilEmailReset);
         TextInputEditText etEmail = findViewById(R.id.etEmailReset);
-        MaterialButton btnSend = findViewById(R.id.btnSendReset);
+        btnSend = findViewById(R.id.btnSendReset);
         TextView tvBackToLogin = findViewById(R.id.tvBackToLogin);
 
         if (etEmail != null) {
@@ -59,10 +67,39 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         if (btnSend != null) {
             btnSend.setOnClickListener(v -> {
-                if (validateEmail(tilEmail, etEmail)) {
-                    Toast.makeText(this, "Reset link sent ✅ (demo)", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, ResetPasswordActivity.class));
-                }
+                if (!validateEmail(tilEmail, etEmail)) return;
+
+                String email = etEmail.getText() == null ? "" : etEmail.getText().toString().trim();
+                btnSend.setEnabled(false);
+
+                AuthService.api()
+                        .forgotPassword(new ForgotPasswordRequestDTO(email))
+                        .enqueue(new Callback<String>() {
+                            @Override
+                            public void onResponse(Call<String> call, Response<String> response) {
+                                btnSend.setEnabled(true);
+
+                                if (response.isSuccessful()) {
+                                    Toast.makeText(ForgotPasswordActivity.this,
+                                            "Reset email sent ✅", Toast.LENGTH_SHORT).show();
+
+                                    // Pošto je backend stub, nastavi na Reset ekran (token flow ćete kasnije)
+                                    startActivity(new Intent(ForgotPasswordActivity.this, ResetPasswordActivity.class));
+                                } else {
+                                    Toast.makeText(ForgotPasswordActivity.this,
+                                            "Forgot password failed: " + response.code(),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<String> call, Throwable t) {
+                                btnSend.setEnabled(true);
+                                Toast.makeText(ForgotPasswordActivity.this,
+                                        "Network error: " + (t.getMessage() == null ? "unknown" : t.getMessage()),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
             });
         }
 
