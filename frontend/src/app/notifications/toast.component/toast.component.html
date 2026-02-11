@@ -1,0 +1,21 @@
+<div class="toast-host" aria-live="polite" aria-atomic="true">
+  <div
+    class="toast"
+    *ngFor="let t of (toasts$ | async); trackBy: trackById"
+    [class.info]="t.type === 'info'"
+    [class.success]="t.type === 'success'"
+    [class.warning]="t.type === 'warning'"
+    [class.error]="t.type === 'error'"
+    (click)="notify.dismiss(t.id)"
+    role="status"
+  >
+    <div class="dot"></div>
+
+    <div class="content">
+      <div class="title" *ngIf="t.title">{{ t.title }}</div>
+      <div class="msg">{{ t.message }}</div>
+    </div>
+
+    <div class="x" aria-hidden="true">×</div>
+  </div>
+</div>
