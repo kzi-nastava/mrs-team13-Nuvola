@@ -1,6 +1,7 @@
 package Nuvola.Projekatsiit2025.services.impl;
 
 import Nuvola.Projekatsiit2025.dto.CreateDriverDTO;
+import Nuvola.Projekatsiit2025.model.Chat;
 import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.Vehicle;
 import Nuvola.Projekatsiit2025.model.ActivationToken;
@@ -78,6 +79,10 @@ public class DriverServiceImpl implements DriverService {
         vehicle.setPetFriendly(dto.isPetFriendly());
 
         driver.setVehicle(vehicle);
+
+        Chat chat = new Chat();
+        chat.setOwner(driver); // Setting the driver as the owner of the chat
+        driver.setChat(chat);  // Assign chat to the driver
 
         Driver savedDriver = driverRepository.save(driver);
 

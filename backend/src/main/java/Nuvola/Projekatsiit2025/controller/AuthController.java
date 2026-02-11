@@ -9,7 +9,7 @@ import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
 import Nuvola.Projekatsiit2025.repositories.ActivationTokenRepository;
 import Nuvola.Projekatsiit2025.repositories.UserRepository;
 
-import Nuvola.Projekatsiit2025.services.PasswordResetService;
+//import Nuvola.Projekatsiit2025.services.PasswordResetService;
 import Nuvola.Projekatsiit2025.services.UserService;
 import Nuvola.Projekatsiit2025.util.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +53,8 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PasswordResetService passwordResetService;
+//    @Autowired
+//    private PasswordResetService passwordResetService;
 
 
     // 2.2.1 Login (email + password)
@@ -93,7 +93,7 @@ public class AuthController {
         if (dto == null || dto.getEmail() == null || dto.getEmail().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "EMAIL_REQUIRED");
         }
-        passwordResetService.requestReset(dto.getEmail().trim());
+        //passwordResetService.requestReset(dto.getEmail().trim());
 
         // uvek isto, zbog security
         return ResponseEntity
@@ -103,23 +103,32 @@ public class AuthController {
 
 
     // 2.2.1 Reset password (tocken from mail)
-    @PostMapping(value = "/reset-password", produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<String> resetPassword(@RequestParam String token,
+//    @PostMapping(value = "/reset-password", produces = MediaType.TEXT_PLAIN_VALUE)
+//    public ResponseEntity<String> resetPassword(@RequestParam String token,
+//                                                @RequestBody ResetPasswordRequestDTO dto) {
+//
+//        if (dto == null) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "BODY_REQUIRED");
+//        }
+//
+//        passwordResetService.resetPassword(
+//                token,
+//                dto.getNewPassword(),
+//                dto.getConfirmNewPassword()
+//
+//        );
+//
+//        return ResponseEntity.ok("Password has been reset successfully.");
+//    }
+
+    // 2.2.1 Reset password (tocken from mail)
+    @PostMapping("/reset-password/{token}")
+    public ResponseEntity<String> resetPassword(@PathVariable String token,
                                                 @RequestBody ResetPasswordRequestDTO dto) {
-
-        if (dto == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "BODY_REQUIRED");
-        }
-
-        passwordResetService.resetPassword(
-                token,
-                dto.getNewPassword(),
-                dto.getConfirmNewPassword()
-
-        );
-
-        return ResponseEntity.ok("Password has been reset successfully.");
+        return new ResponseEntity<>("Password has been reset (stub).", HttpStatus.OK);
     }
+
+
 
 
 
