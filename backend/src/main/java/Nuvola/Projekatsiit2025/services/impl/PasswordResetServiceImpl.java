@@ -27,9 +27,13 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
+    // WEB (Angular)
     @Value("${app.frontend.reset-password-url:http://localhost:4200/reset-password}")
-    private String resetPasswordUrl;
+    private String resetPasswordWebUrl;
 
+    // MOBILE (Android deep link)
+    @Value("${app.mobile.reset-password-deeplink:nuvola://reset-password}")
+    private String resetPasswordDeepLink;
     public PasswordResetServiceImpl(
             UserRepository userRepository,
             PasswordResetTokenRepository tokenRepository,
@@ -41,15 +45,52 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
     }
+    //@Transactional
+    //@Override
+    //public void requestReset(String email) {
+        // Security: uvek vraćaj "OK" čak i ako email ne postoji (da ne otkrivaš korisnike)
+      //  userRepository.findByEmailIgnoreCase(email).ifPresent(user -> {
+
+            // obriši stare tokene za tog user-a (da ne ostanu aktivni)
+        //    tokenRepository.deleteByUserId(user.getId());
+
+          //  String token = UUID.randomUUID().toString();
+
+            //PasswordResetToken prt = new PasswordResetToken();
+    //        prt.setToken(token);
+      //      prt.setUser(user);
+        //    prt.setExpiresAt(LocalDateTime.now().plusMinutes(30));
+          //  prt.setUsed(false);
+
+            //tokenRepository.save(prt);
+
+            // Link koji ide na FRONT (front čita token i šalje ga backend-u)
+       //     String webLink = resetPasswordWebUrl + "?token=" + token;
+         //   String appLink = resetPasswordDeepLink + "?token=" + token;
+            // šaljemo HTML mail (APP + WEB fallback)
+           // EmailDetails details = new EmailDetails();
+    //        details.setRecipient(user.getEmail());
+      //      details.setSubject("Reset lozinke");
+        //    details.setLink(appLink);      // PRIMARY → Android app
+          //  details.setMsgBody(webLink);   // FALLBACK → Web
+
+     //       emailService.sendPasswordReset(details);
+
+
+       // });
+    //}
+
     @Transactional
     @Override
     public void requestReset(String email) {
-        // Security: uvek vraćaj "OK" čak i ako email ne postoji (da ne otkrivaš korisnike)
+
+        // Security: uvek isto ponašanje (ne otkrivamo da li user postoji)
         userRepository.findByEmailIgnoreCase(email).ifPresent(user -> {
 
-            // obriši stare tokene za tog user-a (da ne ostanu aktivni)
+            // 1. Obriši stare tokene za tog user-a
             tokenRepository.deleteByUserId(user.getId());
 
+            // 2. Kreiraj novi token
             String token = UUID.randomUUID().toString();
 
             PasswordResetToken prt = new PasswordResetToken();
@@ -60,17 +101,30 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
             tokenRepository.save(prt);
 
-            // Link koji ide na FRONT (front čita token i šalje ga backend-u)
-            String link = resetPasswordUrl + "?token=" + token;
+            // 3. Pripremi linkove
+            String webLink = resetPasswordWebUrl + "?token=" + token;
+            String appLink = resetPasswordDeepLink + "?token=" + token;
 
-            String body =
-                    "Zahtev za reset lozinke.\n\n" +
-                            "Klikni na link da postaviš novu lozinku:\n" + link + "\n\n" +
-                            "Link važi 30 minuta. Ako nisi ti tražio reset, ignoriši ovu poruku.";
+            // 4. Pripremi email
+            EmailDetails details = new EmailDetails();
+            details.setRecipient(user.getEmail());
+            details.setSubject("Reset lozinke");
+            details.setLink(appLink);      // PRIMARY → Android deep link
+            details.setMsgBody(webLink);   // FALLBACK → Web link
 
-            emailService.sendSimpleMail(new EmailDetails(user.getEmail(), body, "Reset lozinke"));
+            // 5. Pokušaj slanje maila (ALI NE RUŠI API AKO FAILUJE)
+            try {
+                emailService.sendPasswordReset(details);
+            } catch (Exception e) {
+                // LOGUJ, ali NE bacaj exception dalje
+                System.err.println("❌ Failed to send password reset email to: " + user.getEmail());
+                e.printStackTrace();
+            }
         });
+
+        // NEMA return-a, nema exception-a → controller uvek vraća 202
     }
+
 
     @Override
     public void resetPassword(String token, String newPassword, String confirmPassword) {

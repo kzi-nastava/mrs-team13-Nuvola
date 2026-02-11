@@ -1,6 +1,7 @@
 package com.example.nuvola.ui.auth;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,14 +14,12 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.nuvola.R;
-import com.example.nuvola.network.AuthApi;
-import dto.ResetPasswordRequestDTO;
-
 import com.example.nuvola.network.AuthService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import dto.ResetPasswordRequestDTO;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,12 +27,26 @@ import retrofit2.Response;
 public class ResetPasswordActivity extends AppCompatActivity {
 
     private MaterialButton btnReset;
+    private String resetToken;
+
+    private TextInputLayout tilNew;
+    private TextInputLayout tilConfirm;
+    private TextInputEditText etNew;
+    private TextInputEditText etConfirm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
 
+        // =========================
+        // 1) TOKEN (deep link ili extra)
+        // =========================
+        resetToken = extractTokenFromIntent(getIntent());
+
+        // =========================
+        // 2) Drawer/menu (kao kod tebe)
+        // =========================
         DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
 
         ImageView ivMenu = findViewById(R.id.ivMenu);
@@ -57,35 +70,52 @@ public class ResetPasswordActivity extends AppCompatActivity {
             });
         }
 
-        TextInputLayout tilNew = findViewById(R.id.tilNewPassword);
-        TextInputLayout tilConfirm = findViewById(R.id.tilConfirmPassword);
-        TextInputEditText etNew = findViewById(R.id.etNewPassword);
-        TextInputEditText etConfirm = findViewById(R.id.etConfirmPassword);
+        // =========================
+        // 3) UI reference
+        // =========================
+        tilNew = findViewById(R.id.tilNewPassword);
+        tilConfirm = findViewById(R.id.tilConfirmPassword);
+        etNew = findViewById(R.id.etNewPassword);
+        etConfirm = findViewById(R.id.etConfirmPassword);
 
         btnReset = findViewById(R.id.btnResetPassword);
         TextView tvBack = findViewById(R.id.tvBackToLoginFromReset);
 
-        Runnable validate = () -> validateAll(tilNew, tilConfirm, etNew, etConfirm);
+        // =========================
+        // 4) Validation watchers
+        // =========================
+        Runnable validate = this::validateAll;
 
         if (etNew != null) etNew.addTextChangedListener(simpleWatcher(validate));
         if (etConfirm != null) etConfirm.addTextChangedListener(simpleWatcher(validate));
 
+        // =========================
+        // 5) Token check -> disable button if missing
+        // =========================
         if (btnReset != null) {
+            boolean hasToken = resetToken != null && !resetToken.trim().isEmpty();
+            btnReset.setEnabled(hasToken);
+
+            if (!hasToken) {
+                Toast.makeText(this, "Missing reset token. Open the link from email.", Toast.LENGTH_LONG).show();
+            }
+
             btnReset.setOnClickListener(v -> {
-                if (!validateAll(tilNew, tilConfirm, etNew, etConfirm)) return;
+                // token must exist
+                if (resetToken == null || resetToken.trim().isEmpty()) {
+                    Toast.makeText(this, "Missing reset token. Open the link from email.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // validate passwords
+                if (!validateAll()) return;
 
                 String newPass = etNew.getText() == null ? "" : etNew.getText().toString();
-
-                // Token idealno dolazi iz email linka / deep linka / prethodnog ekrana
-                String token = getIntent().getStringExtra("RESET_TOKEN");
-                if (token == null || token.trim().isEmpty()) {
-                    token = "demo-token"; // fallback (dok ne uvedete pravi flow)
-                }
 
                 btnReset.setEnabled(false);
 
                 AuthService.api()
-                        .resetPassword(token, new ResetPasswordRequestDTO(newPass))
+                        .resetPassword(resetToken, new ResetPasswordRequestDTO(newPass))
                         .enqueue(new Callback<String>() {
                             @Override
                             public void onResponse(Call<String> call, Response<String> response) {
@@ -97,6 +127,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
                                     startActivity(new Intent(ResetPasswordActivity.this, LoginActivity.class));
                                     finish();
                                 } else {
+                                    // Ako backend vraća body sa porukom, možeš da pročitaš response.errorBody() (ali ne mora sad)
                                     Toast.makeText(ResetPasswordActivity.this,
                                             "Reset failed: " + response.code(),
                                             Toast.LENGTH_SHORT).show();
@@ -122,12 +153,30 @@ public class ResetPasswordActivity extends AppCompatActivity {
         }
     }
 
-    private boolean validateAll(
-            TextInputLayout tilNew,
-            TextInputLayout tilConfirm,
-            TextInputEditText etNew,
-            TextInputEditText etConfirm
-    ) {
+    // =========================
+    // Extract token helper
+    // =========================
+    private String extractTokenFromIntent(Intent intent) {
+        if (intent == null) return null;
+
+        // 1) deep link: nuvola://reset-password?token=...
+        Uri data = intent.getData();
+        if (data != null) {
+            String t = data.getQueryParameter("token");
+            if (t != null && !t.trim().isEmpty()) return t;
+        }
+
+        // 2) fallback: normal extra from previous screen
+        String extra = intent.getStringExtra("RESET_TOKEN");
+        if (extra != null && !extra.trim().isEmpty()) return extra;
+
+        return null;
+    }
+
+    // =========================
+    // Validation
+    // =========================
+    private boolean validateAll() {
         if (tilNew == null || tilConfirm == null || etNew == null || etConfirm == null) return false;
 
         boolean ok = true;
