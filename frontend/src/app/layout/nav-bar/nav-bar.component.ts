@@ -13,6 +13,7 @@ import { Console } from 'console';
 })
 export class NavBarComponent {
   menuOpen: boolean = false;
+  hasNotifications: boolean = false;
 
   constructor(private router: Router, public authService: AuthService) {
     
@@ -43,14 +44,14 @@ export class NavBarComponent {
     this.menuOpen = false;
   }
 
-onAccount(): void {
-  if (this.authService.getRole() === 'ROLE_DRIVER') {
-    this.router.navigate(['/driver-account']);
-  } else {
-    this.router.navigate(['/account-settings']);
+  onAccount(): void {
+    if (this.authService.getRole() === 'ROLE_DRIVER') {
+      this.router.navigate(['/driver-account']);
+    } else {
+      this.router.navigate(['/account-settings']);
+    }
+    this.menuOpen = false;
   }
-  this.menuOpen = false;
-}
 
 
   onLogout(): void {

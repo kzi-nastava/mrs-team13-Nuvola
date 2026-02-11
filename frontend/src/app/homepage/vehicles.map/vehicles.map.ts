@@ -8,7 +8,6 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { VehiclesService } from '../service/vehicles.service';
 import { VehicleLocationDTO } from '../model/vehicle.location';
 import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
 import { environment } from '../../env/enviroment';
 import { DriverPositionUpdate } from '../../rides/ride.tracking.component/ride.tracking.component';
 
@@ -66,9 +65,38 @@ export class VehiclesMap implements AfterViewInit, OnDestroy {
 
   // ------- WEBSOCKETS -------
   
-    initializeWebSocketConnection() {
-      if (this.stompClient?.active) return;
+    // initializeWebSocketConnection() {
+    //   if (this.stompClient?.active) return;
   
+    //   this.stompClient = new Client({
+    //     webSocketFactory: () => new SockJS(environment.apiHost + '/ws'),
+    //     reconnectDelay: 3000,
+    //     heartbeatIncoming: 10000,
+    //     heartbeatOutgoing: 10000,
+    //     debug: () => {},
+    //     onConnect: () => {
+    //       this.wsSub = this.stompClient!.subscribe(`/topic/position/all`, (msg) => {
+    //         const update: DriverPositionUpdate = JSON.parse(msg.body);
+    //         this.handlePositionUpdate(update);
+    //       });
+    //     },
+    //     onStompError: (frame) => {
+    //       console.error('STOMP error', frame);
+    //     },
+    //   });
+  
+    //   this.stompClient.activate();
+    // }
+
+    async initializeWebSocketConnection() {
+      if (!isPlatformBrowser(this.platformId)) return;
+      if (this.stompClient?.active) return;
+
+      (globalThis as any).global ??= globalThis;
+
+      const sockjsMod: any = await import('sockjs-client');
+      const SockJS = sockjsMod.default ?? sockjsMod;
+
       this.stompClient = new Client({
         webSocketFactory: () => new SockJS(environment.apiHost + '/ws'),
         reconnectDelay: 3000,
@@ -81,11 +109,9 @@ export class VehiclesMap implements AfterViewInit, OnDestroy {
             this.handlePositionUpdate(update);
           });
         },
-        onStompError: (frame) => {
-          console.error('STOMP error', frame);
-        },
+        onStompError: (frame) => console.error('STOMP error', frame),
       });
-  
+
       this.stompClient.activate();
     }
     
@@ -193,12 +219,12 @@ export class VehiclesMap implements AfterViewInit, OnDestroy {
     (window as any).L = this.L;
     await import('leaflet-routing-machine');
 
-    this.initTimer = requestAnimationFrame(() => {
+    this.initTimer = requestAnimationFrame(async () => {
       this.initMap();
       this.listenToLocations();
       this.enableClickToPick();
       // this.loadVehiclesOnce();
-      if (this.useWebSocket) this.initializeWebSocketConnection();
+      if (this.useWebSocket) await this.initializeWebSocketConnection();
     });
   }
 

@@ -15,7 +15,6 @@ import { environment } from '../../env/enviroment';
 import { AuthService } from '../../auth/services/auth.service';
 
 import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
 
 interface LocationDTO {
   latitude: number;
@@ -74,8 +73,15 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
 
   // ------- WEBSOCKETS -------
 
-  initializeWebSocketConnection() {
+  async initializeWebSocketConnection() {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (this.stompClient?.active) return;
+
+    // polyfill za biblioteke koje očekuju Node "global"
+    (globalThis as any).global ??= globalThis;
+
+    const sockjsMod: any = await import('sockjs-client');
+    const SockJS = sockjsMod.default ?? sockjsMod;
 
     this.stompClient = new Client({
       webSocketFactory: () => new SockJS(environment.apiHost + '/ws'),
@@ -84,18 +90,39 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
       heartbeatOutgoing: 10000,
       debug: () => {},
       onConnect: () => {
-        this.wsSub = this.stompClient!.subscribe(`/topic/position/${this.driverId}`, (msg) => {
-          const update: DriverPositionUpdate = JSON.parse(msg.body);
-          this.handlePositionUpdate(update);
-        });
+        this.wsSub = this.stompClient!.subscribe(
+          `/topic/position/${this.driverId}`,
+          (msg) => this.handlePositionUpdate(JSON.parse(msg.body))
+        );
       },
-      onStompError: (frame) => {
-        console.error('STOMP error', frame);
-      },
+      onStompError: (frame) => console.error('STOMP error', frame),
     });
 
     this.stompClient.activate();
   }
+
+  // initializeWebSocketConnection() {
+  //   if (this.stompClient?.active) return;
+
+  //   this.stompClient = new Client({
+  //     webSocketFactory: () => new SockJS(environment.apiHost + '/ws'),
+  //     reconnectDelay: 3000,
+  //     heartbeatIncoming: 10000,
+  //     heartbeatOutgoing: 10000,
+  //     debug: () => {},
+  //     onConnect: () => {
+  //       this.wsSub = this.stompClient!.subscribe(`/topic/position/${this.driverId}`, (msg) => {
+  //         const update: DriverPositionUpdate = JSON.parse(msg.body);
+  //         this.handlePositionUpdate(update);
+  //       });
+  //     },
+  //     onStompError: (frame) => {
+  //       console.error('STOMP error', frame);
+  //     },
+  //   });
+
+  //   this.stompClient.activate();
+  // }
 
 
   handlePositionUpdate(update: DriverPositionUpdate) {
@@ -271,7 +298,7 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
 
     // 1) Učitaj trenutnu vožnju i nacrtaj rutu (sa uputstvima)
     this.fetchCurrentRide().subscribe({
-      next: (ride) => {
+      next: async (ride) => {
         const stops = ride?.route?.stops ?? [];
         if (stops.length < 2) {
           // nema dovoljno tačaka za rutu
@@ -290,7 +317,8 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
         this.initMap([stops[0].latitude, stops[0].longitude]);
 
         this.renderRouteWithInstructions(stops);
-        this.initializeWebSocketConnection();
+        //this.initializeWebSocketConnection();
+        await this.initializeWebSocketConnection();
       },
       error: (e) => {
         console.error(e);

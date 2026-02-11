@@ -28,7 +28,7 @@ export class DriverLocationPublisherService {
     if (this.running$.value) return;
 
     this.running$.next(true);
-    this.connectWs();
+    this.connectWs().catch(console.error);
   }
 
   /** Stop sending location updates */
@@ -49,10 +49,38 @@ export class DriverLocationPublisherService {
     this.stompClient = undefined;
   }
 
-  private connectWs() {
-    if (!this.driverId) return;
+  // private connectWs() {
+  //   if (!this.driverId) return;
 
+  //   if (this.stompClient?.active) return;
+
+  //   this.stompClient = new Client({
+  //     webSocketFactory: () => new SockJS(environment.apiHost + '/ws'),
+  //     reconnectDelay: 3000,
+  //     heartbeatIncoming: 10000,
+  //     heartbeatOutgoing: 10000,
+  //     debug: () => {},
+  //     onConnect: () => {
+  //       this.startSending();
+  //     },
+  //     onWebSocketClose: () => {
+  //       // if service still needs to run, STOMP will attempt reconnect due to reconnectDelay
+  //     },
+  //     onStompError: (frame) => console.error('STOMP error', frame),
+  //   });
+
+  //   this.stompClient.activate();
+  // }
+
+  private async connectWs() {
+    if (!this.driverId) return;
     if (this.stompClient?.active) return;
+
+    // polyfill za biblioteke koje očekuju Node "global"
+    (globalThis as any).global ??= globalThis;
+
+    const sockjsMod: any = await import('sockjs-client');
+    const SockJS = sockjsMod.default ?? sockjsMod;
 
     this.stompClient = new Client({
       webSocketFactory: () => new SockJS(environment.apiHost + '/ws'),
@@ -60,12 +88,8 @@ export class DriverLocationPublisherService {
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
       debug: () => {},
-      onConnect: () => {
-        this.startSending();
-      },
-      onWebSocketClose: () => {
-        // if service still needs to run, STOMP will attempt reconnect due to reconnectDelay
-      },
+      onConnect: () => this.startSending(),
+      onWebSocketClose: () => {},
       onStompError: (frame) => console.error('STOMP error', frame),
     });
 

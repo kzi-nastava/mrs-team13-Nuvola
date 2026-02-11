@@ -87,6 +87,7 @@ public class WebSecurityConfig {
         http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(restAuthenticationEntryPoint));
         http.authorizeHttpRequests(request -> {
             request.requestMatchers("/api/auth/login").permitAll()
+                    .requestMatchers("/ws/**").permitAll()
                     .requestMatchers("/api/auth/register").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/auth/activate-email").permitAll()
                     .requestMatchers("/api/foo").permitAll()
@@ -135,6 +136,7 @@ public class WebSecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("POST", "PUT", "GET", "OPTIONS", "DELETE", "PATCH")); // or simply "*"
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
