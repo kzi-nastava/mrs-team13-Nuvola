@@ -42,10 +42,12 @@ public class WebSecurityConfig {
     private TokenUtils tokenUtils;
 
     // Servis koji se koristi za citanje podataka o korisnicima aplikacije
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new UserServiceImpl();
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        return new UserServiceImpl();
+//    }
+    @Autowired
+    private UserService userService;
 
     // Implementacija PasswordEncoder-a koriscenjem BCrypt hashing funkcije.
     // BCrypt po defalt-u radi 10 rundi hesiranja prosledjene vrednosti.
@@ -53,13 +55,15 @@ public class WebSecurityConfig {
     //public BCryptPasswordEncoder passwordEncoder() {
       //  return new BCryptPasswordEncoder();
     //}
-    @Autowired PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         // 1. koji servis da koristi da izvuce podatke o korisniku koji zeli da se autentifikuje
         // prilikom autentifikacije, AuthenticationManager ce sam pozivati loadUserByUsername() metodu ovog servisa
-        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setUserDetailsService(userService);
         // 2. kroz koji enkoder da provuce lozinku koju je dobio od klijenta u zahtevu
         // da bi adekvatan hash koji dobije kao rezultat hash algoritma uporedio sa onim koji se nalazi u bazi (posto se u bazi ne cuva plain lozinka)
         authProvider.setPasswordEncoder(passwordEncoder);
@@ -104,7 +108,7 @@ public class WebSecurityConfig {
                     //.requestMatchers(new AntPathRequestMatcher("/api/whoami")).hasRole("USER")
                     .anyRequest().authenticated();
         });
-        http.addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userDetailsService()), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userService), UsernamePasswordAuthenticationFilter.class);
         http.authenticationProvider(authenticationProvider());
         return http.build();
     }

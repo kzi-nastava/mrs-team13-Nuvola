@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
 
     @Autowired
@@ -41,7 +41,6 @@ public class AuthController {
     //private UserService userService;
 
     @Autowired
-    @org.springframework.beans.factory.annotation.Qualifier("userServiceImpl")
     private UserService userService;
 
     @Autowired
