@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-export type ToastType = 'info' | 'success' | 'warning' | 'error' | 'RideReminder';
+export type ToastType = 'NoVehicleAvailable' | 'RideApproved' | 'YouAreAssignedToRide' | 'RideReminder' | 'LinkedPassanger' | 'RideEnded' | 'PANIC';
 
 export interface ToastNotification {
   id: string;
@@ -17,7 +17,7 @@ export class NotificationService {
   private toastsSubject = new BehaviorSubject<ToastNotification[]>([]);
   toasts$ = this.toastsSubject.asObservable();
 
-  show(message: string, type: ToastType = 'info', durationMs = 3000, title?: string) {
+  show(message: string, type: ToastType = 'RideReminder', durationMs = 3000, title?: string) {
     const id = crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2);
 
     const toast: ToastNotification = {

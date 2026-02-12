@@ -2,11 +2,13 @@
   <div
     class="toast"
     *ngFor="let t of (toasts$ | async); trackBy: trackById"
-    [class.info]="t.type === 'info'"
-    [class.success]="t.type === 'success'"
-    [class.warning]="t.type === 'warning'"
-    [class.error]="t.type === 'error'"
-    [class.ride-reminder]="t.type === 'RideReminder'"
+    [class.rideended]="t.type === 'RideEnded'"
+    [class.rideapproved]="t.type === 'RideApproved'"
+    [class.linkedpassanger]="t.type === 'LinkedPassanger'"
+    [class.panic]="t.type === 'PANIC'"
+    [class.ridereminder]="t.type === 'RideReminder'"
+    [class.novehicleavailable]="t.type === 'NoVehicleAvailable'"
+    [class.youareassignedtoride]="t.type === 'YouAreAssignedToRide'"
     (click)="notify.dismiss(t.id)"
     role="status"
   >

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
@@ -41,5 +43,11 @@ public class NotificationServiceImpl implements NotificationService {
         notificationDTO.setType(notificationType.toString());
 
         simpMessagingTemplate.convertAndSend("/topic/notifications/" + recipientId, notificationDTO);
+    }
+
+    @Override
+    public List<NotificationDTO> getNotifications(Long recipientId) {
+        List<Notification> notifications = notificationRepository.findByUserId(recipientId);
+        return notifications.stream().map(NotificationDTO::new).toList();
     }
 }

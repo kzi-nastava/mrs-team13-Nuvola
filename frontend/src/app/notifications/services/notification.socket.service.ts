@@ -65,7 +65,7 @@ export class NotificationSocketService {
       dto = JSON.parse(msg.body);
     } catch {
       // fallback ako backend nekad pošalje plain string
-      this.toast.show(msg.body, 'info', 3000);
+      this.toast.show(msg.body, 'RideReminder', 3000);
       return;
     }
     if (dto == null) return;
@@ -75,10 +75,13 @@ export class NotificationSocketService {
 
   private mapType(t: string) {
     const x = (t ?? '').toLowerCase();
-    if (x.includes('success')) return 'success' as const;
-    if (x.includes('warn')) return 'warning' as const;
-    if (x.includes('error')) return 'error' as const;
+    if (x.includes('novehicleavailable')) return 'NoVehicleAvailable' as const;
+    if (x.includes('rideapproved')) return 'RideApproved' as const;
+    if (x.includes('youareassignedtoride')) return 'YouAreAssignedToRide' as const;
     if (x.includes('ridereminder')) return 'RideReminder' as const;
-    return 'info' as const;
+    if (x.includes('linkedpassanger')) return 'LinkedPassanger' as const;
+    if (x.includes('rideended')) return 'RideEnded' as const;
+    if (x.includes('panic')) return 'PANIC' as const;
+    return 'RideReminder' as const;
   }
 }

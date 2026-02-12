@@ -95,4 +95,6 @@ export class NavBarComponent {
       error: (err) => console.error('Error sending test notification', err)
     });
   }
+
+  onMyNotifications(): void {this.router.navigate(['/notifications']); this.menuOpen = false; }
 }

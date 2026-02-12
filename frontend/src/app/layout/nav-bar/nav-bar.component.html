@@ -16,6 +16,7 @@
   </div>
 
   <div class="nav-items show-desktop">
+    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onMyNotifications()">My notifications</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onTestNotify()">Test notify</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onGrade()">Grade</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onUsers()">Users</button> <!--Only admin -->

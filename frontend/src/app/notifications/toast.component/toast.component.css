@@ -62,8 +62,10 @@
   background: #60a5fa;
 }
 
-.toast.success .dot { background: #22c55e; }
-.toast.warning .dot { background: #f97316; }
-.toast.error .dot { background: #ef4444; }
-.toast.info .dot { background: #60a5fa; }
-.toast.ride-reminder .dot { background: #8b5cf6; }
+.toast.rideapproved .dot { background: #22c55e; }
+.toast.linkedpassanger .dot { background: #2578b7; }
+.toast.panic .dot { background: #ef4444; }
+.toast.rideended .dot { background: #60a5fa; }
+.toast.ridereminder .dot { background: #8b5cf6; }
+.toast.novehicleavailable .dot { background: #ea6a08; }
+.toast.youareassignedtoride .dot { background: #db2777; }
