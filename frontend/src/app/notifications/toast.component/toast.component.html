@@ -1,0 +1,24 @@
+<div class="toast-host" aria-live="polite" aria-atomic="true">
+  <div
+    class="toast"
+    *ngFor="let t of (toasts$ | async); trackBy: trackById"
+    [class.rideended]="t.type === 'RideEnded'"
+    [class.rideapproved]="t.type === 'RideApproved'"
+    [class.linkedpassanger]="t.type === 'LinkedPassanger'"
+    [class.panic]="t.type === 'PANIC'"
+    [class.ridereminder]="t.type === 'RideReminder'"
+    [class.novehicleavailable]="t.type === 'NoVehicleAvailable'"
+    [class.youareassignedtoride]="t.type === 'YouAreAssignedToRide'"
+    (click)="notify.dismiss(t.id)"
+    role="status"
+  >
+    <div class="dot"></div>
+
+    <div class="content">
+      <div class="title" *ngIf="t.title">{{ t.title }}</div>
+      <div class="msg">{{ t.message }}</div>
+    </div>
+
+    <div class="x" aria-hidden="true">×</div>
+  </div>
+</div>

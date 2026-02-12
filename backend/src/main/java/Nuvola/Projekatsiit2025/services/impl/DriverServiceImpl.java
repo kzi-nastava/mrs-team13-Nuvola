@@ -1,6 +1,8 @@
 package Nuvola.Projekatsiit2025.services.impl;
 
 import Nuvola.Projekatsiit2025.dto.CreateDriverDTO;
+import Nuvola.Projekatsiit2025.dto.position.DriverPositionUpdateDTO;
+import Nuvola.Projekatsiit2025.exceptions.UserNotFoundException;
 import Nuvola.Projekatsiit2025.model.Chat;
 import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.Vehicle;
@@ -11,7 +13,9 @@ import Nuvola.Projekatsiit2025.repositories.ActivationTokenRepository;
 import Nuvola.Projekatsiit2025.repositories.VehicleRepository;
 import Nuvola.Projekatsiit2025.services.DriverService;
 import Nuvola.Projekatsiit2025.services.EmailService;
+import Nuvola.Projekatsiit2025.util.VehicleLocationStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -46,6 +50,12 @@ public class DriverServiceImpl implements DriverService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+//    @Autowired
+//    private VehicleLocationStore vehicleLocationStore;
 
     @Override
     public Driver createDriver(CreateDriverDTO dto) {
@@ -111,6 +121,33 @@ public class DriverServiceImpl implements DriverService {
         emailService.sendSimpleMail(mail);
 
         return savedDriver;
+    }
+
+    @Override
+    public void logoutDriver(Long driverId) {
+        // TODO: add more logout logic (e.g. activity session, etc.)
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new UserNotFoundException("Driver " + driverId + " not found"));
+        driver.setStatus(DriverStatus.INACTIVE);
+        driverRepository.save(driver);
+
+        // Update driver status to INACTIVE for web socket clients
+        DriverPositionUpdateDTO update = new DriverPositionUpdateDTO();
+        update.setDriverId(driverId);
+        update.setToRemove(true);
+        simpMessagingTemplate.convertAndSend("/topic/position/" + driverId, update);
+        simpMessagingTemplate.convertAndSend("/topic/position/all", update);
+        //vehicleLocationStore.remove(driverId);
+    }
+
+    @Override
+    public void loginDriver(Long driverId) {
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new UserNotFoundException("Driver " + driverId + " not found"));
+        driver.setStatus(DriverStatus.ACTIVE);
+        driverRepository.save(driver);
+
+        // TODO: add more login logic (e.g. activity session, etc.)
     }
 
 }

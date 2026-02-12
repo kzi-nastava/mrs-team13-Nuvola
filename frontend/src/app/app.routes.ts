@@ -22,6 +22,7 @@ import { EstimateResultComponent } from './rides/estimate-result/estimate-result
 import { AuthGuard } from './auth/services/auth.guard';
 import { ScheduledRideStartComponent } from './rides/scheduled.ride.start.component/scheduled.ride.start.component';
 import { ActivateEmailComponent } from './auth/activate.email.component/activate.email.component';
+import { NotificationsPageComponent } from './notifications/notifications.page.component/notifications.page.component';
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
@@ -49,6 +50,6 @@ export const routes: Routes = [
     { path: 'estimate/result', component: EstimateResultComponent },
     { path: 'scheduled-ride-start/:rideId', component: ScheduledRideStartComponent },
     { path: 'activate', component: ActivateEmailComponent },
-    
+    { path: 'notifications', component: NotificationsPageComponent },
 
 ];

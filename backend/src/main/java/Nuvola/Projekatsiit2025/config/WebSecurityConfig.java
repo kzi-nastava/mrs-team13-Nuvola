@@ -86,6 +86,7 @@ public class WebSecurityConfig {
         http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(restAuthenticationEntryPoint));
         http.authorizeHttpRequests(request -> {
             request.requestMatchers("/api/auth/login").permitAll()
+                    .requestMatchers("/ws/**").permitAll()
                     .requestMatchers("/api/auth/register").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/auth/activate-email").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/forgot-password").permitAll()
@@ -98,9 +99,11 @@ public class WebSecurityConfig {
                     .requestMatchers("api/reviews").permitAll()
                     .requestMatchers("api/reviews/*").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/drivers").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/drivers/*/picture").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/profile").permitAll()
                     .requestMatchers(HttpMethod.PUT, "/api/profile").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/profile/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/profile/picture").permitAll()  // Upload
                     .requestMatchers(HttpMethod.GET, "/api/profile/picture/**").permitAll()  // Download - DODAJ OVO!
                     .requestMatchers(HttpMethod.GET, "/api/auth/reset-password/open").permitAll()
@@ -136,6 +139,7 @@ public class WebSecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("POST", "PUT", "GET", "OPTIONS", "DELETE", "PATCH")); // or simply "*"
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

@@ -7,6 +7,9 @@ import { LocationModel } from '../../logedin.homepage/models/location.model';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { VehiclesService } from '../service/vehicles.service';
 import { VehicleLocationDTO } from '../model/vehicle.location';
+import { Client } from '@stomp/stompjs';
+import { environment } from '../../env/enviroment';
+import { DriverPositionUpdate } from '../../rides/ride.tracking.component/ride.tracking.component';
 
 @Component({
   selector: 'app-vehicles-map',
@@ -38,11 +41,17 @@ export class VehiclesMap implements AfterViewInit, OnDestroy {
   priceRsd: number | null = null;
 
   private vehiclesLayer: any = null;
-  private vehicleMarkers = new Map<number, any>();
+  //private vehicleMarkers = new Map<number, any>();
+
+  private driverMarkers = new Map<number, any>(); // key: driverId
 
   private currentVehicleType: VehicleType = 'standard';
 
   private clickStep: 0 | 1 | 2 = 0;
+
+    private stompClient?: Client;
+    private wsSub?: any;           // StompSubscription
+    private useWebSocket = true;
 
   constructor(
     private routeDataService: RouteDataService,
@@ -52,6 +61,104 @@ export class VehiclesMap implements AfterViewInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object
 
   ) {}
+
+
+  // ------- WEBSOCKETS -------
+  
+    // initializeWebSocketConnection() {
+    //   if (this.stompClient?.active) return;
+  
+    //   this.stompClient = new Client({
+    //     webSocketFactory: () => new SockJS(environment.apiHost + '/ws'),
+    //     reconnectDelay: 3000,
+    //     heartbeatIncoming: 10000,
+    //     heartbeatOutgoing: 10000,
+    //     debug: () => {},
+    //     onConnect: () => {
+    //       this.wsSub = this.stompClient!.subscribe(`/topic/position/all`, (msg) => {
+    //         const update: DriverPositionUpdate = JSON.parse(msg.body);
+    //         this.handlePositionUpdate(update);
+    //       });
+    //     },
+    //     onStompError: (frame) => {
+    //       console.error('STOMP error', frame);
+    //     },
+    //   });
+  
+    //   this.stompClient.activate();
+    // }
+
+    async initializeWebSocketConnection() {
+      if (!isPlatformBrowser(this.platformId)) return;
+      if (this.stompClient?.active) return;
+
+      (globalThis as any).global ??= globalThis;
+
+      const sockjsMod: any = await import('sockjs-client');
+      const SockJS = sockjsMod.default ?? sockjsMod;
+
+      this.stompClient = new Client({
+        webSocketFactory: () => new SockJS(environment.apiHost + '/ws'),
+        reconnectDelay: 3000,
+        heartbeatIncoming: 10000,
+        heartbeatOutgoing: 10000,
+        debug: () => {},
+        onConnect: () => {
+          this.wsSub = this.stompClient!.subscribe(`/topic/position/all`, (msg) => {
+            const update: DriverPositionUpdate = JSON.parse(msg.body);
+            this.handlePositionUpdate(update);
+          });
+        },
+        onStompError: (frame) => console.error('STOMP error', frame),
+      });
+
+      this.stompClient.activate();
+    }
+    
+    private handlePositionUpdate(update: DriverPositionUpdate) {
+      if (!this.map || !this.L || !this.vehiclesLayer) return;
+
+      const id = update.driverId;
+
+      if (update.toRemove) {
+        const existing = this.driverMarkers.get(id);
+        if (existing) {
+          this.vehiclesLayer.removeLayer(existing);
+          this.driverMarkers.delete(id);
+        }
+        return;
+      }
+
+      const existing = this.driverMarkers.get(id);
+
+      //const occupied = update.occupied;
+      const occupied = typeof update.occupied === 'boolean'
+        ? update.occupied
+        : (existing ? !!existing.__occupied : false);
+
+      const color: 'green' | 'orange' = occupied ? 'orange' : 'green';
+
+      if (!existing) {
+        const marker = this.L
+          .marker([update.latitude, update.longitude], { icon: this.carIcon(color) })
+          .addTo(this.vehiclesLayer)
+          .bindPopup(`Driver: ${id}<br/>Status: ${occupied ? 'BUSY' : 'FREE'}`);
+
+        marker.__occupied = occupied;
+        this.driverMarkers.set(id, marker);
+      } else {
+        existing.setLatLng([update.latitude, update.longitude]);
+        existing.setPopupContent(`Driver: ${id}<br/>Status: ${occupied ? 'BUSY' : 'FREE'}`);
+
+        const prevOccupied = !!existing.__occupied;
+        if (prevOccupied !== occupied) existing.setIcon(this.carIcon(color));
+        existing.__occupied = occupied;
+      }
+    }
+      
+        
+  // ------------------------------------
+  
 
   private carIcon(color: 'green' | 'orange') {
     const fill = color === 'green' ? '#22c55e' : '#f97316';
@@ -75,7 +182,7 @@ export class VehiclesMap implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.unsubscribe();
-    // ocisti sve zakazane callback-e
+    // ocisti sve zakazane callback-ove
     if (this.initTimer) cancelAnimationFrame(this.initTimer);
     if (this.invalidateTimer) clearTimeout(this.invalidateTimer);
 
@@ -83,6 +190,14 @@ export class VehiclesMap implements AfterViewInit, OnDestroy {
     if (this.map && this.mapClickHandler) {
       this.map.off('click', this.mapClickHandler);
     }
+
+    // WS cleanup
+    try { this.wsSub?.unsubscribe?.(); } catch {}
+    //if (this.stompClient?.active) this.stompClient.deactivate();
+    try { this.stompClient?.deactivate(); } catch {}
+
+    // markeri
+    this.driverMarkers.clear();
 
     // ukloni mapu
     if (this.map) {
@@ -95,8 +210,8 @@ export class VehiclesMap implements AfterViewInit, OnDestroy {
   }
 
   async ngAfterViewInit(): Promise<void> {
-    if (!isPlatformBrowser(this.platformId)) return;  // <-- KLJUČNO: nema Leaflet-a na serveru
-    if (this.initDone) return;         // <-- guard protiv duplog poziva
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.initDone) return;
     this.initDone = true;
 
     const leaflet = await import('leaflet');
@@ -104,57 +219,58 @@ export class VehiclesMap implements AfterViewInit, OnDestroy {
     (window as any).L = this.L;
     await import('leaflet-routing-machine');
 
-    this.initTimer = requestAnimationFrame(() => {
+    this.initTimer = requestAnimationFrame(async () => {
       this.initMap();
       this.listenToLocations();
       this.enableClickToPick();
-      this.loadVehiclesOnce();
+      // this.loadVehiclesOnce();
+      if (this.useWebSocket) await this.initializeWebSocketConnection();
     });
   }
 
-  private loadVehiclesOnce(): void {
-  this.subs.add(
-    this.vehiclesService.getCurrentPositions().subscribe({
-      next: (vehicles) => this.renderVehiclesSnapshot(vehicles),
-      error: (err) => console.error('Failed to load vehicle positions', err),
-    })
-  );
-}
+  // private loadVehiclesOnce(): void {
+  //   this.subs.add(
+  //     this.vehiclesService.getCurrentPositions().subscribe({
+  //       next: (vehicles) => this.renderVehiclesSnapshot(vehicles),
+  //       error: (err) => console.error('Failed to load vehicle positions', err),
+  //     })
+  //   );
+  // }
 
-private renderVehiclesSnapshot(vehicles: VehicleLocationDTO[]): void {
-  if (!this.map || !this.L || !this.vehiclesLayer) return;
+// private renderVehiclesSnapshot(vehicles: VehicleLocationDTO[]): void {
+//   if (!this.map || !this.L || !this.vehiclesLayer) return;
 
-  const seen = new Set<number>();
+//   const seen = new Set<number>();
 
-  for (const v of vehicles) {
-    seen.add(v.vehicleId);
+//   for (const v of vehicles) {
+//     seen.add(v.vehicleId);
 
-    const color: 'green' | 'orange' = v.occupied ? 'orange' : 'green';
-    const existing = this.vehicleMarkers.get(v.vehicleId);
+//     const color: 'green' | 'orange' = v.occupied ? 'orange' : 'green';
+//     const existing = this.vehicleMarkers.get(v.vehicleId);
 
-    if (!existing) {
-      const marker = this.L.marker([v.latitude, v.longitude], { icon: this.carIcon(color) })
-        .addTo(this.vehiclesLayer)
-        .bindPopup(`Vehicle: ${v.vehicleId}<br/>Status: ${v.occupied ? 'BUSY' : 'FREE'}`);
+//     if (!existing) {
+//       const marker = this.L.marker([v.latitude, v.longitude], { icon: this.carIcon(color) })
+//         .addTo(this.vehiclesLayer)
+//         .bindPopup(`Vehicle: ${v.vehicleId}<br/>Status: ${v.occupied ? 'BUSY' : 'FREE'}`);
 
-      marker.__occupied = v.occupied;
-      this.vehicleMarkers.set(v.vehicleId, marker);
-    } else {
-      existing.setLatLng([v.latitude, v.longitude]);
-      const prevOccupied = !!existing.__occupied;
-      if (prevOccupied !== v.occupied) existing.setIcon(this.carIcon(color));
-      existing.__occupied = v.occupied;
-    }
-  }
+//       marker.__occupied = v.occupied;
+//       this.vehicleMarkers.set(v.vehicleId, marker);
+//     } else {
+//       existing.setLatLng([v.latitude, v.longitude]);
+//       const prevOccupied = !!existing.__occupied;
+//       if (prevOccupied !== v.occupied) existing.setIcon(this.carIcon(color));
+//       existing.__occupied = v.occupied;
+//     }
+//   }
 
-  // ukloni markere koji nisu u odgovoru (ako endpoint vraća kompletan snapshot)
-  for (const [id, marker] of this.vehicleMarkers.entries()) {
-    if (!seen.has(id)) {
-      this.vehiclesLayer.removeLayer(marker);
-      this.vehicleMarkers.delete(id);
-    }
-  }
-}
+//   // ukloni markere koji nisu u odgovoru (ako endpoint vraća kompletan snapshot)
+//   for (const [id, marker] of this.vehicleMarkers.entries()) {
+//     if (!seen.has(id)) {
+//       this.vehiclesLayer.removeLayer(marker);
+//       this.vehicleMarkers.delete(id);
+//     }
+//   }
+// }
 
 
   private initMap(): void {

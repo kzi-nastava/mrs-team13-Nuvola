@@ -51,6 +51,7 @@ public class TokenUtils {
                 .setAudience(generateAudience())
                 .setIssuedAt(new Date())
                 .claim("roles", user.getAuthorities().toString())
+                .claim("userId", user.getId())
                 .setExpiration(generateExpirationDate())
                 .signWith(SIGNATURE_ALGORITHM, SECRET)
                 .compact();
