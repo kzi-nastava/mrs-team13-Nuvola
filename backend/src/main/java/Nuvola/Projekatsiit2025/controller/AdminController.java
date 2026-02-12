@@ -2,7 +2,13 @@ package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.AdminRideDetailsDTO;
 import Nuvola.Projekatsiit2025.dto.AdminRideHistoryItemDTO;
+import Nuvola.Projekatsiit2025.dto.AdminUserDTO;
+import Nuvola.Projekatsiit2025.model.Driver;
+import Nuvola.Projekatsiit2025.model.RegisteredUser;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
+import Nuvola.Projekatsiit2025.repositories.DriverRepository;
+import Nuvola.Projekatsiit2025.repositories.RegisteredUserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +19,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
+
+    @Autowired
+    private RegisteredUserRepository registeredUserRepository;
+
+    @Autowired
+    private DriverRepository driverRepository;
 
     // 2.9.3 History of rides (driver/passenger), filter by creationDate and sort 
     @GetMapping(value = "/rides/history", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -114,4 +126,50 @@ public class AdminController {
 
         return "desc".equalsIgnoreCase(sortDir) ? cmp.reversed() : cmp;
     }
+
+    // all registered users and drivers
+
+    @GetMapping("users/registeredUsers")
+    public ResponseEntity<List<AdminUserDTO>> getAllRegisteredUsers() {
+
+        List<AdminUserDTO> users = registeredUserRepository.findAll()
+                .stream()
+                .map(u -> new AdminUserDTO(
+                        u.getId(),
+                        u.getFirstName(),
+                        u.getLastName(),
+                        u.getEmail(),
+                        u.getAddress(),
+                        u.getPhone(),
+                        u.getPicture(),
+                        u.isBlocked(),
+                        u.getBlockingReason()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(users);
+    }
+
+
+    @GetMapping("users/drivers")
+    public ResponseEntity<List<AdminUserDTO>> getAllDrivers() {
+
+        List<AdminUserDTO> drivers = driverRepository.findAll()
+                .stream()
+                .map(d -> new AdminUserDTO(
+                        d.getId(),
+                        d.getFirstName(),
+                        d.getLastName(),
+                        d.getEmail(),
+                        d.getAddress(),
+                        d.getPhone(),
+                        d.getPicture(),
+                        d.isBlocked(),
+                        d.getBlockingReason()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(drivers);
+    }
+
 }

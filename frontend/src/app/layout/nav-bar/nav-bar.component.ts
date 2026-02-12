@@ -28,7 +28,7 @@ export class NavBarComponent {
   }
 
   onUsers(): void {
-    this.router.navigate(['/users/', this.authService.getUsername()]);
+    this.router.navigate(['/users']);
     this.menuOpen = false;
   }
   
