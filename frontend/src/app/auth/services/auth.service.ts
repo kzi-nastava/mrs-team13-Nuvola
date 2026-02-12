@@ -7,6 +7,7 @@ import { AuthResponse } from '../model/auth.response';
 import { LoginModel } from '../model/login.model';
 import { RegisterModel } from '../model/register.model';
 import { DriverLocationPublisherService } from '../../services/driver.location.publisher.service';
+import { NotificationSocketService } from '../../notifications/services/notification.socket.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,9 @@ export class AuthService {
   user$ = new BehaviorSubject("");
   userState = this.user$.asObservable();
 
-  constructor(private http: HttpClient, private driverLocationPublisher: DriverLocationPublisherService) {
+  constructor(private http: HttpClient, 
+              private driverLocationPublisher: DriverLocationPublisherService, 
+              private notifSocket: NotificationSocketService) {
     this.user$.next(this.getRole());
   }
 
@@ -81,6 +84,7 @@ export class AuthService {
     localStorage.removeItem('user');
     this.user$.next(this.getRole());
     this.driverLocationPublisher.stop();
+    this.notifSocket.disconnect();
   }
 
 

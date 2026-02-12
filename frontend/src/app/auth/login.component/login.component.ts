@@ -6,6 +6,7 @@ import { AuthService } from "../../auth/services/auth.service";
 import { LoginModel } from '../model/login.model';
 import { AuthResponse } from '../model/auth.response';
 import { DriverLocationPublisherService } from '../../services/driver.location.publisher.service';
+import { NotificationSocketService } from '../../notifications/services/notification.socket.service';
 
 
 @Component({
@@ -26,7 +27,8 @@ export class LoginComponent {
 
   constructor(private authService: AuthService,
     private router: Router,
-    private driverLocationPublisher: DriverLocationPublisherService) {}
+    private driverLocationPublisher: DriverLocationPublisherService,
+    private notifSocket: NotificationSocketService) {}
 
   get email() {
     return this.form.controls.email;
@@ -68,15 +70,15 @@ export class LoginComponent {
         this.submittedOk = true;
         localStorage.setItem('user', response.accessToken);
         this.authService.setUser();
-        if (this.authService.getRole() === 'ROLE_DRIVER') {
-          const driverId = this.authService.getUserId();
-          if (driverId) {
-            this.driverLocationPublisher.start(driverId);
-          } else {
-            console.error('Driver ID not found, cannot start location publisher');
-          }
+        const id = this.authService.getUserId();
+        if (id == null) {
+          console.error('User ID not found after login');
           return;
         }
+        if (this.authService.getRole() === 'ROLE_DRIVER') {
+          this.driverLocationPublisher.start(id);
+        }
+        this.notifSocket.connectForUserId(id);
         this.router.navigate(['/logedin-home/', email]);
       },
       error: (err) => {

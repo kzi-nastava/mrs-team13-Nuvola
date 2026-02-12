@@ -8,5 +8,6 @@ public enum NotificationType {
     RideReminder,
     LinkedPassanger,
     RideEnded,
-    PANIC
+    PANIC,
+    success
 }
