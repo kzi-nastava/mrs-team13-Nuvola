@@ -145,10 +145,9 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
 
   }
 
-  private checkIfBlocked() {
+private checkIfBlocked() {
   const role = this.authService.getRole();
 
-  // samo za registered user
   if (role !== 'ROLE_REGISTERED_USER') return;
 
   this.http.get<any>(environment.apiHost + '/api/profile')
@@ -157,6 +156,8 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
         if (profile.blocked) {
           this.isBlocked = true;
           this.blockingReason = profile.blockingReason;
+
+          this.form.disable();   // 🔥 OVO DODAJ
         }
       },
       error: () => {
@@ -164,6 +165,7 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
       }
     });
 }
+
 
 
   ngOnDestroy(): void {
@@ -412,14 +414,16 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
 
   if (err.status === 403) {
 
-    const message = err.error?.message || err.error;
+    const backendMessage = err.error?.message;
 
-    if (typeof message === 'string' && message.includes('ACCOUNT_BLOCKED')) {
+    if (backendMessage && backendMessage.startsWith('ACCOUNT_BLOCKED')) {
 
-      const reason = message.replace('ACCOUNT_BLOCKED:', '').trim();
+      const reason = backendMessage.replace('ACCOUNT_BLOCKED:', '').trim();
 
       this.isBlocked = true;
       this.blockingReason = reason || null;
+
+      this.form.disable();
 
       this.rideOrdered.emit(
         reason

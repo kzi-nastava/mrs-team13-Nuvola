@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../env/enviroment';
 
 export interface CreatedRideDTO {
   id: number;
@@ -12,7 +13,7 @@ export interface CreatedRideDTO {
 @Injectable({ providedIn: 'root' })
 export class RideApiService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/rides';
+private baseUrl = environment.apiHost + '/api/rides';
 
   private apiUrl = 'http://localhost:8080/api/rides';
 
