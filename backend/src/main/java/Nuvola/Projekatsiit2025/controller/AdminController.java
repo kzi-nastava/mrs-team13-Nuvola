@@ -3,6 +3,7 @@ package Nuvola.Projekatsiit2025.controller;
 import Nuvola.Projekatsiit2025.dto.AdminRideDetailsDTO;
 import Nuvola.Projekatsiit2025.dto.AdminRideHistoryItemDTO;
 import Nuvola.Projekatsiit2025.dto.AdminUserDTO;
+import Nuvola.Projekatsiit2025.dto.BlockUserRequestDTO;
 import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.RegisteredUser;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
@@ -171,5 +172,118 @@ public class AdminController {
 
         return ResponseEntity.ok(drivers);
     }
+
+    @PostMapping("/users/{id}/block")
+    public ResponseEntity<AdminUserDTO> blockUser(
+            @PathVariable Long id,
+            @RequestBody BlockUserRequestDTO request
+    ) {
+
+        // prvo pokušamo registered user
+        RegisteredUser ru = registeredUserRepository.findById(id).orElse(null);
+
+        if (ru != null) {
+            ru.setBlocked(true);
+
+            if (request.getBlockingReason() != null && !request.getBlockingReason().isBlank()) {
+                ru.setBlockingReason(request.getBlockingReason());
+            } else {
+                ru.setBlockingReason(null);
+            }
+
+            registeredUserRepository.save(ru);
+
+            return ResponseEntity.ok(new AdminUserDTO(
+                    ru.getId(),
+                    ru.getFirstName(),
+                    ru.getLastName(),
+                    ru.getEmail(),
+                    ru.getAddress(),
+                    ru.getPhone(),
+                    ru.getPicture(),
+                    ru.isBlocked(),
+                    ru.getBlockingReason()
+            ));
+        }
+
+        // ako nije registered user, pokušamo driver
+        Driver driver = driverRepository.findById(id).orElse(null);
+
+        if (driver != null) {
+            driver.setBlocked(true);
+
+            if (request.getBlockingReason() != null && !request.getBlockingReason().isBlank()) {
+                driver.setBlockingReason(request.getBlockingReason());
+            } else {
+                driver.setBlockingReason(null);
+            }
+
+            driverRepository.save(driver);
+
+            return ResponseEntity.ok(new AdminUserDTO(
+                    driver.getId(),
+                    driver.getFirstName(),
+                    driver.getLastName(),
+                    driver.getEmail(),
+                    driver.getAddress(),
+                    driver.getPhone(),
+                    driver.getPicture(),
+                    driver.isBlocked(),
+                    driver.getBlockingReason()
+            ));
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/users/{id}/unblock")
+    public ResponseEntity<AdminUserDTO> unblockUser(@PathVariable Long id) {
+
+        RegisteredUser ru = registeredUserRepository.findById(id).orElse(null);
+
+        if (ru != null) {
+            ru.setBlocked(false);
+            ru.setBlockingReason(null);
+
+            registeredUserRepository.save(ru);
+
+            return ResponseEntity.ok(new AdminUserDTO(
+                    ru.getId(),
+                    ru.getFirstName(),
+                    ru.getLastName(),
+                    ru.getEmail(),
+                    ru.getAddress(),
+                    ru.getPhone(),
+                    ru.getPicture(),
+                    ru.isBlocked(),
+                    ru.getBlockingReason()
+            ));
+        }
+
+        Driver driver = driverRepository.findById(id).orElse(null);
+
+        if (driver != null) {
+            driver.setBlocked(false);
+            driver.setBlockingReason(null);
+
+            driverRepository.save(driver);
+
+            return ResponseEntity.ok(new AdminUserDTO(
+                    driver.getId(),
+                    driver.getFirstName(),
+                    driver.getLastName(),
+                    driver.getEmail(),
+                    driver.getAddress(),
+                    driver.getPhone(),
+                    driver.getPicture(),
+                    driver.isBlocked(),
+                    driver.getBlockingReason()
+            ));
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+
 
 }

@@ -1,4 +1,20 @@
 <div class="panel-card">
+
+  <div class="blocked-overlay" *ngIf="isBlocked">
+  <div class="blocked-message">
+    <h3>ACCOUNT BLOCKED</h3>
+
+    <p *ngIf="blockingReason">
+      Reason: {{ blockingReason }}
+    </p>
+
+    <p *ngIf="!blockingReason">
+      You cannot order rides at this time.
+    </p>
+  </div>
+</div>
+
+
   <div class="panel-header">
     <h3>Pick a ride</h3>
 
@@ -7,7 +23,7 @@
     </button>
   </div>
 
-  <form [formGroup]="form">
+<form [formGroup]="form" [class.disabled]="isBlocked">
     <!-- From -->
     <div class="field">
       <label>From *</label>

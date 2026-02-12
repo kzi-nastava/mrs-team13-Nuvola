@@ -108,6 +108,8 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/profile/picture/**").permitAll()  // Download - DODAJ OVO!
                     .requestMatchers(HttpMethod.GET, "/api/auth/reset-password/open").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/admin/users/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/admin/users/*/block").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/admin/users/*/unblock").permitAll()
 
                     //Da nam lepsu poruku vrati
                     .requestMatchers("/error").permitAll()

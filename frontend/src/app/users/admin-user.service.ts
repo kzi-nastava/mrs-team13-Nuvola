@@ -23,5 +23,18 @@ getDrivers(): Observable<UserModel[]> {
   );
 }
 
+blockUser(userId: number, reason: string | null) {
+  return this.http.post<any>(
+    environment.apiHost + `/api/admin/users/${userId}/block`,
+    { blockingReason: reason }
+  );
+}
+
+unblockUser(userId: number) {
+  return this.http.post<any>(
+    environment.apiHost + `/api/admin/users/${userId}/unblock`,
+    {}
+  );
+}
 
 }

@@ -6,6 +6,6 @@ export interface UserModel {
   address: string;
   phone: string;
   picture: string;
-  isBlocked: boolean;
-  blockingReason: string;
+  blocked: boolean;
+  blockingReason: string | null;
 }

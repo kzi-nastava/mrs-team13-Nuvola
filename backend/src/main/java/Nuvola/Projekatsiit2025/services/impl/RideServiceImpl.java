@@ -136,6 +136,17 @@ public class RideServiceImpl implements RideService {
 
     public Ride createRide(User loggedUser, CreateRideDTO dto) {
 
+        if (loggedUser instanceof RegisteredUser registeredUser) {
+
+            if (registeredUser.isBlocked()) {
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        registeredUser.getBlockingReason() != null
+                                ? "ACCOUNT_BLOCKED: " + registeredUser.getBlockingReason()
+                                : "ACCOUNT_BLOCKED"
+                );
+            }
+        }
         Route route = createRoute(dto);
 
         Driver driver = findDriver(dto);

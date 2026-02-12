@@ -7,14 +7,27 @@
 />
 
     <div class="user-info">
+
+      <div *ngIf="user.blocked" class="blocked-label">
+        <strong>BLOCKED</strong>
+        <span *ngIf="user.blockingReason">
+          - {{ user.blockingReason }}
+        </span>
+      </div>
+
       <div class="name">{{ user.firstName }} {{ user.lastName }}</div>
       <div class="email">{{ user.email }}</div>
       <div class="address">{{ user.address }}</div>
       <div class="phone">{{ user.phone }}</div>
+
     </div>
 
-    <button class="block-btn" (click)="openBlockModal(user)">
+    <button *ngIf="!user.blocked" class="block-btn" (click)="openBlockModal(user)">
       Block
+    </button>
+
+    <button *ngIf="user.blocked" class="unblock-btn" (click)="openUnblockModal(user)">
+      Unblock
     </button>
 
   </div>
@@ -33,6 +46,22 @@
     <div class="modal-actions">
       <button class="cancel" (click)="cancel()">Cancel</button>
       <button class="confirm" (click)="submitBlock()">Block</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="showUnblockModal">
+  <div class="modal">
+    <h3>Are you sure you want to unblock {{ selectedUser?.firstName }}?</h3>
+
+    <div class="modal-actions">
+      <button class="cancel" (click)="showUnblockModal = false">
+        Cancel
+      </button>
+
+      <button class="confirm" (click)="confirmUnblock()">
+        Unblock
+      </button>
     </div>
   </div>
 </div>
