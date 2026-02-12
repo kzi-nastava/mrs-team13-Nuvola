@@ -45,13 +45,42 @@ users: UserModel[] = [];
 }
 
 
-  submitBlock() {
-    if (!this.selectedUser) return;
+submitBlock() {
+  if (!this.selectedUser) return;
 
-    // SAMO UI SIMULACIJA
-    this.selectedUser.isBlocked = true;
-    this.selectedUser.blockingReason = this.blockReason;
+  const reason = this.blockReason?.trim() || null;
 
-    this.showModal = false;
-  }
+  this.adminUserService
+    .blockUser(this.selectedUser.id, reason)
+    .subscribe(updatedUser => {
+
+      this.selectedUser!.blocked = updatedUser.blocked;
+      this.selectedUser!.blockingReason = updatedUser.blockingReason;
+
+      this.showModal = false;
+    });
+}
+
+showUnblockModal = false;
+
+openUnblockModal(user: UserModel) {
+  this.selectedUser = user;
+  this.showUnblockModal = true;
+}
+
+confirmUnblock() {
+  if (!this.selectedUser) return;
+
+  this.adminUserService
+    .unblockUser(this.selectedUser.id)
+    .subscribe(updatedUser => {
+
+      this.selectedUser!.blocked = updatedUser.blocked;
+      this.selectedUser!.blockingReason = null;
+
+      this.showUnblockModal = false;
+    });
+}
+
+
 }

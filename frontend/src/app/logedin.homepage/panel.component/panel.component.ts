@@ -7,6 +7,9 @@ import { RideOrderService, VehicleType } from '../services/ride-order.service';
 import { GeocodingService } from '../services/geocoding.service';
 import { LocationModel } from '../models/location.model';
 import { RideApiService } from '../../rides/service/ride-api.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../env/enviroment';
 
 @Component({
   selector: 'app-panel',
@@ -26,6 +29,9 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
   toastMessage: string = '';
   private toastTimeout: any = null;
 
+  isBlocked = false;
+  blockingReason: string | null = null;
+
   scheduledOptions: { value: string; label: string }[] = [];
 
   @Output() rideOrdered = new EventEmitter<string>();
@@ -40,7 +46,9 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
     private fb: FormBuilder,
     private geocoding: GeocodingService,
     private rideOrder: RideOrderService,
-    private rideApi: RideApiService
+    private rideApi: RideApiService,
+    private authService: AuthService,     
+    private http: HttpClient               
   ) {
     this.form = this.fb.group({
       from: ['', Validators.required],
@@ -133,7 +141,30 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
     this.subs.add(syncTo);
 
     this.rideOrder.setVehicleType('standard');
+    this.checkIfBlocked();
+
   }
+
+  private checkIfBlocked() {
+  const role = this.authService.getRole();
+
+  // samo za registered user
+  if (role !== 'ROLE_REGISTERED_USER') return;
+
+  this.http.get<any>(environment.apiHost + '/api/profile')
+    .subscribe({
+      next: (profile) => {
+        if (profile.blocked) {
+          this.isBlocked = true;
+          this.blockingReason = profile.blockingReason;
+        }
+      },
+      error: () => {
+        console.error('Failed to fetch profile');
+      }
+    });
+}
+
 
   ngOnDestroy(): void {
     this.subs.unsubscribe();
@@ -332,6 +363,15 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
   // }
 
   orderRide() {
+
+  if (this.isBlocked) {
+      this.rideOrdered.emit(
+      this.blockingReason
+        ? `Your account is blocked. Reason: ${this.blockingReason}`
+        : 'Your account is blocked.'
+    );
+    return;
+  }
   this.form.get('from')?.markAsTouched();
   this.form.get('to')?.markAsTouched();
 
@@ -369,9 +409,35 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
       console.log('Ride created:', res);
     },
     error: (err) => {
-      console.error(err);
-      this.rideOrdered.emit('No available drivers at the moment.');
+
+  if (err.status === 403) {
+
+    const message = err.error?.message || err.error;
+
+    if (typeof message === 'string' && message.includes('ACCOUNT_BLOCKED')) {
+
+      const reason = message.replace('ACCOUNT_BLOCKED:', '').trim();
+
+      this.isBlocked = true;
+      this.blockingReason = reason || null;
+
+      this.rideOrdered.emit(
+        reason
+          ? `Your account is blocked. Reason: ${reason}`
+          : 'Your account is blocked.'
+      );
+
+      return;
     }
+  }
+
+  if (err.status === 400 && err.error?.message === 'NO_AVAILABLE_DRIVER') {
+    this.rideOrdered.emit('No available drivers at the moment.');
+    return;
+  }
+
+  this.rideOrdered.emit('Something went wrong.');
+}
   });
 }
 
