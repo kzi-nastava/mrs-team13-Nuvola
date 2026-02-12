@@ -25,7 +25,7 @@ import { ActivateEmailComponent } from './auth/activate.email.component/activate
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
-    {path: 'users/:username', component: UsersComponent },
+    {path: 'users', component: UsersComponent },
     {path: 'ride-history/:username', component: DriverRideHistoryComponent },
     { path: 'account-settings', component: AccountComponent },
     {path: 'login', component: LoginComponent },

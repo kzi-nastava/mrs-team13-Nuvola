@@ -1,0 +1,38 @@
+<div class="user-list">
+  <div class="user-card" *ngFor="let user of users">
+
+            <img
+        [src]="getImageUrl(user.picture)"
+        class="avatar"
+        />
+
+    <div class="user-info">
+      <div class="name">{{ user.firstName }} {{ user.lastName }}</div>
+      <div class="email">{{ user.email }}</div>
+      <div class="address">{{ user.address }}</div>
+      <div class="phone">{{ user.phone }}</div>
+    </div>
+
+    <button class="block-btn" (click)="openBlockModal(user)">
+      Block
+    </button>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" *ngIf="showModal">
+  <div class="modal">
+    <h3>Block {{ selectedUser?.firstName }}?</h3>
+
+    <textarea
+      [(ngModel)]="blockReason"
+      placeholder="Write reason..."
+    ></textarea>
+
+    <div class="modal-actions">
+      <button class="cancel" (click)="cancel()">Cancel</button>
+      <button class="confirm" (click)="submitBlock()">Block</button>
+    </div>
+  </div>
+</div>

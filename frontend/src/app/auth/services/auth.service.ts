@@ -84,7 +84,7 @@ export class AuthService {
       environment.apiHost + '/api/auth/activate-email',
       {
         params: { token },
-        responseType: 'text' // backend vraća plain text
+        responseType: 'text'
       }
     );
   }
@@ -99,7 +99,6 @@ export class AuthService {
   );
 }
 uploadProfilePicture(formData: FormData) {
-    // bolje ovako:
     return this.http.post(
       environment.apiHost + '/api/profile/picture',
       formData
