@@ -102,6 +102,7 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/drivers/*/picture").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/profile").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/profile").permitAll()
                     .requestMatchers(HttpMethod.PUT, "/api/profile/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/profile/picture").permitAll()  // Upload
                     .requestMatchers(HttpMethod.GET, "/api/profile/picture/**").permitAll()  // Download - DODAJ OVO!
