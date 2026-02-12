@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/driver/profile")
+@CrossOrigin(origins = "*")
 public class DriverProfileController {
 
     private final UserRepository userRepository;

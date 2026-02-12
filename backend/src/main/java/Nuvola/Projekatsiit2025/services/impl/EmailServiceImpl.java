@@ -232,6 +232,96 @@ public class EmailServiceImpl implements EmailService {
             return "Error while sending mail!!!";
         }
     }
+    @Override
+    public String sendPasswordReset(EmailDetails details) {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom(sender);
+            helper.setTo(details.getRecipient());
+            helper.setSubject(details.getSubject() != null ? details.getSubject() : "Reset lozinke");
+
+            // fallback web link (Angular)
+            String webLink = details.getMsgBody() != null ? details.getMsgBody() : "http://localhost:4200/reset-password";
+
+            // token mora da postoji u webLink-u (?token=...)
+            // dugme preusmeri na backend "bridge" koji onda pokušava da otvori app
+            String bridgeLink = extractBridgeLinkFromWebLink(webLink);
+
+            String htmlContent = "<!DOCTYPE html>" +
+                    "<html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'></head>" +
+                    "<body style='margin:0;padding:0;font-family:Arial,sans-serif;background-color:#f4f4f4;'>" +
+                    "<table role='presentation' style='width:100%;border-collapse:collapse;'>" +
+                    "<tr><td style='padding:40px 0;text-align:center;'>" +
+                    "<table role='presentation' style='width:600px;border-collapse:collapse;background-color:#ffffff;box-shadow:0 4px 6px rgba(0,0,0,0.1);'>" +
+
+                    "<tr><td style='padding:40px 30px;background:#0A1128;text-align:center;'>" +
+                    "<h1 style='margin:0;color:#ffffff;font-size:28px;'>Reset lozinke</h1>" +
+                    "</td></tr>" +
+
+                    "<tr><td style='padding:40px 30px;'>" +
+                    "<p style='margin:0 0 16px 0;color:#666666;font-size:16px;line-height:1.6;'>" +
+                    "Klikni dugme ispod da postaviš novu lozinku." +
+                    "</p>" +
+
+                    "<table role='presentation' style='margin:24px 0;'>" +
+                    "<tr><td style='border-radius:6px;background:#0A1128;'>" +
+                    "<a href='" + bridgeLink + "' style='display:inline-block;padding:14px 28px;font-size:16px;color:#ffffff;text-decoration:none;font-weight:bold;'>" +
+                    "Open in Nuvola app" +
+                    "</a>" +
+                    "</td></tr></table>" +
+
+                    "<p style='margin:24px 0 8px 0;color:#999999;font-size:14px;line-height:1.6;'>" +
+                    "Ako nemaš aplikaciju ili dugme ne radi, koristi web link:" +
+                    "</p>" +
+                    "<p style='margin:0;color:#667eea;font-size:14px;word-break:break-all;'>" +
+                    "<a href='" + webLink + "' style='color:#667eea;text-decoration:none;'>" + webLink + "</a>" +
+                    "</p>" +
+
+                    "<p style='margin:24px 0 0 0;color:#999999;font-size:14px;line-height:1.6;'>" +
+                    "Link važi 30 minuta. Ako nisi ti tražio reset, ignoriši ovu poruku." +
+                    "</p>" +
+                    "</td></tr>" +
+
+                    "<tr><td style='padding:30px;background-color:#f8f9fa;text-align:center;border-top:1px solid #e0e0e0;'>" +
+                    "<p style='margin:0;color:#999999;font-size:14px;'>© 2025 Nuvola. All rights reserved.</p>" +
+                    "</td></tr>" +
+
+                    "</table></td></tr></table>" +
+                    "</body></html>";
+
+            helper.setText(htmlContent, true);
+            javaMailSender.send(mimeMessage);
+            return "Mail Sent Successfully";
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return "Error while sending mail!!!";
+        }
+    }
+
+    private String extractBridgeLinkFromWebLink(String webLink) {
+        // webLink je tipa http://localhost:4200/reset-password?token=XYZ
+        // izvucemo token pa napravimo bridge URL na backend-u
+        String token = null;
+        int idx = webLink.indexOf("token=");
+        if (idx != -1) {
+            token = webLink.substring(idx + "token=".length());
+            int amp = token.indexOf("&");
+            if (amp != -1) token = token.substring(0, amp);
+        }
+        if (token == null || token.isBlank()) {
+            // fallback – ako nema tokena, samo vrati webLink
+            return webLink;
+        }
+
+        // BACKEND bridge endpoint (dodajemo ga u AuthController ispod)
+        // 10.0.2.2 je za emulator ako otvaraš iz emuliranog browsera. Ali mail otvaraš na PC-u:
+        // zato ostavljamo localhost:8080 kao default.
+        return "http://localhost:8080/api/auth/reset-password/open?token=" + token;
+    }
 
 }
+
+
+

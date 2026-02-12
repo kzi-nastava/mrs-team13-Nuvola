@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-forgot-password-component',
@@ -11,12 +12,15 @@ import { Router, RouterModule } from '@angular/router';
 })
 export class ForgotPasswordComponent {
   sent = false;
+  loading = false;
+  error = '';
+  message = '';
 
   form = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
   });
 
-  constructor(private router: Router) {}
+  constructor(private authService: AuthService) {}
 
   get email() {
     return this.form.controls.email;
@@ -24,18 +28,26 @@ export class ForgotPasswordComponent {
 
   submit() {
     this.sent = false;
+    this.error = '';
+    this.message = '';
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    
-    this.sent = true;
+    this.loading = true;
 
-    
-    setTimeout(() => {
-      this.router.navigate(['/reset-password']);
-    }, 600);
+    this.authService.forgotPassword(this.email.value!).subscribe({
+      next: (res) => {
+        this.sent = true;
+        this.message = res; // backend vraća text
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err?.error || 'Greška pri slanju linka.';
+        this.loading = false;
+      }
+    });
   }
 }

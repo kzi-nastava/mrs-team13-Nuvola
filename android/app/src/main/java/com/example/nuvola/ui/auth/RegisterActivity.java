@@ -12,14 +12,23 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.nuvola.R;
+import com.example.nuvola.network.AuthService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+
+import dto.RegisterRequestDTO;
+import dto.RegisterResponseDTO;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private TextInputLayout tilEmail, tilPassword, tilConfirmPassword, tilFirstName, tilLastName, tilAddress, tilPhone;
     private TextInputEditText etEmail, etPassword, etConfirmPassword, etFirstName, etLastName, etAddress, etPhone;
+
+    private MaterialButton btnRegister;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         bindViews();
 
-        MaterialButton btnRegister = findViewById(R.id.btnRegister);
+        btnRegister = findViewById(R.id.btnRegister);
         if (btnRegister != null) {
             btnRegister.setOnClickListener(v -> onRegister());
         }
@@ -106,12 +115,12 @@ public class RegisterActivity extends AppCompatActivity {
             ok = false;
         }
 
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             tilEmail.setError("Invalid email");
             ok = false;
         }
 
-        if (pass.length() < 8) {
+        if (pass.trim().length() < 8) {
             tilPassword.setError("Min 8 characters");
             ok = false;
         }
@@ -123,7 +132,52 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (!ok) return;
 
-        Toast.makeText(this, "Registration sent. Check email for activation link (valid 24h).", Toast.LENGTH_SHORT).show();
+        if (btnRegister != null) btnRegister.setEnabled(false);
+
+
+        RegisterRequestDTO body = new RegisterRequestDTO(
+                email,
+                pass,
+                confirm,
+                firstName,
+                lastName,
+                address,
+                phone,
+                null // picture
+        );
+
+        AuthService.api().register(body).enqueue(new Callback<RegisterResponseDTO>() {
+            @Override
+            public void onResponse(Call<RegisterResponseDTO> call, Response<RegisterResponseDTO> response) {
+                if (btnRegister != null) btnRegister.setEnabled(true);
+
+                if (response.isSuccessful()) {
+                    String msg = "Registration sent. Check email for activation link (valid 24h).";
+                    if (response.body() != null && response.body().getMessage() != null) {
+                        msg = response.body().getMessage();
+                    }
+
+                    Toast.makeText(RegisterActivity.this, msg, Toast.LENGTH_SHORT).show();
+
+
+                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                    finish();
+                } else {
+                    Toast.makeText(RegisterActivity.this,
+                            "Register failed: " + response.code(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RegisterResponseDTO> call, Throwable t) {
+                if (btnRegister != null) btnRegister.setEnabled(true);
+
+                Toast.makeText(RegisterActivity.this,
+                        "Network error: " + (t.getMessage() == null ? "unknown" : t.getMessage()),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void clearErrors() {

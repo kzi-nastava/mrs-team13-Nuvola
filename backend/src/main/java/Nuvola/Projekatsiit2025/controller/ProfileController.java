@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/profile")
+@CrossOrigin(origins = "*")
 public class ProfileController {
 
     private final UserRepository userRepository;

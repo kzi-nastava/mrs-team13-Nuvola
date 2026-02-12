@@ -107,7 +107,7 @@ export class AuthService {
       environment.apiHost + '/api/auth/activate-email',
       {
         params: { token },
-        responseType: 'text' // backend vraća plain text
+        responseType: 'text'
       }
     );
   }
@@ -122,10 +122,26 @@ export class AuthService {
   );
 }
 uploadProfilePicture(formData: FormData) {
-    // bolje ovako:
     return this.http.post(
       environment.apiHost + '/api/profile/picture',
       formData
     );
   }
+
+  forgotPassword(email: string): Observable<string> {
+  return this.http.post(
+    environment.apiHost + '/api/auth/forgot-password',
+    { email },
+    { headers: this.headers, responseType: 'text' }
+  );
+}
+
+resetPassword(token: string, newPassword: string, confirmNewPassword: string): Observable<string> {
+  return this.http.post(
+    `http://localhost:8080/api/auth/reset-password?token=${encodeURIComponent(token)}`,
+    { newPassword, confirmNewPassword },
+    { headers: this.headers, responseType: 'text' }
+  );
+}
+
 }

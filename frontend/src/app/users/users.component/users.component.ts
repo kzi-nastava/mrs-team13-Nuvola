@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { RegisteredUsersComponent } from '../registered.users.component/registered.users.component';
+import { DriversComponent } from '../drivers.component/drivers.component';
 
 type TabType = 'customers' | 'drivers';
 
 @Component({
   selector: 'app-users',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, RegisteredUsersComponent, DriversComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
 })

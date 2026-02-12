@@ -9,8 +9,8 @@ export interface LocationModel {
 export interface RideModel {
     id: number,
     price: number,
-    dropoff: LocationModel,
-    pickup: LocationModel,
+    dropoff: string,
+    pickup: string,
     statingTime: Date,
     driver: string,
     isFavouriteRoute: boolean

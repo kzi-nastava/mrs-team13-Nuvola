@@ -16,4 +16,9 @@ public class Location {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+
+    @Override
+    public String toString() {
+        return latitude + " , " + longitude;
+    }
 }

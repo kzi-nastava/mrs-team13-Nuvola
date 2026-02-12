@@ -43,10 +43,9 @@ export class LoginComponent {
   }
 
   onForgotPassword() {
-    const email = this.email.value;
-    const username = email?.split('@')[0] || 'user';
-    this.router.navigate(['/forgot-password', username]);
-  }
+  this.router.navigate(['/forgot-password']);
+}
+
 
   submit() {
     this.submittedOk = false;

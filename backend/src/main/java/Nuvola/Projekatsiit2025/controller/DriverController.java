@@ -33,7 +33,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/drivers")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 public class DriverController {
     @Autowired
     private RideService rideService;
@@ -82,7 +82,7 @@ public class DriverController {
 
 
     // 2.9.2
-    @PreAuthorize("hasRole('REGISTERED_USER')")
+    //@PreAuthorize("hasRole('DRIVER')")
     @GetMapping(value = "/{username}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<DriverRideHistoryItemDTO>> getDriverRideHistory(
             @PathVariable String username,
@@ -123,15 +123,15 @@ public class DriverController {
         ride1.setId(1L);
         ride1.setPrice(450.0);
 
-        Location pickup1 = new Location();
-        pickup1.setLatitude(45.2671);  // Trg Slobode, Novi Sad
-        pickup1.setLongitude(19.8335);
-        ride1.setPickup(pickup1);
+//        Location pickup1 = new Location();
+//        pickup1.setLatitude(45.2671);  // Trg Slobode, Novi Sad
+//        pickup1.setLongitude(19.8335);
+        ride1.setPickup("Trg Slobode, Novi Sad");
 
-        Location dropoff1 = new Location();
-        dropoff1.setLatitude(45.2517);  // Petrovaradinska tvrđava
-        dropoff1.setLongitude(19.8659);
-        ride1.setDropoff(dropoff1);
+//        Location dropoff1 = new Location();
+//        dropoff1.setLatitude(45.2517);  // Petrovaradinska tvrđava
+//        dropoff1.setLongitude(19.8659);
+        ride1.setDropoff("Petrovaradinska tvrđava, Novi Sad");
 
         ride1.setStartingTime(LocalDateTime.of(2026, 1, 25, 10, 30));
         ride1.setDriver("Marko Marković");
@@ -144,21 +144,51 @@ public class DriverController {
         ride2.setId(2L);
         ride2.setPrice(320.0);
 
-        Location pickup2 = new Location();
-        pickup2.setLatitude(45.2559);  // Železnička stanica
-        pickup2.setLongitude(19.8404);
-        ride2.setPickup(pickup2);
+//        Location pickup2 = new Location();
+//        pickup2.setLatitude(45.2559);  // Železnička stanica
+//        pickup2.setLongitude(19.8404);
+        ride2.setPickup("Železnička stanica, Novi Sad");
 
-        Location dropoff2 = new Location();
-        dropoff2.setLatitude(45.2396);  // Futoški park
-        dropoff2.setLongitude(19.8227);
-        ride2.setDropoff(dropoff2);
+//        Location dropoff2 = new Location();
+//        dropoff2.setLatitude(45.2396);  // Futoški park
+//        dropoff2.setLongitude(19.8227);
+        ride2.setDropoff("Futoški park, Novi Sad");
 
         ride2.setStartingTime(LocalDateTime.of(2026, 1, 27, 15, 45));
         ride2.setDriver("Ana Anić");
         ride2.setFavouriteRoute(false);
 
         rides.add(ride2);
+
+        DriverRideHistoryItemDTO ride3 = new DriverRideHistoryItemDTO();
+        ride3.setId(3L);
+        ride3.setPrice(500.0);
+        ride3.setPickup("Bulevar Oslobođenja, Novi Sad");
+        ride3.setDropoff("Sajmište, Novi Sad");
+        ride3.setStartingTime(LocalDateTime.of(2026, 1, 30, 12, 0));
+        ride3.setDriver("Marko Marković");
+        ride3.setFavouriteRoute(true);
+        rides.add(ride3);
+
+        DriverRideHistoryItemDTO ride4 = new DriverRideHistoryItemDTO();
+        ride4.setId(4L);
+        ride4.setPrice(600.0);
+        ride4.setPickup("Limanski park, Novi Sad");
+        ride4.setDropoff("Novi Sad centar, Novi Sad");
+        ride4.setStartingTime(LocalDateTime.of(2026, 2, 2, 18, 30));
+        ride4.setDriver("Ana Anić");
+        ride4.setFavouriteRoute(false);
+        rides.add(ride4);
+
+        DriverRideHistoryItemDTO ride5 = new DriverRideHistoryItemDTO();
+        ride5.setId(5L);
+        ride5.setPrice(550.0);
+        ride5.setPickup("Novi Sad centar, Novi Sad");
+        ride5.setDropoff("Petrovaradin tvrđava, Novi Sad");
+        ride5.setStartingTime(LocalDateTime.of(2026, 2, 5, 9, 15));
+        ride5.setDriver("Marko Marković");
+        ride5.setFavouriteRoute(false);
+        rides.add(ride5);
 
         return rides;
     }

@@ -150,8 +150,8 @@ import { map } from 'rxjs/operators';
 interface RideDTO {
   id: number;
   price: number;
-  dropoff: LocationModel;
-  pickup: LocationModel;
+  dropoff: string;
+  pickup: string;
   startingTime: string;
   driver: string;
   isFavouriteRoute: boolean;
