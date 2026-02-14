@@ -110,6 +110,9 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/admin/users/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/admin/users/*/block").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/admin/users/*/unblock").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/rides").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/drivers/{username}/assigned-rides").permitAll()
+
 
                     //Da nam lepsu poruku vrati
                     .requestMatchers("/error").permitAll()

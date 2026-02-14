@@ -45,6 +45,9 @@ public class RideServiceImpl implements RideService {
     @Autowired
     private ReportRepository reportRepository;
 
+    @Autowired
+    private RouteRepository routeRepository;
+
 
     @Override
     public Page<DriverRideHistoryItemDTO> getDriverRideHistory(Long driverId, String sortBy, String sortOrder, Integer page, Integer size) {
@@ -102,21 +105,25 @@ public class RideServiceImpl implements RideService {
         Location pickup = new Location();
         pickup.setLatitude(dto.getFrom().getLatitude());
         pickup.setLongitude(dto.getFrom().getLongitude());
+        pickup.setAddress(dto.getFrom().getAddress());
 
         Location dropoff = new Location();
         dropoff.setLatitude(dto.getTo().getLatitude());
         dropoff.setLongitude(dto.getTo().getLongitude());
+        dropoff.setAddress(dto.getTo().getAddress());
 
         route.setPickup(pickup);
         route.setDropoff(dropoff);
 
-        List<Location> stopLocations = dto.getStops().stream().map(s -> {
-            Location l = new Location();
-            l.setLatitude(s.getLatitude());
-            l.setLongitude(s.getLongitude());
-            return l;
-        }).toList();
-
+        List<Location> stopLocations = dto.getStops() == null
+                ? List.of()
+                : dto.getStops().stream()
+                .map(s -> {
+                    Location l = new Location();
+                    l.setLatitude(s.getLatitude());
+                    l.setLongitude(s.getLongitude());
+                    return l;
+                }).toList();
         route.setStops(stopLocations);
         route.setFavourite(false);
 
@@ -156,6 +163,7 @@ public class RideServiceImpl implements RideService {
                     "NO_AVAILABLE_DRIVER"
             );
         }
+        route = routeRepository.save(route);
 
         Ride ride = new Ride();
         ride.setStatus(RideStatus.SCHEDULED);
@@ -254,6 +262,14 @@ public class RideServiceImpl implements RideService {
         }
 
         return basePrice + distanceKm * 120;
+    }
+
+    public List<Ride> getAssignedRidesForDriver(String username) {
+
+        return rideRepository.findByDriver_UsernameAndStatusIn(
+                username,
+                List.of(RideStatus.SCHEDULED, RideStatus.IN_PROGRESS)
+        );
     }
 
 }

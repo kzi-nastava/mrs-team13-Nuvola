@@ -18,7 +18,8 @@ public class Route {
     @AttributeOverrides({
            // @AttributeOverride(name = "title", column = @Column(name = "pickup_title")),
             @AttributeOverride(name = "latitude", column = @Column(name = "pickup_latitude")),
-            @AttributeOverride(name = "longitude", column = @Column(name = "pickup_longitude"))
+            @AttributeOverride(name = "longitude", column = @Column(name = "pickup_longitude")),
+            @AttributeOverride(name = "address", column = @Column(name = "pickup_address"))
     })
     private Location pickup;
 
@@ -26,7 +27,8 @@ public class Route {
     @AttributeOverrides({
            // @AttributeOverride(name = "title", column = @Column(name = "dropoff_title")),
             @AttributeOverride(name = "latitude", column = @Column(name = "dropoff_latitude")),
-            @AttributeOverride(name = "longitude", column = @Column(name = "dropoff_longitude"))
+            @AttributeOverride(name = "longitude", column = @Column(name = "dropoff_longitude")),
+            @AttributeOverride(name = "address", column = @Column(name = "dropoff_address"))
     })
     private Location dropoff;
 

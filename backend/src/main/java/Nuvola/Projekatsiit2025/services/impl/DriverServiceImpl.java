@@ -76,7 +76,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setPhone(dto.getPhone());
         driver.setAddress(dto.getAddress());
         driver.setPicture(dto.getPicture());
-        driver.setBlocked(true);
+        driver.setBlocked(false);
         driver.setStatus(DriverStatus.ACTIVE);
         driver.setPassword("TEMP");
 
