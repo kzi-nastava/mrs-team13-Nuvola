@@ -194,16 +194,16 @@ public class DriverController {
     }
 
     // 2.1.1
-    @GetMapping(value="/active-vehicles", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ActiveVehicleDTO>> getActiveVehicles() {
-        List<ActiveVehicleDTO> response = new ArrayList<>();
-        ActiveVehicleDTO activeVehicleDTO = new ActiveVehicleDTO(45.2671, 19.8335, true, 1L);
-        response.add(activeVehicleDTO);
-        ActiveVehicleDTO activeVehicleDTO2 = new ActiveVehicleDTO(44.7866, 20.4489, false, 2L);
-        response.add(activeVehicleDTO2);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @GetMapping(value="/active-vehicles", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<List<ActiveVehicleDTO>> getActiveVehicles() {
+//        List<ActiveVehicleDTO> response = new ArrayList<>();
+//        ActiveVehicleDTO activeVehicleDTO = new ActiveVehicleDTO(45.2671, 19.8335, true, 1L);
+//        response.add(activeVehicleDTO);
+//        ActiveVehicleDTO activeVehicleDTO2 = new ActiveVehicleDTO(44.7866, 20.4489, false, 2L);
+//        response.add(activeVehicleDTO2);
+//
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
 
 //    @PreAuthorize("hasRole('DRIVER')")
