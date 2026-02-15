@@ -11,6 +11,7 @@ import Nuvola.Projekatsiit2025.repositories.UserRepository;
 
 import Nuvola.Projekatsiit2025.services.DriverService;
 //import Nuvola.Projekatsiit2025.services.PasswordResetService;
+import Nuvola.Projekatsiit2025.services.PasswordResetService;
 import Nuvola.Projekatsiit2025.services.UserService;
 import Nuvola.Projekatsiit2025.util.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +60,8 @@ public class AuthController {
     @Autowired
     private DriverService driverService;
 
-//    @Autowired
-//    private PasswordResetService passwordResetService;
+    @Autowired
+    private PasswordResetService passwordResetService;
 
 
     // 2.2.1 Login (email + password)
@@ -103,13 +104,14 @@ public class AuthController {
         if (dto == null || dto.getEmail() == null || dto.getEmail().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "EMAIL_REQUIRED");
         }
-        //passwordResetService.requestReset(dto.getEmail().trim());
 
-        // uvek isto, zbog security
+        passwordResetService.requestReset(dto.getEmail().trim());
+
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
                 .body("Ako email postoji u sistemu, poslat je link za reset lozinke.");
     }
+
 
 
     // 2.2.1 Reset password (tocken from mail)
@@ -131,12 +133,32 @@ public class AuthController {
 //        return ResponseEntity.ok("Password has been reset successfully.");
 //    }
 
+
     // 2.2.1 Reset password (tocken from mail)
-    @PostMapping("/reset-password/{token}")
-    public ResponseEntity<String> resetPassword(@PathVariable String token,
+    //@PostMapping("/reset-password/{token}")
+    //public ResponseEntity<String> resetPassword(@PathVariable String token,
+      //                                          @RequestBody ResetPasswordRequestDTO dto) {
+        //return new ResponseEntity<>("Password has been reset (stub).", HttpStatus.OK);
+    //}
+
+
+    @PostMapping(value = "/reset-password", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> resetPassword(@RequestParam String token,
                                                 @RequestBody ResetPasswordRequestDTO dto) {
-        return new ResponseEntity<>("Password has been reset (stub).", HttpStatus.OK);
+
+        if (dto == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "BODY_REQUIRED");
+        }
+
+        passwordResetService.resetPassword(
+                token,
+                dto.getNewPassword(),
+                dto.getConfirmNewPassword()
+        );
+
+        return ResponseEntity.ok("Password has been reset successfully.");
     }
+
 
 
 
@@ -196,12 +218,12 @@ public class AuthController {
 
         User user = activationToken.getUser();
 
-        // ✅ aktiviraj nalog
+
         if (user instanceof RegisteredUser ru) {
             ru.setActivated(true);
             userRepository.save(ru);
         } else {
-            // ako ikad dođe neki drugi tip
+
             userRepository.save(user);
         }
 
