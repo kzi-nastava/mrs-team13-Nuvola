@@ -138,9 +138,9 @@ uploadProfilePicture(formData: FormData) {
 
 resetPassword(token: string, newPassword: string, confirmNewPassword: string): Observable<string> {
   return this.http.post(
-    `http://localhost:8080/api/auth/reset-password?token=${encodeURIComponent(token)}`,
+    environment.apiHost + '/api/auth/reset-password',
     { newPassword, confirmNewPassword },
-    { headers: this.headers, responseType: 'text' }
+    { headers: this.headers, params: { token }, responseType: 'text' }
   );
 }
 
