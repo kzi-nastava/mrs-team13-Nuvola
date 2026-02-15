@@ -27,7 +27,13 @@ export class NavBarComponent {
   }
 
   onInboxClick(): void {
-    console.log('Inbox clicked');
+    const role = this.authService.getRole();
+    if (role === 'ROLE_ADMIN') {
+      this.router.navigate(['/admin/support/inbox']);
+    } else {
+      this.router.navigate(['/support/chat']);
+    }
+    this.menuOpen = false;
   }
 
   onUsers(): void {

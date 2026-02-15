@@ -74,8 +74,8 @@ public class SupportChatServiceImpl implements SupportChatService {
         chatMessageDTO.setSenderName(sender.getFirstName() + " " + sender.getLastName());
         chatMessageDTO.setChatId(chat.getId());
 
-        template.convertAndSend("/topic/chats/" + chat.getId(), chatMessageDTO);
-        template.convertAndSend("/topic/chats/all", chatMessageDTO);
+        template.convertAndSend("/topic/chats/users/" + sender.getId(), chatMessageDTO);
+        template.convertAndSend("/topic/chats/users/all", chatMessageDTO);
 
     }
 
@@ -117,8 +117,8 @@ public class SupportChatServiceImpl implements SupportChatService {
         chatMessageDTO.setSenderName(sender.getFirstName() + " " + sender.getLastName());
         chatMessageDTO.setChatId(chat.getId());
 
-        template.convertAndSend("/topic/chats/" + chat.getId(), chatMessageDTO);
-        template.convertAndSend("/topic/chats/all", chatMessageDTO);
+        template.convertAndSend("/topic/chats/users/" + receiver.getId(), chatMessageDTO);
+        template.convertAndSend("/topic/chats/users/all", chatMessageDTO);
     }
 
     public List<ChatMessageDTO> getMessages(Long userId) {

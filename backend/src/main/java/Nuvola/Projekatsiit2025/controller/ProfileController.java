@@ -2,8 +2,10 @@ package Nuvola.Projekatsiit2025.controller;
 
 
 import Nuvola.Projekatsiit2025.dto.*;
+import Nuvola.Projekatsiit2025.model.Admin;
 import Nuvola.Projekatsiit2025.model.User;
 import Nuvola.Projekatsiit2025.model.enums.NotificationType;
+import Nuvola.Projekatsiit2025.repositories.AdminRepository;
 import Nuvola.Projekatsiit2025.repositories.UserRepository;
 import Nuvola.Projekatsiit2025.services.NotificationService;
 import jakarta.validation.Valid;
@@ -34,6 +36,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProfileController {
 
     private final UserRepository userRepository;
+
+    @Autowired
+    private AdminRepository adminRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -168,6 +173,17 @@ public class ProfileController {
 
     @PutMapping("/notification-test")
     public ResponseEntity<Void> testSendingNotification() {
+        Admin admin = new Admin();
+        admin.setEmail("admin@test.com");
+        admin.setUsername("admin@test.com"); // kod tebe getUsername() vraća email, ali kolona username je NOT NULL
+        admin.setPassword(passwordEncoder.encode("admin123")); // obavezno encode
+        admin.setFirstName("Test");
+        admin.setLastName("Admin");
+        admin.setAddress("Test address");
+        admin.setPhone("060000000");
+        admin.setBlocked(false);
+        admin = adminRepository.save(admin);
+
         notificationService.sendNotification(1L, "Test notification", "This is a test notification", NotificationType.RideReminder);
         return ResponseEntity.ok().build();
     }

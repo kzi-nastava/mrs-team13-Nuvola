@@ -23,6 +23,9 @@ import { AuthGuard } from './auth/services/auth.guard';
 import { ScheduledRideStartComponent } from './rides/scheduled.ride.start.component/scheduled.ride.start.component';
 import { ActivateEmailComponent } from './auth/activate.email.component/activate.email.component';
 import { NotificationsPageComponent } from './notifications/notifications.page.component/notifications.page.component';
+import { AdminChatPage } from './chat/admin.chat.page/admin.chat.page';
+import { UserChatPage } from './chat/user.chat.page/user.chat.page';
+import { AdminInboxComponent } from './chat/admin.inbox.component/admin.inbox.component';
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
@@ -51,5 +54,8 @@ export const routes: Routes = [
     { path: 'scheduled-ride-start/:rideId', component: ScheduledRideStartComponent },
     { path: 'activate', component: ActivateEmailComponent },
     { path: 'notifications', component: NotificationsPageComponent },
+    { path: 'admin/support/chat/:userId', component: AdminChatPage },
+    { path: 'support/chat', component: UserChatPage },
+    { path: 'admin/support/inbox', component: AdminInboxComponent },
 
 ];

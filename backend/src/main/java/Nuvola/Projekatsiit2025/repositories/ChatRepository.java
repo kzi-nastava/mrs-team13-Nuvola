@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
     @Query("""
-    select new Nuvola.Projekatsiit2025.dto.AdminInboxItemDTO(
+    select new Nuvola.Projekatsiit2025.dto.chat.AdminInboxItemDTO(
       c.id,
       u.id,
       concat(u.firstName, ' ', u.lastName),
