@@ -20,6 +20,6 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     );
 
     List<Ride> findByDriver_UsernameAndStatusIn(String username, List<RideStatus> statuses);
-
+    List<Ride> findByIsPanicTrue();
 
 }

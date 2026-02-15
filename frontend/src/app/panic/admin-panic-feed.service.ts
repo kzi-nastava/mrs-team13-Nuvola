@@ -3,60 +3,55 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, timer } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { PanicNotification } from './panic.model';
+import { environment } from '../env/enviroment';
 
-type RideHistoryItem = {
-  id: number;
-  startTime?: string;
-  endTime?: string;
-  panic?: boolean;
-  // ako imate još polja, ne smeta
+type PanicDTO = {
+  rideId: number;
+  driverId: number | null;
+  passengerId: number | null;
 };
 
 @Injectable({ providedIn: 'root' })
 export class AdminPanicFeedService {
   private http = inject(HttpClient);
-  private baseUrl = '/api';
+  private baseUrl = environment.apiHost + '/api';
 
   private itemsSubject = new BehaviorSubject<PanicNotification[]>([]);
   items$ = this.itemsSubject.asObservable();
 
-  // čuvamo “ključ” već viđenih panic događaja
   private seenKeys = new Set<string>();
 
   startPolling(ms = 3000) {
     timer(0, ms)
       .pipe(
         switchMap(() =>
-          this.http.get<RideHistoryItem[]>(`${this.baseUrl}/admin/rides/history`)
+          this.http.get<PanicDTO[]>(`${this.baseUrl}/admin/panic`)
         )
       )
       .subscribe({
-        next: (history) => {
-          const panicRides = (history ?? []).filter(h => !!h.panic);
+        next: (list) => {
+          const now = new Date().toISOString();
 
-          const mapped: PanicNotification[] = panicRides.map(h => {
-            const time = h.endTime || h.startTime || new Date().toISOString();
-            const key = `${h.id}_${time}`;
-
+          const mapped: PanicNotification[] = (list ?? []).map(p => {
+            const key = `${p.rideId}_${p.driverId ?? 'x'}_${p.passengerId ?? 'x'}`;
             const isNew = !this.seenKeys.has(key);
             if (isNew) this.seenKeys.add(key);
 
             return {
-              panicId: h.id,              // fallback
-              rideId: h.id,
-              triggeredBy: 'PASSENGER',   // fallback ako backend ne šalje ko je
-              time,
+              panicId: p.rideId,            
+              rideId: p.rideId,
+              triggeredBy: (p.driverId != null && p.driverId === p.passengerId) ? 'DRIVER' : 'PASSENGER',
+              time: now,
               seen: !isNew,
             };
           });
 
-          // sort: newest first
+          
           mapped.sort((a, b) => (a.time < b.time ? 1 : -1));
-
           this.itemsSubject.next(mapped);
         },
-        error: () => {
-          // u realnom kodu: toast “ne mogu da povučem”
+        error: (e) => {
+          console.error('PANIC feed error', e);
         }
       });
   }
