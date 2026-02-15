@@ -19,5 +19,7 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             Long driverId, RideStatus status, LocalDateTime time
     );
 
+    List<Ride> findByDriver_UsernameAndStatusIn(String username, List<RideStatus> statuses);
+
 
 }

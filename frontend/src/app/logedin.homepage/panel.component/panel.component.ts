@@ -157,7 +157,7 @@ private checkIfBlocked() {
           this.isBlocked = true;
           this.blockingReason = profile.blockingReason;
 
-          this.form.disable();   // 🔥 OVO DODAJ
+          this.form.disable();
         }
       },
       error: () => {
@@ -385,15 +385,18 @@ private checkIfBlocked() {
   const payload = {
     from: {
       latitude: from.lat,
-      longitude: from.lng
+      longitude: from.lng,
+      address: from.address
     },
     to: {
       latitude: to.lat,
-      longitude: to.lng
+      longitude: to.lng,
+      address: to.address
     },
     stops: this.rideOrder.getStops().map(s => ({
       latitude: s.lat,
-      longitude: s.lng
+      longitude: s.lng,
+      address: s.address
     })),
     passengerEmails: this.passengers,
     vehicleType: this.form.value.vehicleType.toUpperCase(),

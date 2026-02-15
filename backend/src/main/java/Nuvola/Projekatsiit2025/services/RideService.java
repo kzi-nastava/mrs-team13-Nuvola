@@ -16,5 +16,6 @@ public interface RideService {
     Ride createRide(User loggedUser, CreateRideDTO dto);
     Long endRide(String username);
     void createReport(CreateReportDTO createReportDTO);
+    List<Ride> getAssignedRidesForDriver(String username);
     ScheduledRideDTO getScheduledRide(Long rideId);
 }

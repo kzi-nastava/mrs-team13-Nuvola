@@ -3,6 +3,7 @@ package Nuvola.Projekatsiit2025.controller;
 import Nuvola.Projekatsiit2025.dto.*;
 import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.Location;
+import Nuvola.Projekatsiit2025.model.Ride;
 import Nuvola.Projekatsiit2025.services.DriverService;
 import Nuvola.Projekatsiit2025.repositories.DriverRepository;
 import Nuvola.Projekatsiit2025.services.RideService;
@@ -113,6 +114,22 @@ public class DriverController {
 
         return ResponseEntity.ok(mockPage);
 
+    }
+
+    @GetMapping("/{username}/assigned-rides")
+    public ResponseEntity<List<DriverAssignedRideDTO>> getAssignedRides(
+            @PathVariable String username) {
+
+        List<Ride> rides = rideService.getAssignedRidesForDriver(username);
+
+        List<DriverAssignedRideDTO> dtos =
+                rides.stream()
+                        .map(DriverAssignedRideDTO::new)
+                        .toList();
+
+        System.out.println("USERNAME FROM URL: " + username);
+
+        return ResponseEntity.ok(dtos);
     }
 
     private List<DriverRideHistoryItemDTO> createMockRides() {
