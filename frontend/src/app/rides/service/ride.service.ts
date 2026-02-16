@@ -176,7 +176,7 @@ export class RideService {
 
   constructor(private http: HttpClient) {}
 
-  loadDriverRides(username: string, sortBy: string = 'startingTime', sortOrder: string = 'desc'): Observable<RideModel[]> {
+  loadDriverRides(username: string, sortBy: string = 'startTime', sortOrder: string = 'desc'): Observable<RideModel[]> {
     const params = new HttpParams()
       .set('sortBy', sortBy)
       .set('sortOrder', sortOrder);
