@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/services/auth.service';
-import { Console } from 'console';
 import { environment } from '../../env/enviroment';
 import { HttpClient } from '@angular/common/http';
 
