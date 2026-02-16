@@ -20,9 +20,14 @@
         </div>
 
         <div class="ride-actions">
-          <button class="btn danger" (click)="panic(ar)">
-            PANIC
-          </button>
+          <button
+            class="btn danger"
+            [class.disabled]="ar.panic"
+            [disabled]="ar.panic"
+            (click)="panic(ar)"
+          >
+          {{ ar.panic ? 'PANIC active' : 'PANIC' }}
+        </button>
 
           <button class="btn gray" (click)="stopRide(ar)">
             Stop

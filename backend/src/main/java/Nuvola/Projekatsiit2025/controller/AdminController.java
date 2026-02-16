@@ -1,14 +1,12 @@
 package Nuvola.Projekatsiit2025.controller;
 
-import Nuvola.Projekatsiit2025.dto.AdminRideDetailsDTO;
-import Nuvola.Projekatsiit2025.dto.AdminRideHistoryItemDTO;
-import Nuvola.Projekatsiit2025.dto.AdminUserDTO;
-import Nuvola.Projekatsiit2025.dto.BlockUserRequestDTO;
+import Nuvola.Projekatsiit2025.dto.*;
 import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.RegisteredUser;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 import Nuvola.Projekatsiit2025.repositories.DriverRepository;
 import Nuvola.Projekatsiit2025.repositories.RegisteredUserRepository;
+import Nuvola.Projekatsiit2025.services.RideService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +25,10 @@ public class AdminController {
     @Autowired
     private DriverRepository driverRepository;
 
-    // 2.9.3 History of rides (driver/passenger), filter by creationDate and sort 
+    @Autowired
+    private RideService rideService;
+
+    // 2.9.3 History of rides (driver/passenger), filter by creationDate and sort
     @GetMapping(value = "/rides/history", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<AdminRideHistoryItemDTO>> history(
             @RequestParam(required = false) Long driverId,
@@ -93,11 +94,11 @@ public class AdminController {
         // map
         dto.setRouteCoordinates(List.of("45.2671,19.8335", "45.2520,19.8360"));
 
-        // driver/passengers 
+        // driver/passengers
         dto.setDriverName("Test Driver");
         dto.setPassengerNames(List.of("Ana Test", "Marko Test"));
 
-        // reports/ratings 
+        // reports/ratings
         dto.setInconsistencyReports(List.of("Late arrival reported", "Different route reported"));
         dto.setDriverRating(4.8);
         dto.setPassengersRating(4.6);
@@ -282,6 +283,11 @@ public class AdminController {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping(value = "/panic", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<PanicDTO>> getPanicNotifications() {
+        return ResponseEntity.ok(rideService.getActivePanicNotifications());
     }
 
 

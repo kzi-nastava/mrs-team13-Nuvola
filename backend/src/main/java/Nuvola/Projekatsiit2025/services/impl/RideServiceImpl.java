@@ -1,9 +1,7 @@
 package Nuvola.Projekatsiit2025.services.impl;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import Nuvola.Projekatsiit2025.dto.CreateReportDTO;
-import Nuvola.Projekatsiit2025.dto.CreateRideDTO;
-import Nuvola.Projekatsiit2025.dto.DriverRideHistoryItemDTO;
-import Nuvola.Projekatsiit2025.dto.ScheduledRideDTO;
+import Nuvola.Projekatsiit2025.dto.*;
 import Nuvola.Projekatsiit2025.exceptions.UserNotFoundException;
 import Nuvola.Projekatsiit2025.exceptions.ride.InvalidRideStateException;
 import Nuvola.Projekatsiit2025.exceptions.ride.RideNotFoundException;
@@ -15,6 +13,7 @@ import Nuvola.Projekatsiit2025.repositories.*;
 import Nuvola.Projekatsiit2025.services.EmailService;
 import Nuvola.Projekatsiit2025.services.RideService;
 import Nuvola.Projekatsiit2025.util.EmailDetails;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -47,6 +46,9 @@ public class RideServiceImpl implements RideService {
 
     @Autowired
     private RouteRepository routeRepository;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
 
     @Override
@@ -271,5 +273,50 @@ public class RideServiceImpl implements RideService {
                 List.of(RideStatus.SCHEDULED, RideStatus.IN_PROGRESS)
         );
     }
+
+    @Transactional
+    public void triggerPanic(Long rideId, Long userId) {
+
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new RuntimeException("Ride not found"));
+
+        if (ride.getStatus() != RideStatus.IN_PROGRESS) {
+            throw new RuntimeException("Panic allowed only for IN_PROGRESS rides");
+        }
+
+        boolean isDriver = ride.getDriver() != null && ride.getDriver().getId().equals(userId);
+        boolean isCreator = ride.getCreator() != null && ride.getCreator().getId().equals(userId);
+        boolean isOtherPassenger = ride.getOtherPassengers() != null &&
+                ride.getOtherPassengers().stream().anyMatch(p -> p.getId().equals(userId));
+
+        if (!isDriver && !isCreator && !isOtherPassenger) {
+            throw new RuntimeException("User not allowed to trigger panic for this ride");
+        }
+
+        if (ride.isPanic()) { // već aktiviran
+            return;
+        }
+
+        ride.setPanic(true);
+        rideRepository.save(ride);
+
+        Long driverId = (ride.getDriver() != null) ? ride.getDriver().getId() : null;
+        Long creatorId = (ride.getCreator() != null) ? ride.getCreator().getId() : null;
+
+        messagingTemplate.convertAndSend("/topic/admin/panic",
+                new PanicDTO(ride.getId(), driverId, creatorId));
+    }
+
+    @Override
+    public List<PanicDTO> getActivePanicNotifications() {
+        return rideRepository.findByIsPanicTrue().stream()
+                .map(r -> new PanicDTO(
+                        r.getId(),
+                        r.getDriver() != null ? r.getDriver().getId() : null,
+                        r.getCreator() != null ? r.getCreator().getId() : null
+                ))
+                .toList();
+    }
+
 
 }

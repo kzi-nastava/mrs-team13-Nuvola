@@ -1,11 +1,9 @@
 package Nuvola.Projekatsiit2025.services;
 
-import Nuvola.Projekatsiit2025.dto.CreateReportDTO;
-import Nuvola.Projekatsiit2025.dto.CreateRideDTO;
-import Nuvola.Projekatsiit2025.dto.DriverRideHistoryItemDTO;
-import Nuvola.Projekatsiit2025.dto.ScheduledRideDTO;
+import Nuvola.Projekatsiit2025.dto.*;
 import Nuvola.Projekatsiit2025.model.Ride;
 import Nuvola.Projekatsiit2025.model.User;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -18,4 +16,6 @@ public interface RideService {
     void createReport(CreateReportDTO createReportDTO);
     List<Ride> getAssignedRidesForDriver(String username);
     ScheduledRideDTO getScheduledRide(Long rideId);
+    void triggerPanic(Long rideId, Long userId);
+    List<PanicDTO> getActivePanicNotifications();
 }
