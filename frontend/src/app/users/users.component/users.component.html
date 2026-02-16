@@ -1,25 +1,21 @@
 <div class="users-page">
 
   <div class="tabs">
-    <button
-      class="tab-btn"
-      [class.active]="isCustomersTab()"
-      (click)="setTab('customers')"
-    >
+    <button class="tab-btn" [class.active]="isCustomersTab()" (click)="setTab('customers')">
       Customers
     </button>
 
-    <button
-      class="tab-btn"
-      [class.active]="isDriversTab()"
-      (click)="setTab('drivers')"
-    >
+    <button class="tab-btn" [class.active]="isDriversTab()" (click)="setTab('drivers')">
       Drivers
+    </button>
+
+     <button class="tab-btn" [class.active]="isRequestsTab()" (click)="setTab('requests')">
+      Profile Change Requests
     </button>
   </div>
 
   <h2 class="title">
-    {{ isCustomersTab() ? 'All customers' : 'All drivers' }}
+      {{ isCustomersTab() ? 'All customers' : isDriversTab() ? 'All drivers' : 'Profile Change Requests' }}
   </h2>
 
   <div class="driver-actions" *ngIf="isDriversTab()">
@@ -30,5 +26,5 @@
 
 <app-registeredusers [hidden]="!isCustomersTab()"></app-registeredusers>
 <app-drivers [hidden]="!isDriversTab()"></app-drivers>
-
+<app-profile-change-request [hidden]="!isRequestsTab()"></app-profile-change-request>
 </div>

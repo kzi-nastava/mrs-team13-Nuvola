@@ -1,0 +1,161 @@
+<div class="requests-container">
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="requests.length === 0">
+    <div class="empty-icon">📋</div>
+    <h3>No pending requests</h3>
+    <p>All profile change requests have been processed.</p>
+  </div>
+
+  <!-- Requests list -->
+  <div class="request-card" *ngFor="let req of requests">
+
+    <div class="request-header">
+      <div class="driver-info">
+        <h3>{{ req.driverName }}</h3>
+        <span class="email">{{ req.driverEmail }}</span>
+      </div>
+      <span class="status-badge pending">{{ req.status }}</span>
+    </div>
+
+    <div class="request-body">
+      <div class="changes-list">
+
+        <!-- First Name -->
+        <div class="change-row" *ngIf="hasChanged(req.currentFirstName, req.firstName)">
+          <span class="field-label">First Name</span>
+          <div class="change-comparison">
+            <span class="old-value">{{ req.currentFirstName }}</span>
+            <span class="arrow">→</span>
+            <span class="new-value">{{ req.firstName }}</span>
+          </div>
+        </div>
+
+        <!-- Last Name -->
+        <div class="change-row" *ngIf="hasChanged(req.currentLastName, req.lastName)">
+          <span class="field-label">Last Name</span>
+          <div class="change-comparison">
+            <span class="old-value">{{ req.currentLastName }}</span>
+            <span class="arrow">→</span>
+            <span class="new-value">{{ req.lastName }}</span>
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="change-row" *ngIf="hasChanged(req.currentPhone, req.phone)">
+          <span class="field-label">Phone</span>
+          <div class="change-comparison">
+            <span class="old-value">{{ req.currentPhone }}</span>
+            <span class="arrow">→</span>
+            <span class="new-value">{{ req.phone }}</span>
+          </div>
+        </div>
+
+        <!-- Address -->
+        <div class="change-row" *ngIf="hasChanged(req.currentAddress, req.address)">
+          <span class="field-label">Address</span>
+          <div class="change-comparison">
+            <span class="old-value">{{ req.currentAddress }}</span>
+            <span class="arrow">→</span>
+            <span class="new-value">{{ req.address }}</span>
+          </div>
+        </div>
+
+        <!-- Vehicle Model -->
+        <div class="change-row" *ngIf="hasChanged(req.currentModel, req.model)">
+          <span class="field-label">Vehicle Model</span>
+          <div class="change-comparison">
+            <span class="old-value">{{ req.currentModel }}</span>
+            <span class="arrow">→</span>
+            <span class="new-value">{{ req.model }}</span>
+          </div>
+        </div>
+
+        <!-- Vehicle Type -->
+        <div class="change-row" *ngIf="hasChanged(req.currentType, req.type)">
+          <span class="field-label">Vehicle Type</span>
+          <div class="change-comparison">
+            <span class="old-value">{{ req.currentType }}</span>
+            <span class="arrow">→</span>
+            <span class="new-value">{{ req.type }}</span>
+          </div>
+        </div>
+
+        <!-- Seats -->
+        <div class="change-row" *ngIf="hasChanged(req.currentNumOfSeats, req.numOfSeats)">
+          <span class="field-label">Seats</span>
+          <div class="change-comparison">
+            <span class="old-value">{{ req.currentNumOfSeats }}</span>
+            <span class="arrow">→</span>
+            <span class="new-value">{{ req.numOfSeats }}</span>
+          </div>
+        </div>
+
+        <!-- Baby Friendly -->
+        <div class="change-row" *ngIf="hasChanged(req.currentBabyFriendly, req.babyFriendly)">
+          <span class="field-label">Baby Friendly</span>
+          <div class="change-comparison">
+            <span class="old-value">{{ req.currentBabyFriendly ? 'Yes' : 'No' }}</span>
+            <span class="arrow">→</span>
+            <span class="new-value">{{ req.babyFriendly ? 'Yes' : 'No' }}</span>
+          </div>
+        </div>
+
+        <!-- Pet Friendly -->
+        <div class="change-row" *ngIf="hasChanged(req.currentPetFriendly, req.petFriendly)">
+          <span class="field-label">Pet Friendly</span>
+          <div class="change-comparison">
+            <span class="old-value">{{ req.currentPetFriendly ? 'Yes' : 'No' }}</span>
+            <span class="arrow">→</span>
+            <span class="new-value">{{ req.petFriendly ? 'Yes' : 'No' }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="request-time">
+      <span>Requested:</span>
+      <span class="value">{{ req.createdAt | date: 'short' }}</span>
+    </div>
+
+    <div class="request-actions">
+      <button class="btn-reject" (click)="openRejectModal(req)">Reject</button>
+      <button class="btn-approve" (click)="openApproveModal(req)">Approve</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Approve Modal -->
+<div class="modal-backdrop" *ngIf="showApproveModal">
+  <div class="modal">
+    <h3>Approve Profile Change?</h3>
+    <p>
+      Are you sure you want to approve the profile change request for
+      <strong>{{ selectedRequest?.driverName }}</strong>?
+    </p>
+    <p class="warning">This will update the driver's profile immediately.</p>
+    <div class="modal-actions">
+      <button class="cancel" (click)="showApproveModal = false">Cancel</button>
+      <button class="confirm approve" (click)="approveRequest()">Approve</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal-backdrop" *ngIf="showRejectModal">
+  <div class="modal">
+    <h3>Reject Profile Change?</h3>
+    <p>
+      Are you sure you want to reject the profile change request for
+      <strong>{{ selectedRequest?.driverName }}</strong>?
+    </p>
+    <p class="warning">The driver will need to submit a new request.</p>
+    <div class="modal-actions">
+      <button class="cancel" (click)="showRejectModal = false">Cancel</button>
+      <button class="confirm reject" (click)="rejectRequest()">Reject</button>
+    </div>
+  </div>
+</div>

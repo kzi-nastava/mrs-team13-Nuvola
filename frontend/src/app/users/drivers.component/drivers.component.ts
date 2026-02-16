@@ -21,6 +21,10 @@ users: UserModel[] = [];
   constructor(private adminUserService: AdminUserService) {}
 
   ngOnInit() {
+    this.loadDrivers();   
+  }
+
+  loadDrivers() {     
     this.adminUserService.getDrivers().subscribe(data => {
       this.users = data;
     });

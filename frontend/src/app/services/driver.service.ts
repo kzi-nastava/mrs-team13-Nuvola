@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../env/enviroment';
 
 @Injectable({
   providedIn: 'root',
@@ -18,11 +19,13 @@ export class DriverService {
   getMyProfile(): Observable<any> {
     return this.http.get(this.profileApi);
   }
-  requestProfileChange(payload: any): Observable<void> {
-    //return this.http.put<void>(`${this.profileApi}/driver-request`, payload);
-    return this.http.put<void>(this.profileApi, payload);
 
-  }
+  requestProfileChange(data: any): Observable<any> {
+  return this.http.put(
+    `${environment.apiHost}/api/driver/profile/request-change`,  // ← PROMENI ENDPOINT
+    data
+  );
+}
 
   getDriverProfile(): Observable<any> {
   return this.http.get('http://localhost:8080/api/driver/profile');
