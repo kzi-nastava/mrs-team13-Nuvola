@@ -159,11 +159,11 @@ public class AuthController {
         return ResponseEntity.ok("Password has been reset successfully.");
     }
 
-
-
-
-
-
+    @PostMapping("/reset-password/{token}")
+    public ResponseEntity<String> driverSetPassword(@PathVariable String token,
+                                                @RequestBody ResetPasswordRequestDTO dto) {
+        return new ResponseEntity<>("Password has been reset (stub).", HttpStatus.OK);
+    }
 
     // 2.2.1 Driver change status active/inactive while user is on his profile
     // if he change into INACTIVE while he has a ride, he is gonna be INACTIVE after that ride

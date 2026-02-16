@@ -16,6 +16,7 @@ public interface RideService {
     void createReport(CreateReportDTO createReportDTO);
     List<Ride> getAssignedRidesForDriver(String username);
     ScheduledRideDTO getScheduledRide(Long rideId);
+    boolean userHasActiveRide(Long userId);
     void triggerPanic(Long rideId, Long userId);
     List<PanicDTO> getActivePanicNotifications();
 }

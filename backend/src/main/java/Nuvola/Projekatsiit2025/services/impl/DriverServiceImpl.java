@@ -106,7 +106,7 @@ public class DriverServiceImpl implements DriverService {
         activationTokenRepository.save(activationToken);
 
         String activationLink =
-                "http://localhost:4200/activate-account?token=" + token;
+                "http://localhost:4200/driver-set-password?token=" + token;
 
         EmailDetails mail = new EmailDetails();
         mail.setRecipient(savedDriver.getEmail());

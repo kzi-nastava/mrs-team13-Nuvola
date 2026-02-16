@@ -32,8 +32,11 @@ public class Route {
     })
     private Location dropoff;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "route_stops", joinColumns = @JoinColumn(name = "route_id"))
+    @AttributeOverrides({
+            @AttributeOverride(name = "address", column = @Column(name = "address", insertable = true, updatable = true))
+    })
     private List<Location> stops = new ArrayList<>();  // stops in between pickup and dropoff location
 
     private boolean isFavourite;
