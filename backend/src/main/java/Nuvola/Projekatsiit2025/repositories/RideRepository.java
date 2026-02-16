@@ -28,5 +28,6 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
             "     OR EXISTS (SELECT p FROM r.otherPassengers p WHERE p.id = :userId))")
     List<Ride> findActiveRidesByUser(@Param("userId") Long userId);
 
+    List<Ride> findByIsPanicTrue();
 
 }

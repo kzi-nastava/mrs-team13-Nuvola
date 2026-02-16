@@ -4,6 +4,7 @@ import Nuvola.Projekatsiit2025.dto.*;
 import Nuvola.Projekatsiit2025.model.Ride;
 import Nuvola.Projekatsiit2025.model.User;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
+import Nuvola.Projekatsiit2025.repositories.UserRepository;
 import Nuvola.Projekatsiit2025.services.EmailService;
 import Nuvola.Projekatsiit2025.services.RideEstimateService;
 import Nuvola.Projekatsiit2025.services.RideService;
@@ -17,7 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import Nuvola.Projekatsiit2025.dto.ApiErrorResponse;
-
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,11 @@ public class RideController {
 
     @Autowired
     private RideEstimateService rideEstimateService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+
 
     // 2.1.2 - Estimate ride
     @PostMapping(value = "/estimate", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -173,6 +179,22 @@ public class RideController {
 
         return ResponseEntity.ok(Map.of("hasActiveRide", hasActive));
     }
+
+    // 2.6.3 PANIC
+    @PostMapping("/{rideId}/panic")
+    public ResponseEntity<Void> panic(@PathVariable Long rideId,
+                                      @AuthenticationPrincipal User user) {
+
+        if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+
+        rideService.triggerPanic(rideId, user.getId());
+        return ResponseEntity.ok().build();
+    }
+
+
+
+
+
 
 
 

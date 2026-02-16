@@ -23,6 +23,7 @@ type DriverRide = {
   allPassengersJoined: boolean; 
   status: RideStatus;
   price: number;
+  panic?: boolean
 };
 
 @Component({
@@ -91,7 +92,8 @@ export class DriverRidesComponent implements OnInit {
       passengers: r.passengers ?? [],
       allPassengersJoined: true,
       status: r.status,
-      price: r.price
+      price: r.price,
+      panic: !!r.panic
     };
   }
 
@@ -155,6 +157,24 @@ get hasActiveRide(): boolean {
   }
 
   panic(ride: DriverRide) {
-    alert('PANIC triggered!');
-  }
+  if (ride.panic) return;
+
+  this.http.post(`http://localhost:8080/api/rides/${ride.id}/panic`, {})
+    .subscribe({
+      next: () => {
+        
+        ride.panic = true;
+        if (this.activeRide?.id === ride.id) {
+          this.activeRide.panic = true;
+        }
+        this.cdr.detectChanges();
+        alert('PANIC triggered!');
+      },
+      error: (err) => {
+        console.error(err);
+        this.errorMessage = 'Failed to trigger PANIC.';
+        alert('PANIC failed!');
+      }
+    });
+}
 }
