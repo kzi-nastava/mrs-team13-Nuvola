@@ -122,6 +122,7 @@ public class RideServiceImpl implements RideService {
                     Location l = new Location();
                     l.setLatitude(s.getLatitude());
                     l.setLongitude(s.getLongitude());
+                    l.setAddress(s.getAddress());
                     return l;
                 }).toList();
         route.setStops(stopLocations);
@@ -134,6 +135,7 @@ public class RideServiceImpl implements RideService {
         List<Driver> drivers = driverRepository.findActiveDriversWithVehicle();
 
         return drivers.stream()
+                .filter(d -> !d.isBlocked())
                 .filter(d -> d.getVehicle().getType() == dto.getVehicleType())
                 .filter(d -> !dto.isBabyTransport() || d.getVehicle().isBabyFriendly())
                 .filter(d -> !dto.isPetTransport() || d.getVehicle().isPetFriendly())
@@ -270,6 +272,13 @@ public class RideServiceImpl implements RideService {
                 username,
                 List.of(RideStatus.SCHEDULED, RideStatus.IN_PROGRESS)
         );
+    }
+
+    @Override
+    public boolean userHasActiveRide(Long userId) {
+        List<Ride> activeRides = rideRepository.findActiveRidesByUser(userId);
+
+        return !activeRides.isEmpty();
     }
 
 }

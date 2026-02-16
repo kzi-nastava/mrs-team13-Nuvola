@@ -60,16 +60,19 @@ export class DriverRidesComponent implements OnInit {
     this.http.get<any[]>(`http://localhost:8080/api/drivers/${username}/assigned-rides`)
       .subscribe({
         next: (data) => {
-            console.log("BACKEND RESPONSE:", data);
+          console.log("=== RAW BACKEND RESPONSE ===", data);
+          console.log("=== FIRST RIDE STOPS ===", data[0]?.stops);
           this.rides = data.map(r => this.mapRide(r));
+          console.log("=== MAPPED RIDES ===", this.rides);
+          console.log("=== FIRST MAPPED RIDE STOPS ===", this.rides[0]?.stops);
 
-    this.upcomingRides = this.rides.filter(r => r.status === 'SCHEDULED');
-    this.activeRide = this.rides.find(r => r.status === 'IN_PROGRESS') ?? null;
+          this.upcomingRides = this.rides.filter(r => r.status === 'SCHEDULED');
+          this.activeRide = this.rides.find(r => r.status === 'IN_PROGRESS') ?? null;
 
-    this.cdr.detectChanges();
+          this.cdr.detectChanges();
 
-    console.log("UPCOMING:", this.upcomingRides);
-            },
+          console.log("UPCOMING:", this.upcomingRides);
+          },
             error: () => {
               this.errorMessage = 'Failed to load rides.';
             }
@@ -104,8 +107,14 @@ get hasActiveRide(): boolean {
 
     this.http.put(`http://localhost:8080/api/rides/${ride.id}/start`, {})
       .subscribe({
-        next: () => this.loadRides(),
-        error: () => this.errorMessage = 'Failed to start ride.'
+        next: () => {
+          console.log('Ride started successfully');
+          this.loadRides();
+        },
+        error: (err) => {
+          console.error('Failed to start ride:', err);
+          this.errorMessage = 'Failed to start ride.';
+        }
       });
   }
 

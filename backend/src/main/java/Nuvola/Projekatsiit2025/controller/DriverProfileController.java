@@ -66,6 +66,8 @@ public class DriverProfileController {
         dto.setPhone(driver.getPhone());
         dto.setAddress(driver.getAddress());
         dto.setPicture(driver.getPicture());
+        dto.setBlocked(driver.isBlocked());
+        dto.setBlockingReason(driver.getBlockingReason());
 
         // vehicle
         dto.setModel(driver.getVehicle().getModel());

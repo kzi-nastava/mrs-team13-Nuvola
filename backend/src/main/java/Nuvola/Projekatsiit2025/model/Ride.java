@@ -69,6 +69,7 @@ public class Ride {
         this.id = id;
         this.price = price;
         this.status = status;
+        this.route = route;
         this.startTime = startTime;
         this.endTime = endTime;
         this.creationTime = creationTime;
