@@ -4,6 +4,8 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { NotificationDTO } from '../model/notification';
 import { environment } from '../../env/enviroment';
 import { AuthService } from '../../auth/services/auth.service';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-notifications-page-component',
@@ -23,6 +25,7 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
+    private router:Router,
     @Inject(PLATFORM_ID) private platformId: object
   ) {}
 
@@ -91,6 +94,10 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
         },
       });
   }
+  goToPanic() {
+  this.router.navigate(['/admin/panic']);
+}
+
 
 
 

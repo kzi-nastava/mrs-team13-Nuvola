@@ -91,3 +91,13 @@
 .badge--linkedpassanger { border-color: #2578b7; background: #eff6ff; }
 .badge--rideended { border-color: #60a5fa; background: #eff6ff; }
 .badge--panic { border-color: #ef4444; background: #fff0f0; }
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: 1px solid #dc2626;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
