@@ -11,6 +11,14 @@
   position: relative;    
 }
 
+.panel-card:has(.blocked-overlay) {
+  overflow: hidden !important;
+}
+
+.panel-card:not(:has(.blocked-overlay)) {
+  overflow-y: auto;
+}
+
 .disabled {
   pointer-events: none;
   opacity: 0.6;
@@ -231,25 +239,92 @@ input:focus {
 .blocked-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(3px);
+  background: linear-gradient(135deg, rgba(254, 226, 226, 0.98) 0%, rgba(254, 202, 202, 0.98) 100%);
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 14px;
   z-index: 100;
+  border: 3px solid #dc2626;
+  padding: 0;
+  overflow: hidden; 
 }
 
 .blocked-message {
   text-align: center;
-  padding: 20px;
+  padding: 40px 30px;
+  max-width: 100%; 
+  width: 100%; 
+}
+
+.blocked-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .blocked-message h3 {
-  color: #d32f2f;
-  font-weight: bold;
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 20px;
+  margin: 0 0 10px 0;
+  letter-spacing: 0.5px;
 }
 
+.blocked-main {
+  color: #991b1b;
+  font-size: 14px;
+  margin: 0 0 14px 0;
+  line-height: 1.5;
+}
+
+.blocked-reason {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #f87171;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #7f1d1d;
+  line-height: 1.4;
+  max-width: 90%; 
+}
+
+.blocked-reason strong {
+  display: block;
+  color: #991b1b;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.active-ride-overlay {
+  background: linear-gradient(135deg, rgba(254, 240, 226, 0.98) 0%, rgba(254, 220, 202, 0.98) 100%);
+  border: 3px solid #ea580c;
+}
+
+.active-ride-overlay .blocked-message h3 {
+  color: #ea580c;
+}
+
+.active-ride-overlay .blocked-main {
+  color: #9a3412;
+}
+
+.hint-text {
+  color: #9a3412;
+  font-size: 12px;
+  margin-top: 8px;
+  font-style: italic;
+}
 
 @media (max-width: 768px) {
   .panel-card {
@@ -265,5 +340,17 @@ input:focus {
 
   .btn-fav {
     width: 100%;
+  }
+
+  .blocked-message {
+    padding: 20px 16px;
+  }
+
+  .blocked-icon {
+    font-size: 40px;
+  }
+
+  .blocked-message h3 {
+    font-size: 18px;
   }
 }

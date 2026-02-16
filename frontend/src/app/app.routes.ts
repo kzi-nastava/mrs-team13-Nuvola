@@ -8,6 +8,7 @@ import { DriverAccountComponent } from './layout/driver.account.component/driver
 import { RegisterComponent } from './auth/register.component/register.component';
 import { ForgotPasswordComponent } from './auth/forgot.password.component/forgot.password.component';
 import { ResetPasswordComponent } from './auth/reset.password.component/reset.password.component';
+import {DriverPasswordComponent} from './auth/driver.password.component/driver.password.component';
 //port { EstimateFormComponent } from './rides/estimate.form.component/estimate.form.component';
 import { CancelRideComponent } from './rides/cancel-ride.component/cancel-ride.component';
 import { AdminPanicComponent } from './panic/admin-panic.component';
@@ -33,6 +34,7 @@ export const routes: Routes = [
     {path: 'register', component: RegisterComponent },
     { path: 'forgot-password', component: ForgotPasswordComponent },
     {path: 'reset-password', component: ResetPasswordComponent },
+    {path: 'driver-set-password', component: DriverPasswordComponent},
     //{path: 'estimate', component: EstimateFormComponent},
     {path:'rides/:id/cancel', component:CancelRideComponent},
     {path:'admin/panic', component: AdminPanicComponent},

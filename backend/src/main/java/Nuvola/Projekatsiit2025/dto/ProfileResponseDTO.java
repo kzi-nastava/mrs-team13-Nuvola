@@ -10,6 +10,8 @@ public class ProfileResponseDTO {
     private String phone;
     private String address;
     private String picture;
+    private boolean blocked;
+    private String blockingReason;
 
     public ProfileResponseDTO() {}
     public Long getId() {
@@ -68,4 +70,19 @@ public class ProfileResponseDTO {
         this.picture = picture;
     }
 
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
+
+    public String getBlockingReason() {
+        return blockingReason;
+    }
+
+    public void setBlockingReason(String blockingReason) {
+        this.blockingReason = blockingReason;
+    }
 }

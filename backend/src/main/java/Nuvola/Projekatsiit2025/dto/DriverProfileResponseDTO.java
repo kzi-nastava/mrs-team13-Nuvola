@@ -12,6 +12,8 @@ public class DriverProfileResponseDTO {
     private String phone;
     private String address;
     private String picture;
+    private boolean isBlocked;
+    private String blockingReason;
 
     // vehicle
     private String model;
@@ -125,5 +127,21 @@ public class DriverProfileResponseDTO {
 
     public void setRegNumber(String regNumber) {
         this.regNumber = regNumber;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
+    }
+
+    public String getBlockingReason() {
+        return blockingReason;
+    }
+
+    public void setBlockingReason(String blockingReason) {
+        this.blockingReason = blockingReason;
     }
 }

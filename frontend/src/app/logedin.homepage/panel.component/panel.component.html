@@ -1,18 +1,24 @@
 <div class="panel-card">
 
   <div class="blocked-overlay" *ngIf="isBlocked">
-  <div class="blocked-message">
-    <h3>ACCOUNT BLOCKED</h3>
-
-    <p *ngIf="blockingReason">
-      Reason: {{ blockingReason }}
-    </p>
-
-    <p *ngIf="!blockingReason">
-      You cannot order rides at this time.
-    </p>
+    <div class="blocked-message">
+      <div class="blocked-icon">🚫</div>
+      <h3>ACCOUNT BLOCKED</h3>
+      <p class="blocked-main">You cannot order rides at this time.</p>
+      <div class="blocked-reason" *ngIf="blockingReason">
+        <strong>Reason:</strong> {{ blockingReason }}
+      </div>
+    </div>
   </div>
-</div>
+
+    <div class="blocked-overlay active-ride-overlay" *ngIf="!isBlocked && hasActiveRide">
+    <div class="blocked-message">
+      <div class="blocked-icon">🚗</div>
+      <h3>ACTIVE RIDE IN PROGRESS</h3>
+      <p class="blocked-main">You cannot order a new ride while you have an active ride.</p>
+      <p class="hint-text">Please wait for your current ride to finish.</p>
+    </div>
+  </div>
 
 
   <div class="panel-header">

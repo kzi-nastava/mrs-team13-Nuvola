@@ -7,6 +7,7 @@ import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DriverAssignedRideDTO {
     private Long id;
@@ -28,10 +29,11 @@ public class DriverAssignedRideDTO {
         this.pickup = ride.getRoute().getPickup().getAddress();
         this.dropoff = ride.getRoute().getDropoff().getAddress();
 
-        this.stops = ride.getRoute().getStops()
-                .stream()
+        this.stops = ride.getRoute().getStops() != null
+                ? ride.getRoute().getStops().stream()
                 .map(Location::getAddress)
-                .toList();
+                .collect(Collectors.toList())
+                : List.of();
 
         List<String> passengerEmails = new ArrayList<>();
 

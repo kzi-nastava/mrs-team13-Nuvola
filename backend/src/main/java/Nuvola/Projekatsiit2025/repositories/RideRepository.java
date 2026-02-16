@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +22,12 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     );
 
     List<Ride> findByDriver_UsernameAndStatusIn(String username, List<RideStatus> statuses);
+    @Query("SELECT r FROM Ride r " +
+            "WHERE r.status = 'IN_PROGRESS' " +
+            "AND (r.creator.id = :userId " +
+            "     OR EXISTS (SELECT p FROM r.otherPassengers p WHERE p.id = :userId))")
+    List<Ride> findActiveRidesByUser(@Param("userId") Long userId);
+
     List<Ride> findByIsPanicTrue();
 
 }
