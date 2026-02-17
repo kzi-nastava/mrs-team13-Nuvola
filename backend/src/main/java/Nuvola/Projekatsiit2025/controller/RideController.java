@@ -1,6 +1,7 @@
 package Nuvola.Projekatsiit2025.controller;
 import Nuvola.Projekatsiit2025.dto.*;
 
+import Nuvola.Projekatsiit2025.model.RegisteredUser;
 import Nuvola.Projekatsiit2025.model.Ride;
 import Nuvola.Projekatsiit2025.model.User;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import Nuvola.Projekatsiit2025.dto.ApiErrorResponse;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -191,12 +194,102 @@ public class RideController {
         return ResponseEntity.ok().build();
     }
 
+    // 2.9.1 RIDE HISTORY FOR REGISTERED USER
+    @GetMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getRegisteredUserRideHistory(
+            @AuthenticationPrincipal User user,
+            @RequestParam(required = false, defaultValue = "creationTime") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String sortOrder,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
+    ) {
+        if (!(user instanceof RegisteredUser ru)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ApiErrorResponse("FORBIDDEN", "Only registered users can access ride history"));
+        }
 
+        LocalDateTime from = null;
+        LocalDateTime to = null;
 
+        try {
+            if (fromDate != null && !fromDate.isBlank()) {
+                from = LocalDate.parse(fromDate).atStartOfDay();
+            }
+            if (toDate != null && !toDate.isBlank()) {
+                to = LocalDate.parse(toDate).atTime(LocalTime.MAX);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiErrorResponse("BAD_REQUEST", "Invalid date format. Use yyyy-MM-dd"));
+        }
 
+        return ResponseEntity.ok(
+                rideService.getUserRideHistory(ru.getId(), from, to, sortBy, sortOrder, page, size)
+        );
+    }
 
+    @GetMapping(value = "/history/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getRideHistoryDetails(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long rideId
+    ) {
+        if (!(user instanceof RegisteredUser ru)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ApiErrorResponse("FORBIDDEN", "Only registered users can access ride history"));
+        }
 
+        return ResponseEntity.ok(
+                rideService.getRideHistoryDetailsForUser(rideId, ru.getId())
+        );
+    }
 
+    @PutMapping("/{rideId}/favorite")
+    public ResponseEntity<?> toggleFavorite(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long rideId
+    ) {
+        if (!(user instanceof RegisteredUser ru)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ApiErrorResponse("FORBIDDEN", "Only registered users"));
+        }
+
+        boolean newState = rideService.toggleFavoriteRouteForUser(rideId, ru.getId());
+        return ResponseEntity.ok(Map.of("favourite", newState));
+    }
+
+    // REORDER from History
+    // RideController.java
+    @PostMapping(value = "/reorder", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> reorderRide(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody CreateRideFromHistoryDTO dto) {
+
+        try {
+            Ride ride = rideService.createRideFromHistory(user, dto);
+
+            CreatedRideDTO response = new CreatedRideDTO();
+            response.setId(ride.getId());
+            response.setStatus(ride.getStatus());
+            response.setPrice(ride.getPrice());
+            response.setMessage("Ride successfully created from history");
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        } catch (ResponseStatusException e) {
+            String reason = e.getReason() != null ? e.getReason() : "ERROR";
+
+            ApiErrorResponse error = new ApiErrorResponse(
+                    e.getStatusCode().toString(),
+                    reason
+            );
+
+            return ResponseEntity
+                    .status(e.getStatusCode())
+                    .body(error);
+        }
+    }
 
 }
 
