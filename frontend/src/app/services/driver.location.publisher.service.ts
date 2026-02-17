@@ -101,10 +101,10 @@ export class DriverLocationPublisherService {
     if (!this.running$.value || !this.driverId) return;
 
     // Option A (recommended): watchPosition (sends when there are changes, better for battery)
-    this.startWatchPosition();
+    //this.startWatchPosition();
 
     // Option B: interval polling
-    // this.startIntervalSending();
+    this.startIntervalSending();
   }
 
   private startWatchPosition() {

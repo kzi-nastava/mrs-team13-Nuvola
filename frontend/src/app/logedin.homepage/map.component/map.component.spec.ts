@@ -14,6 +14,7 @@ describe('MapComponent', () => {
 
     fixture = TestBed.createComponent(MapComponent);
     component = fixture.componentInstance;
+    spyOn(MapComponent.prototype as any, 'initMap');
     await fixture.whenStable();
   });
 

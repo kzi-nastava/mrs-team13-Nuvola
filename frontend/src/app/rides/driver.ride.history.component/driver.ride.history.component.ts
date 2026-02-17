@@ -44,7 +44,7 @@ export class DriverRideHistoryComponent implements OnInit {
 
     const currentOrder = sortOrder || (this.isAscending() ? 'asc' : 'desc');
 
-    this.service.loadDriverRides(this.authService.getUsername() || '', 'startingTime', currentOrder)
+    this.service.loadDriverRides(this.authService.getUsername() || '', 'startTime', currentOrder)
       .subscribe({
         next: (rides) => {
           this.service.setRides(rides);
