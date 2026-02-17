@@ -6,12 +6,14 @@ import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.RegisteredUser;
 import Nuvola.Projekatsiit2025.model.Ride;
 import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
+import Nuvola.Projekatsiit2025.model.enums.NotificationType;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 import Nuvola.Projekatsiit2025.repositories.DriverRepository;
 import Nuvola.Projekatsiit2025.repositories.RideRepository;
 import Nuvola.Projekatsiit2025.services.impl.RideServiceImpl;
 import Nuvola.Projekatsiit2025.util.EmailDetails;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,6 +52,7 @@ public class RideServiceEndRideTest {
     }
 
     @Test
+    @Tag("exception")
     void endRide_throwsRideNotFound_whenNoInProgressRide() {
         when(rideRepository.findByDriver_UsernameAndStatus(driverUsername, RideStatus.IN_PROGRESS))
                 .thenReturn(List.of());
@@ -60,9 +63,13 @@ public class RideServiceEndRideTest {
         verify(rideRepository, times(1))
                 .findByDriver_UsernameAndStatus(driverUsername, RideStatus.IN_PROGRESS);
         verifyNoInteractions(emailService);
+        verifyNoInteractions(notificationService);
+        verifyNoInteractions(driverRepository);
+        verify(rideRepository, times(0)).save(any(Ride.class));
     }
 
     @Test
+    @Tag("exception")
     void endRide_throwsInvalidRideState_whenMultipleInProgressRides() {
         Ride r1 = new Ride();
         Ride r2 = new Ride();
@@ -76,6 +83,9 @@ public class RideServiceEndRideTest {
         verify(rideRepository, times(1))
                 .findByDriver_UsernameAndStatus(driverUsername, RideStatus.IN_PROGRESS);
         verifyNoInteractions(emailService);
+        verifyNoInteractions(notificationService);
+        verifyNoInteractions(driverRepository);
+        verify(rideRepository, times(0)).save(any(Ride.class));
     }
 
     @Test
@@ -92,18 +102,17 @@ public class RideServiceEndRideTest {
         when(rideRepository.findByDriver_UsernameAndStatus(driverUsername, RideStatus.IN_PROGRESS))
                 .thenReturn(List.of(inProgress));
 
-        // nearest scheduled: empty
+        // nearest scheduled - empty
         when(rideRepository
                 .findFirstByDriverIdAndStatusAndStartTimeIsNotNullAndStartTimeGreaterThanEqualOrderByStartTimeAsc(
                         eq(driver.getId()), eq(RideStatus.SCHEDULED), any(LocalDateTime.class)
                 ))
                 .thenReturn(Optional.empty());
 
-        // “snapshot” hvatanje email detalja u trenutku poziva (jer se isti EmailDetails objekat reciklira u petlji)
+        // catching email details from the service calls
         List<String> recipients = new ArrayList<>();
         List<String> subjects = new ArrayList<>();
         List<String> bodies = new ArrayList<>();
-
         doAnswer(inv -> {
             EmailDetails ed = inv.getArgument(0);
             recipients.add(ed.getRecipient());
@@ -118,12 +127,12 @@ public class RideServiceEndRideTest {
         // assert
         assertThat(result).isNull();
 
-        // ride + driver state changed
+        // ride and driver state changed
         assertThat(inProgress.getStatus()).isEqualTo(RideStatus.FINISHED);
         assertThat(inProgress.getEndTime()).isNotNull();
         assertThat(driver.getStatus()).isEqualTo(DriverStatus.ACTIVE);
 
-        // emails: 2 passengers + creator = 3
+        // emails and notifications: 2 passengers + creator = 3
         assertThat(recipients).containsExactlyInAnyOrder("p1@mail.com", "p2@mail.com", "creator@mail.com");
         assertThat(subjects).allMatch("Ride Ended"::equals);
         assertThat(bodies).allMatch(b -> b.contains("Ride ID: 100") && b.contains("Price: 1234.0"));
@@ -137,6 +146,9 @@ public class RideServiceEndRideTest {
                 );
 
         verify(emailService, times(3)).sendRideFinished(any(EmailDetails.class));
+        verify(notificationService, times(3)).sendNotification(anyLong(), anyString(), anyString(), eq(NotificationType.RideEnded));
+        verify(driverRepository, times(1)).save(driver);
+        verify(rideRepository, times(1)).save(inProgress);
     }
 
     @Test
@@ -171,7 +183,11 @@ public class RideServiceEndRideTest {
         assertThat(inProgress.getEndTime()).isNotNull();
         assertThat(driver.getStatus()).isEqualTo(DriverStatus.ACTIVE);
 
-        verify(emailService, times(2)).sendRideFinished(any(EmailDetails.class)); // 1 passenger + creator
+        // emails and notifications: 1 passenger + creator = 2
+        verify(emailService, times(2)).sendRideFinished(any(EmailDetails.class));
+        verify(notificationService, times(2)).sendNotification(anyLong(), anyString(), anyString(), eq(NotificationType.RideEnded));
+        verify(driverRepository, times(1)).save(driver);
+        verify(rideRepository, times(1)).save(inProgress);
     }
 
     // -------- helpers (minimal valid objects) --------
@@ -179,12 +195,10 @@ public class RideServiceEndRideTest {
     private Driver newDriver(Long id, String username, String email, DriverStatus status) {
         Driver d = new Driver();
         d.setId(id);
-        d.setUsername(username);   // polje username
+        d.setUsername(username);
         d.setEmail(email);
         d.setStatus(status);
         d.setBlocked(false);
-
-        // ako imate NOT NULL kolone u users tabeli, setuj i njih:
         d.setPassword("pass");
         d.setFirstName("Ime");
         d.setLastName("Prezime");

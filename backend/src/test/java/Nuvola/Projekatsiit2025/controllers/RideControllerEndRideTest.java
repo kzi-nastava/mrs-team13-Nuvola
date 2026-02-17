@@ -3,8 +3,6 @@ package Nuvola.Projekatsiit2025.controllers;
 import Nuvola.Projekatsiit2025.controller.RideController;
 import Nuvola.Projekatsiit2025.exceptions.ride.RideNotFoundException;
 import Nuvola.Projekatsiit2025.repositories.UserRepository;
-import Nuvola.Projekatsiit2025.services.RideEstimateService;
-import Nuvola.Projekatsiit2025.services.RideService;
 import Nuvola.Projekatsiit2025.services.impl.RideEstimateServiceImpl;
 import Nuvola.Projekatsiit2025.services.impl.RideServiceImpl;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = RideController.class)
-public class RideControllerTest {
+public class RideControllerEndRideTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -47,7 +45,6 @@ public class RideControllerTest {
         mockMvc.perform(put("/api/rides/marko/end")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                // Spring će Long serializovati kao broj u body-ju (npr. 123)
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(String.valueOf(123L)));
 
@@ -55,7 +52,7 @@ public class RideControllerTest {
     }
 
     @Test
-    @DisplayName("PUT /api/rides/{username}/end -> 204 No Content kada servis vrati null")
+    @DisplayName("PUT /api/rides/{username}/end -> 204 No Content when service returns null")
     void endRide_returnsNoContent_whenServiceReturnsNull() throws Exception {
         Mockito.when(rideService.endRide(eq("marko"))).thenReturn(null);
 
@@ -68,7 +65,7 @@ public class RideControllerTest {
     }
 
     @Test
-    @DisplayName("PUT /api/rides/{username}/end -> 500 ako servis baci RideNotFoundException (bez @ControllerAdvice)")
+    @DisplayName("PUT /api/rides/{username}/end -> 404 if service throws RideNotFoundException")
     void endRide_returnsServerError_whenServiceThrows() throws Exception {
         Mockito.when(rideService.endRide(eq("marko")))
                 .thenThrow(new RideNotFoundException("Ride of marko not found"));
