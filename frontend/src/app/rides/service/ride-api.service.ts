@@ -25,4 +25,13 @@ private baseUrl = environment.apiHost + '/api/rides';
     return this.http.put<CreatedRideDTO>(`${this.baseUrl}/${rideId}/stop`, {});
   }
 
+  // ride-api.service.ts
+reorderRide(payload: { 
+  routeId: number; 
+  scheduledTime?: string | null; 
+}): Observable<CreatedRideDTO> {
+  return this.http.post<CreatedRideDTO>(`${this.baseUrl}/reorder`, payload);
+}
+
+
 }
