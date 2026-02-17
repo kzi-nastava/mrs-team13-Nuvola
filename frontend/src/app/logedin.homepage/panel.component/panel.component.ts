@@ -31,6 +31,7 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
 
   isBlocked = false;
   blockingReason: string | null = null;
+  hasActiveRide = false;
 
   scheduledOptions: { value: string; label: string }[] = [];
 
@@ -147,26 +148,60 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
 
 private checkIfBlocked() {
   const role = this.authService.getRole();
+  console.log('=== CHECK IF BLOCKED ===');
+  console.log('User role:', role);
 
-  if (role !== 'ROLE_REGISTERED_USER') return;
+  if (role !== 'ROLE_REGISTERED_USER') {
+    console.log('Not a registered user, skipping block check');
+    return;
+  }
 
+  console.log('Fetching profile from:', environment.apiHost + '/api/profile');
+  
   this.http.get<any>(environment.apiHost + '/api/profile')
     .subscribe({
       next: (profile) => {
+        console.log('=== PROFILE RESPONSE ===', profile);
+        console.log('profile.blocked:', profile.blocked);
+        console.log('profile.blockingReason:', profile.blockingReason);
+        
         if (profile.blocked) {
           this.isBlocked = true;
-          this.blockingReason = profile.blockingReason;
-
-          this.form.disable();   // 🔥 OVO DODAJ
+          this.blockingReason = profile.blockingReason || null;
+          this.form.disable();
+          console.log(' User is BLOCKED - form disabled');
+        } else {
+          console.log(' User is NOT blocked');
+          this.checkActiveRide();
         }
       },
-      error: () => {
-        console.error('Failed to fetch profile');
+      error: (err) => {
+        console.error(' Failed to fetch profile:', err);
+        console.error('Error status:', err.status);
+        console.error('Error message:', err.message);
       }
     });
 }
 
-
+private checkActiveRide() {
+  this.http.get<any>(environment.apiHost + '/api/rides/active-ride')
+    .subscribe({
+      next: (response) => {
+        console.log('=== ACTIVE RIDE CHECK ===', response);
+        
+        if (response.hasActiveRide) {
+          this.hasActiveRide = true;
+          this.form.disable();
+          console.log('User has ACTIVE RIDE - form disabled');
+        } else {
+          console.log('User has NO active ride');
+        }
+      },
+      error: (err) => {
+        console.error('Failed to check active ride:', err);
+      }
+    });
+}
 
   ngOnDestroy(): void {
     this.subs.unsubscribe();
@@ -348,22 +383,6 @@ private checkIfBlocked() {
     this.openFavorites.emit();
   }
 
-  // orderRide() {
-  //   this.form.get('from')?.markAsTouched();
-  //   this.form.get('to')?.markAsTouched();
-
-  //   const fromValue = this.form.get('from')?.value?.trim();
-  //   const toValue = this.form.get('to')?.value?.trim();
-
-  //   if (!fromValue || !toValue) {
-  //     return; 
-  //   }
-
-  //   this.rideOrdered.emit(
-  //     "Ride request submitted. You'll receive a notification with ride details once a driver is assigned."
-  //   );
-  // }
-
   orderRide() {
 
   if (this.isBlocked) {
@@ -374,6 +393,11 @@ private checkIfBlocked() {
     );
     return;
   }
+  if (this.hasActiveRide) {
+    this.rideOrdered.emit('You cannot order a new ride while you have an active ride.');
+    return;
+  }
+
   this.form.get('from')?.markAsTouched();
   this.form.get('to')?.markAsTouched();
 
@@ -385,15 +409,18 @@ private checkIfBlocked() {
   const payload = {
     from: {
       latitude: from.lat,
-      longitude: from.lng
+      longitude: from.lng,
+      address: from.address
     },
     to: {
       latitude: to.lat,
-      longitude: to.lng
+      longitude: to.lng,
+      address: to.address
     },
     stops: this.rideOrder.getStops().map(s => ({
       latitude: s.lat,
-      longitude: s.lng
+      longitude: s.lng,
+      address: s.address
     })),
     passengerEmails: this.passengers,
     vehicleType: this.form.value.vehicleType.toUpperCase(),

@@ -103,6 +103,16 @@ export class AuthService {
       }
     );
   }
+    private authApi = 'http://localhost:8080/api/auth';
+    activateAccount(token: string, password: string): Observable<any> {
+      return this.http.post(
+        `${this.authApi}/activate`,
+        null,
+        {
+          params: { token, password }
+        }
+      );
+    }
 
   activateEmail(token: string): Observable<string> {
     return this.http.get(
@@ -139,6 +149,14 @@ uploadProfilePicture(formData: FormData) {
 }
 
 resetPassword(token: string, newPassword: string, confirmNewPassword: string): Observable<string> {
+  return this.http.post(
+    environment.apiHost + '/api/auth/reset-password',
+    { newPassword, confirmNewPassword },
+    { headers: this.headers, params: { token }, responseType: 'text' }
+  );
+}
+
+driverSetPassword(token: string, newPassword: string, confirmNewPassword: string): Observable<string> {
   return this.http.post(
     `http://localhost:8080/api/auth/reset-password?token=${encodeURIComponent(token)}`,
     { newPassword, confirmNewPassword },

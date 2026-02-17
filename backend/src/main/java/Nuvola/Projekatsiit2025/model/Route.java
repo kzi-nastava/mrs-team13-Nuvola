@@ -18,7 +18,8 @@ public class Route {
     @AttributeOverrides({
            // @AttributeOverride(name = "title", column = @Column(name = "pickup_title")),
             @AttributeOverride(name = "latitude", column = @Column(name = "pickup_latitude")),
-            @AttributeOverride(name = "longitude", column = @Column(name = "pickup_longitude"))
+            @AttributeOverride(name = "longitude", column = @Column(name = "pickup_longitude")),
+            @AttributeOverride(name = "address", column = @Column(name = "pickup_address"))
     })
     private Location pickup;
 
@@ -26,12 +27,16 @@ public class Route {
     @AttributeOverrides({
            // @AttributeOverride(name = "title", column = @Column(name = "dropoff_title")),
             @AttributeOverride(name = "latitude", column = @Column(name = "dropoff_latitude")),
-            @AttributeOverride(name = "longitude", column = @Column(name = "dropoff_longitude"))
+            @AttributeOverride(name = "longitude", column = @Column(name = "dropoff_longitude")),
+            @AttributeOverride(name = "address", column = @Column(name = "dropoff_address"))
     })
     private Location dropoff;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "route_stops", joinColumns = @JoinColumn(name = "route_id"))
+    @AttributeOverrides({
+            @AttributeOverride(name = "address", column = @Column(name = "address", insertable = true, updatable = true))
+    })
     private List<Location> stops = new ArrayList<>();  // stops in between pickup and dropoff location
 
     private boolean isFavourite;

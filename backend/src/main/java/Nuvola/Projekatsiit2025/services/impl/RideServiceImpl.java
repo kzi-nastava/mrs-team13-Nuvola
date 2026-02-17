@@ -1,9 +1,7 @@
 package Nuvola.Projekatsiit2025.services.impl;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import Nuvola.Projekatsiit2025.dto.CreateReportDTO;
-import Nuvola.Projekatsiit2025.dto.CreateRideDTO;
-import Nuvola.Projekatsiit2025.dto.DriverRideHistoryItemDTO;
-import Nuvola.Projekatsiit2025.dto.ScheduledRideDTO;
+import Nuvola.Projekatsiit2025.dto.*;
 import Nuvola.Projekatsiit2025.exceptions.UserNotFoundException;
 import Nuvola.Projekatsiit2025.exceptions.ride.InvalidRideStateException;
 import Nuvola.Projekatsiit2025.exceptions.ride.RideNotFoundException;
@@ -15,6 +13,7 @@ import Nuvola.Projekatsiit2025.repositories.*;
 import Nuvola.Projekatsiit2025.services.EmailService;
 import Nuvola.Projekatsiit2025.services.RideService;
 import Nuvola.Projekatsiit2025.util.EmailDetails;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
@@ -45,15 +44,24 @@ public class RideServiceImpl implements RideService {
     @Autowired
     private ReportRepository reportRepository;
 
+    @Autowired
+    private RouteRepository routeRepository;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
 
     @Override
-    public Page<DriverRideHistoryItemDTO> getDriverRideHistory(Long driverId, String sortBy, String sortOrder, Integer page, Integer size) {
+    public Page<DriverRideHistoryItemDTO> getDriverRideHistory(String username, String sortBy, String sortOrder, Integer page, Integer size) {
         Sort sort = sortOrder.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
 
+        User driver = userRepository.findByUsername(username);
+        Long driverId = driver.getId();
+
         // if pagination
-        if (page != null && size != null) {
+        if ((page != null && size != null) && ((page >= 1) && (size >= 1))) {
             Pageable pageable = PageRequest.of(page, size, sort);
             Page<Ride> ridesPage = rideRepository.findByDriverId(driverId, pageable);
 
@@ -65,7 +73,8 @@ public class RideServiceImpl implements RideService {
                 .map(DriverRideHistoryItemDTO::new)
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(dtos, PageRequest.of(0, dtos.size(), sort), dtos.size());
+        int pageSize = dtos.isEmpty() ? 1 : dtos.size();
+        return new PageImpl<>(dtos, PageRequest.of(1, pageSize, sort), dtos.size());
     }
 
     @Override
@@ -102,21 +111,26 @@ public class RideServiceImpl implements RideService {
         Location pickup = new Location();
         pickup.setLatitude(dto.getFrom().getLatitude());
         pickup.setLongitude(dto.getFrom().getLongitude());
+        pickup.setAddress(dto.getFrom().getAddress());
 
         Location dropoff = new Location();
         dropoff.setLatitude(dto.getTo().getLatitude());
         dropoff.setLongitude(dto.getTo().getLongitude());
+        dropoff.setAddress(dto.getTo().getAddress());
 
         route.setPickup(pickup);
         route.setDropoff(dropoff);
 
-        List<Location> stopLocations = dto.getStops().stream().map(s -> {
-            Location l = new Location();
-            l.setLatitude(s.getLatitude());
-            l.setLongitude(s.getLongitude());
-            return l;
-        }).toList();
-
+        List<Location> stopLocations = dto.getStops() == null
+                ? List.of()
+                : dto.getStops().stream()
+                .map(s -> {
+                    Location l = new Location();
+                    l.setLatitude(s.getLatitude());
+                    l.setLongitude(s.getLongitude());
+                    l.setAddress(s.getAddress());
+                    return l;
+                }).toList();
         route.setStops(stopLocations);
         route.setFavourite(false);
 
@@ -127,6 +141,7 @@ public class RideServiceImpl implements RideService {
         List<Driver> drivers = driverRepository.findActiveDriversWithVehicle();
 
         return drivers.stream()
+                .filter(d -> !d.isBlocked())
                 .filter(d -> d.getVehicle().getType() == dto.getVehicleType())
                 .filter(d -> !dto.isBabyTransport() || d.getVehicle().isBabyFriendly())
                 .filter(d -> !dto.isPetTransport() || d.getVehicle().isPetFriendly())
@@ -156,6 +171,7 @@ public class RideServiceImpl implements RideService {
                     "NO_AVAILABLE_DRIVER"
             );
         }
+        route = routeRepository.save(route);
 
         Ride ride = new Ride();
         ride.setStatus(RideStatus.SCHEDULED);
@@ -190,6 +206,9 @@ public class RideServiceImpl implements RideService {
         Driver driver = ride.getDriver();
         driver.setStatus(DriverStatus.ACTIVE);
 
+        rideRepository.save(ride);
+        driverRepository.save(driver);
+
         // send email to passengers
         String messageBody = "Ride ID: " + ride.getId() + "\n" + "Price: " + ride.getPrice() + " RSD\n";
         EmailDetails emailDetails = new EmailDetails("", messageBody, "Ride Ended");
@@ -201,6 +220,7 @@ public class RideServiceImpl implements RideService {
         emailService.sendRideFinished(emailDetails);
 
         //TODO: send notification to passengers
+
 
         Ride scheduledRide = getNearestScheduledRideForDriver(driver.getId());
         if  (scheduledRide == null) {
@@ -255,5 +275,65 @@ public class RideServiceImpl implements RideService {
 
         return basePrice + distanceKm * 120;
     }
+
+    public List<Ride> getAssignedRidesForDriver(String username) {
+
+        return rideRepository.findByDriver_UsernameAndStatusIn(
+                username,
+                List.of(RideStatus.SCHEDULED, RideStatus.IN_PROGRESS)
+        );
+    }
+
+    @Override
+    public boolean userHasActiveRide(Long userId) {
+        List<Ride> activeRides = rideRepository.findActiveRidesByUser(userId);
+
+        return !activeRides.isEmpty();
+    }
+
+    @Transactional
+    public void triggerPanic(Long rideId, Long userId) {
+
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new RuntimeException("Ride not found"));
+
+        if (ride.getStatus() != RideStatus.IN_PROGRESS) {
+            throw new RuntimeException("Panic allowed only for IN_PROGRESS rides");
+        }
+
+        boolean isDriver = ride.getDriver() != null && ride.getDriver().getId().equals(userId);
+        boolean isCreator = ride.getCreator() != null && ride.getCreator().getId().equals(userId);
+        boolean isOtherPassenger = ride.getOtherPassengers() != null &&
+                ride.getOtherPassengers().stream().anyMatch(p -> p.getId().equals(userId));
+
+        if (!isDriver && !isCreator && !isOtherPassenger) {
+            throw new RuntimeException("User not allowed to trigger panic for this ride");
+        }
+
+        if (ride.isPanic()) { // već aktiviran
+            return;
+        }
+
+        ride.setPanic(true);
+        rideRepository.save(ride);
+
+        Long driverId = (ride.getDriver() != null) ? ride.getDriver().getId() : null;
+        Long creatorId = (ride.getCreator() != null) ? ride.getCreator().getId() : null;
+
+        messagingTemplate.convertAndSend("/topic/admin/panic",
+                new PanicDTO(ride.getId(), driverId, creatorId));
+    }
+
+    @Override
+    public List<PanicDTO> getActivePanicNotifications() {
+        return rideRepository.findByIsPanicTrue().stream()
+                .map(r -> new PanicDTO(
+                        r.getId(),
+                        r.getDriver() != null ? r.getDriver().getId() : null,
+                        r.getCreator() != null ? r.getCreator().getId() : null
+                ))
+                .toList();
+    }
+
 
 }

@@ -72,6 +72,8 @@ public class ProfileController {
         dto.setPhone(user.getPhone());
         dto.setAddress(user.getAddress());
         dto.setPicture(user.getPicture());
+        dto.setBlocked(user.isBlocked());
+        dto.setBlockingReason(user.getBlockingReason());
 
         return ResponseEntity.ok(dto);
     }

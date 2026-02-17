@@ -19,7 +19,8 @@ public class FavoriteRoute {
     @AttributeOverrides({
             @AttributeOverride(name="title", column=@Column(name="from_title")),
             @AttributeOverride(name="latitude", column=@Column(name="from_lat")),
-            @AttributeOverride(name="longitude", column=@Column(name="from_lng"))
+            @AttributeOverride(name="longitude", column=@Column(name="from_lng")),
+            @AttributeOverride(name="address", column=@Column(name="from_address"))
     })
     private Location from;
 
@@ -27,7 +28,8 @@ public class FavoriteRoute {
     @AttributeOverrides({
             @AttributeOverride(name="title", column=@Column(name="to_title")),
             @AttributeOverride(name="latitude", column=@Column(name="to_lat")),
-            @AttributeOverride(name="longitude", column=@Column(name="to_lng"))
+            @AttributeOverride(name="longitude", column=@Column(name="to_lng")),
+            @AttributeOverride(name="address", column=@Column(name="to_address"))
     })
     private Location to;
 
@@ -35,7 +37,8 @@ public class FavoriteRoute {
     @AttributeOverrides({
             @AttributeOverride(name="title", column=@Column(name="stop_title")),
             @AttributeOverride(name="latitude", column=@Column(name="stop_lat")),
-            @AttributeOverride(name="longitude", column=@Column(name="stop_lng"))
+            @AttributeOverride(name="longitude", column=@Column(name="stop_lng")),
+            @AttributeOverride(name="address", column=@Column(name="stop_address"))
     })
     private List<Location> stops = new ArrayList<>();
 

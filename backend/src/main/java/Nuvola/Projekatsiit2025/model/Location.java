@@ -1,5 +1,6 @@
 package Nuvola.Projekatsiit2025.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,13 +9,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Embeddable
 public class Location {
-    //private String title;
     private Double latitude;
     private Double longitude;
+    @Column(insertable=false, updatable=false)
+    private String address;
+
+    public Location(Double latitude, Double longitude, String address) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.address = address;
+    }
 
     public Location(Double latitude, Double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
+        this.address = "";
     }
 
     @Override
