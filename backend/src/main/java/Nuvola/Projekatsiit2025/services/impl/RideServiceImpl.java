@@ -1,4 +1,6 @@
 package Nuvola.Projekatsiit2025.services.impl;
+import Nuvola.Projekatsiit2025.model.enums.NotificationType;
+import Nuvola.Projekatsiit2025.services.NotificationService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import Nuvola.Projekatsiit2025.dto.*;
@@ -49,6 +51,10 @@ public class RideServiceImpl implements RideService {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+
+    @Autowired
+    private NotificationService notificationService;
+
 
 
     @Override
@@ -215,12 +221,11 @@ public class RideServiceImpl implements RideService {
         for (RegisteredUser u : ride.getOtherPassengers()) {
             emailDetails.setRecipient(u.getEmail());
             emailService.sendRideFinished(emailDetails);
+            notificationService.sendNotification(u.getId(), "Ride " + ride.getId() + " Ended", "Your ride has ended. Price: " + ride.getPrice() + " RSD", NotificationType.RideEnded);
         }
         emailDetails.setRecipient(ride.getCreator().getEmail());
         emailService.sendRideFinished(emailDetails);
-
-        //TODO: send notification to passengers
-
+        notificationService.sendNotification(ride.getCreator().getId(), "Ride " + ride.getId() + " Ended", "Your ride has ended. Price: " + ride.getPrice() + " RSD", NotificationType.RideEnded);
 
         Ride scheduledRide = getNearestScheduledRideForDriver(driver.getId());
         if  (scheduledRide == null) {
