@@ -80,7 +80,7 @@ public class DriverProfileController {
         return ResponseEntity.ok(dto);
     }
 
-    @PutMapping
+    @PutMapping("/request-change")
     public ResponseEntity<Void> requestProfileChange(
             @Valid @RequestBody DriverProfileUpdateDTO dto
     ) {

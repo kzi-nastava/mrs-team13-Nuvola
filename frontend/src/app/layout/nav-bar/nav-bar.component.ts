@@ -36,7 +36,8 @@ export class NavBarComponent {
   }
 
   onUsers(): void {
-    this.router.navigate(['/users']);
+    //this.router.navigate(['/users']);
+    this.router.navigate(['/users'], { state: { tab: 'customers' } });
     this.menuOpen = false;
   }
   
