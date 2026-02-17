@@ -1,6 +1,7 @@
 package Nuvola.Projekatsiit2025.controller;
 import Nuvola.Projekatsiit2025.dto.*;
 
+import Nuvola.Projekatsiit2025.exceptions.ride.RideNotFoundException;
 import Nuvola.Projekatsiit2025.model.Ride;
 import Nuvola.Projekatsiit2025.model.User;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
@@ -130,7 +131,12 @@ public class RideController {
     // 2.7
     @PutMapping(value="/{username}/end", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> endRide(@PathVariable String username) {
-        Long rideId = rideService.endRide(username);
+        Long rideId = null;
+        try {
+            rideId = rideService.endRide(username);
+        } catch (RideNotFoundException e) {
+            return ResponseEntity.notFound().build(); // 404
+        }
         if (rideId == null) {
             return ResponseEntity.noContent().build(); // 204
         }
