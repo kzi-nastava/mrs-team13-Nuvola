@@ -1,0 +1,39 @@
+<div class="inbox-shell">
+  <div class="inbox-header">
+    <div class="title">Admin inbox</div>
+
+    <div class="pager">
+      <button (click)="prev()" [disabled]="page === 0 || loading">Prev</button>
+      <span class="pinfo" *ngIf="data">Page {{ data.number + 1 }} / {{ data.totalPages }}</span>
+      <button (click)="next()" [disabled]="!data || page >= data.totalPages - 1 || loading">Next</button>
+    </div>
+  </div>
+
+  <div class="inbox-body">
+    <div *ngIf="loading" class="hint">Loading…</div>
+
+    <div *ngIf="!loading && (!data || data.content.length === 0)" class="hint">
+      No chats.
+    </div>
+
+    <div
+      class="item"
+      *ngFor="let c of data?.content"
+      (click)="select(c)"
+      [class.active]="selected?.chatId === c.chatId"
+    >
+      <div class="top">
+        <div class="name">{{ c.ownerName }}</div>
+        <div class="time">{{ c.lastMessageTime }}</div>
+      </div>
+      <div class="mid">
+        <span class="sender">{{ c.lastMessageSenderName }}:</span>
+        <span class="msg">{{ c.lastMessageContent }}</span>
+      </div>
+      <div class="bottom">
+        <span class="badge">Chat #{{ c.chatId }}</span>
+        <span class="badge">User #{{ c.userId }}</span>
+      </div>
+    </div>
+  </div>
+</div>

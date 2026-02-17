@@ -6,6 +6,10 @@
       <button class="btn" type="button" (click)="refresh()" [disabled]="loading">
         {{ loading ? 'Loading...' : 'Refresh' }}
       </button>
+
+      <button class="btn btn-danger" type="button" (click)="goToPanic()">
+        PANIC NOTIFICATIONS
+      </button>
     </div>
   </div>
 

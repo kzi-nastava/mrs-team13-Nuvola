@@ -2,15 +2,20 @@ package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.*;
 import Nuvola.Projekatsiit2025.model.Driver;
+import Nuvola.Projekatsiit2025.model.ProfileChangeRequest;
 import Nuvola.Projekatsiit2025.model.RegisteredUser;
+import Nuvola.Projekatsiit2025.model.enums.RequestStatus;
 import Nuvola.Projekatsiit2025.model.enums.RideStatus;
 import Nuvola.Projekatsiit2025.repositories.DriverRepository;
+import Nuvola.Projekatsiit2025.repositories.ProfileChangeRequestRepository;
 import Nuvola.Projekatsiit2025.repositories.RegisteredUserRepository;
 import Nuvola.Projekatsiit2025.services.RideService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Comparator;
 import java.util.List;
@@ -27,6 +32,9 @@ public class AdminController {
 
     @Autowired
     private RideService rideService;
+
+    @Autowired
+    private ProfileChangeRequestRepository requestRepository;
 
     // 2.9.3 History of rides (driver/passenger), filter by creationDate and sort
     @GetMapping(value = "/rides/history", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -290,6 +298,100 @@ public class AdminController {
         return ResponseEntity.ok(rideService.getActivePanicNotifications());
     }
 
+    @GetMapping("/profile-change-requests")
+    public ResponseEntity<List<ProfileChangeRequestDTO>> getPendingRequests() {
+        List<ProfileChangeRequest> requests = requestRepository
+                .findByStatus(RequestStatus.PENDING);
 
+        List<ProfileChangeRequestDTO> dtos = requests.stream()
+                .map(this::mapToDTO)
+                .toList();
+
+        return ResponseEntity.ok(dtos);
+    }
+
+    @PutMapping("/profile-change-requests/{id}/approve")
+    public ResponseEntity<Void> approveRequest(@PathVariable Long id) {
+        ProfileChangeRequest req = requestRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!(req.getDriver() instanceof Driver)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid driver");
+        }
+
+        Driver driver = (Driver) req.getDriver();
+
+        // Update driver data
+        driver.setFirstName(req.getFirstName());
+        driver.setLastName(req.getLastName());
+        driver.setPhone(req.getPhone());
+        driver.setAddress(req.getAddress());
+
+        // Update vehicle
+        driver.getVehicle().setModel(req.getModel());
+        driver.getVehicle().setType(req.getType());
+        driver.getVehicle().setNumOfSeats(req.getNumOfSeats());
+        driver.getVehicle().setBabyFriendly(req.getBabyFriendly());
+        driver.getVehicle().setPetFriendly(req.getPetFriendly());
+
+        driverRepository.save(driver);
+
+        // Mark request as approved
+        req.setStatus(RequestStatus.APPROVED);
+        requestRepository.save(req);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/profile-change-requests/{id}/reject")
+    public ResponseEntity<Void> rejectRequest(@PathVariable Long id) {
+        ProfileChangeRequest req = requestRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        req.setStatus(RequestStatus.REJECTED);
+        requestRepository.save(req);
+
+        return ResponseEntity.ok().build();
+    }
+
+    private ProfileChangeRequestDTO mapToDTO(ProfileChangeRequest req) {
+        ProfileChangeRequestDTO dto = new ProfileChangeRequestDTO();
+        if (!(req.getDriver() instanceof Driver)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid driver");
+        }
+
+        Driver driver = (Driver) req.getDriver();
+
+        dto.setId(req.getId());
+        dto.setDriverName(driver.getFirstName() + " " + driver.getLastName());
+        dto.setDriverEmail(driver.getEmail());
+
+        // CURRENT VALUES (from driver)
+        dto.setCurrentFirstName(driver.getFirstName());
+        dto.setCurrentLastName(driver.getLastName());
+        dto.setCurrentPhone(driver.getPhone());
+        dto.setCurrentAddress(driver.getAddress());
+        dto.setCurrentModel(driver.getVehicle().getModel());
+        dto.setCurrentType(driver.getVehicle().getType().toString());
+        dto.setCurrentNumOfSeats(driver.getVehicle().getNumOfSeats());
+        dto.setCurrentBabyFriendly(driver.getVehicle().isBabyFriendly());
+        dto.setCurrentPetFriendly(driver.getVehicle().isPetFriendly());
+
+        // REQUESTED VALUES (from change request)
+        dto.setFirstName(req.getFirstName());
+        dto.setLastName(req.getLastName());
+        dto.setPhone(req.getPhone());
+        dto.setAddress(req.getAddress());
+        dto.setModel(req.getModel());
+        dto.setType(req.getType().toString());
+        dto.setNumOfSeats(req.getNumOfSeats());
+        dto.setBabyFriendly(req.getBabyFriendly());
+        dto.setPetFriendly(req.getPetFriendly());
+
+        dto.setStatus(req.getStatus().toString());
+        dto.setCreatedAt(req.getCreatedAt().toString());
+
+        return dto;
+    }
 
 }

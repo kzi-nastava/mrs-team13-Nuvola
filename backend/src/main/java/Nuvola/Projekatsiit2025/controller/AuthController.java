@@ -88,13 +88,19 @@ public class AuthController {
     // 2.2.1 Logout
     // driver can't logout if he has active ride
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(
-            @RequestParam(defaultValue = "false") boolean hasActiveRide
-    ) {
-        if (hasActiveRide) {
-            return new ResponseEntity<>("Driver cannot logout while having an active ride.", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Void> logout() {
+        // TODO: cant logout if he has active ride (driver)
+        // get id
+        String username = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+        User user = userRepository.findByUsername(username);
+        if (user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_DRIVER"))) {
+            driverService.logoutDriver(user.getId());
         }
-        return new ResponseEntity<>("Logout successful.", HttpStatus.OK);
+        return ResponseEntity.ok().build();
+
     }
 
     // 2.2.1 Forgot password (email sent)

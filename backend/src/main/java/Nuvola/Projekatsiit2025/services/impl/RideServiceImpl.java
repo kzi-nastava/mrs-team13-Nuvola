@@ -52,13 +52,16 @@ public class RideServiceImpl implements RideService {
 
 
     @Override
-    public Page<DriverRideHistoryItemDTO> getDriverRideHistory(Long driverId, String sortBy, String sortOrder, Integer page, Integer size) {
+    public Page<DriverRideHistoryItemDTO> getDriverRideHistory(String username, String sortBy, String sortOrder, Integer page, Integer size) {
         Sort sort = sortOrder.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
 
+        User driver = userRepository.findByUsername(username);
+        Long driverId = driver.getId();
+
         // if pagination
-        if (page != null && size != null) {
+        if ((page != null && size != null) && ((page >= 1) && (size >= 1))) {
             Pageable pageable = PageRequest.of(page, size, sort);
             Page<Ride> ridesPage = rideRepository.findByDriverId(driverId, pageable);
 
@@ -70,7 +73,8 @@ public class RideServiceImpl implements RideService {
                 .map(DriverRideHistoryItemDTO::new)
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(dtos, PageRequest.of(0, dtos.size(), sort), dtos.size());
+        int pageSize = dtos.isEmpty() ? 1 : dtos.size();
+        return new PageImpl<>(dtos, PageRequest.of(1, pageSize, sort), dtos.size());
     }
 
     @Override
@@ -202,6 +206,9 @@ public class RideServiceImpl implements RideService {
         Driver driver = ride.getDriver();
         driver.setStatus(DriverStatus.ACTIVE);
 
+        rideRepository.save(ride);
+        driverRepository.save(driver);
+
         // send email to passengers
         String messageBody = "Ride ID: " + ride.getId() + "\n" + "Price: " + ride.getPrice() + " RSD\n";
         EmailDetails emailDetails = new EmailDetails("", messageBody, "Ride Ended");
@@ -213,6 +220,7 @@ public class RideServiceImpl implements RideService {
         emailService.sendRideFinished(emailDetails);
 
         //TODO: send notification to passengers
+
 
         Ride scheduledRide = getNearestScheduledRideForDriver(driver.getId());
         if  (scheduledRide == null) {

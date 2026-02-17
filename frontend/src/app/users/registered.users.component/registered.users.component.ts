@@ -21,6 +21,10 @@ export class RegisteredUsersComponent implements OnInit {
   constructor(private adminUserService: AdminUserService) {}
 
   ngOnInit() {
+    this.loadUsers();   
+  }
+
+  loadUsers() {        
     this.adminUserService.getRegisteredUsers().subscribe(data => {
       this.users = data;
     });
