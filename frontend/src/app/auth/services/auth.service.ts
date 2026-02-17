@@ -8,6 +8,7 @@ import { LoginModel } from '../model/login.model';
 import { RegisterModel } from '../model/register.model';
 import { DriverLocationPublisherService } from '../../services/driver.location.publisher.service';
 import { NotificationSocketService } from '../../notifications/services/notification.socket.service';
+import { SupportChatWsService } from '../../chat/services/support.chat.ws.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,8 @@ export class AuthService {
 
   constructor(private http: HttpClient, 
               private driverLocationPublisher: DriverLocationPublisherService, 
-              private notifSocket: NotificationSocketService) {
+              private notifSocket: NotificationSocketService,
+              private chatWs: SupportChatWsService) {
     this.user$.next(this.getRole());
   }
 
@@ -85,8 +87,8 @@ export class AuthService {
     this.user$.next(this.getRole());
     this.driverLocationPublisher.stop();
     this.notifSocket.disconnect();
+    this.chatWs.disconnect();
   }
-
 
   setUser(): void {
     this.user$.next(this.getRole());
@@ -162,4 +164,19 @@ driverSetPassword(token: string, newPassword: string, confirmNewPassword: string
   );
 }
 
+// logout() {
+//     this.driverLocationPublisher.stop();
+//           return this.http.post(environment.apiHost + '/api/auth/logout', {}).subscribe({
+//       next: () => {
+//         localStorage.removeItem('user');  
+//         this.user$.next(this.getRole());
+//         this.driverLocationPublisher.stop();
+//         this.notifSocket.disconnect();
+//         this.chatWs.disconnect();
+//       },
+//       error: (error) => {
+//         console.error('Logout error:', error);
+//       }
+//     });
+// }
 }

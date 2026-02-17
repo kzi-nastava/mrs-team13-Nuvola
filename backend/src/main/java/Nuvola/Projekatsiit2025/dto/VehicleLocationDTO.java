@@ -4,6 +4,8 @@ import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.Location;
 import lombok.Data;
 
+
+// delete later with vehicle tracking service
 @Data
 public class VehicleLocationDTO {
     private Double latitude;
