@@ -87,32 +87,34 @@ public class DriverController {
     @GetMapping(value = "/{username}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<DriverRideHistoryItemDTO>> getDriverRideHistory(
             @PathVariable String username,
-            @RequestParam(required = false, defaultValue = "startingTime") String sortBy,
+            @RequestParam(required = false, defaultValue = "startTime") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String sortOrder,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
 
-        // TEMPORARY: Mock data for testing when database is empty
-        List<DriverRideHistoryItemDTO> mockRides = createMockRides();
+//        // TEMPORARY: Mock data for testing when database is empty
+//        List<DriverRideHistoryItemDTO> mockRides = createMockRides();
+//
+//        // Sort mock data
+//        if (sortOrder.equalsIgnoreCase("desc")) {
+//            mockRides.sort((a, b) -> b.getStartingTime().compareTo(a.getStartingTime()));
+//        } else {
+//            mockRides.sort((a, b) -> a.getStartingTime().compareTo(b.getStartingTime()));
+//        }
+//
+//        // Create page from mock data
+//        int pageNumber = (page != null) ? page : 0;
+//        int pageSize = (size != null) ? size : mockRides.size();
+//
+//        Page<DriverRideHistoryItemDTO> mockPage = new PageImpl<>(
+//                mockRides,
+//                PageRequest.of(pageNumber, pageSize),
+//                mockRides.size()
+//        );
 
-        // Sort mock data
-        if (sortOrder.equalsIgnoreCase("desc")) {
-            mockRides.sort((a, b) -> b.getStartingTime().compareTo(a.getStartingTime()));
-        } else {
-            mockRides.sort((a, b) -> a.getStartingTime().compareTo(b.getStartingTime()));
-        }
+        Page<DriverRideHistoryItemDTO> rides = rideService.getDriverRideHistory(username, sortBy, sortOrder, page, size);
 
-        // Create page from mock data
-        int pageNumber = (page != null) ? page : 0;
-        int pageSize = (size != null) ? size : mockRides.size();
-
-        Page<DriverRideHistoryItemDTO> mockPage = new PageImpl<>(
-                mockRides,
-                PageRequest.of(pageNumber, pageSize),
-                mockRides.size()
-        );
-
-        return ResponseEntity.ok(mockPage);
+        return ResponseEntity.ok(rides);
 
     }
 
