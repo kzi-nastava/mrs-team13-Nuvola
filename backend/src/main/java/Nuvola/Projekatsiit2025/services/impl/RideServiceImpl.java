@@ -155,47 +155,6 @@ public class RideServiceImpl implements RideService {
                 .orElse(null);
     }
 
-//    public Ride createRide(User loggedUser, CreateRideDTO dto) {
-//
-//        if (loggedUser instanceof RegisteredUser registeredUser) {
-//
-//            if (registeredUser.isBlocked()) {
-//                throw new ResponseStatusException(
-//                        HttpStatus.FORBIDDEN,
-//                        registeredUser.getBlockingReason() != null
-//                                ? "ACCOUNT_BLOCKED: " + registeredUser.getBlockingReason()
-//                                : "ACCOUNT_BLOCKED"
-//                );
-//            }
-//        }
-//        Route route = createRoute(dto);
-//
-//        Driver driver = findDriver(dto);
-//        if (driver == null) {
-//            throw new ResponseStatusException(
-//                    HttpStatus.BAD_REQUEST,
-//                    "NO_AVAILABLE_DRIVER"
-//            );
-//        }
-//        route = routeRepository.save(route);
-//
-//        Ride ride = new Ride();
-//        ride.setStatus(RideStatus.SCHEDULED);
-//        ride.setCreationTime(LocalDateTime.now());
-//        ride.setStartTime(dto.getScheduledTime());
-//        ride.setRoute(route);
-//        ride.setCreator((RegisteredUser) loggedUser);
-//        ride.setDriver(driver);
-//
-//        double price = calculatePrice(10.0, dto.getVehicleType());
-//        ride.setPrice(price);
-//
-//        List<RegisteredUser> passengers =
-//                userRepository.findByEmailIn(dto.getPassengerEmails());
-//        ride.setOtherPassengers(passengers);
-//
-//        return rideRepository.save(ride);
-//    }
 public Ride createRide(User loggedUser, CreateRideDTO dto) {
 
     if (loggedUser instanceof RegisteredUser registeredUser) {
@@ -211,7 +170,6 @@ public Ride createRide(User loggedUser, CreateRideDTO dto) {
 
     Long userId = loggedUser.getId();
 
-    // Proveri da li postoje uopste prijavljeni vozaci (ACTIVE ili BUSY, nisu INACTIVE i nisu blokirani)
     List<Driver> allNonInactiveDrivers = driverRepository.findActiveAndBusyDriversWithVehicle()
             .stream()
             .filter(d -> !d.isBlocked())
@@ -270,6 +228,17 @@ public Ride createRide(User loggedUser, CreateRideDTO dto) {
             "Your ride has been successfully booked." + rideTimeInfo,
             NotificationType.RideApproved
     );
+
+//    if (passengers != null && !passengers.isEmpty()) {
+//        for (RegisteredUser passenger : passengers) {
+//            notificationService.sendNotification(
+//                    passenger.getId(),
+//                    "You Have Been Added to a Ride",
+//                    "You have been added as a passenger to a ride." + rideTimeInfo,
+//                    NotificationType.LinkedPassanger
+//            );
+//        }
+//    }
 
     notificationService.sendNotification(
             driver.getId(),
@@ -570,8 +539,6 @@ public Ride createRide(User loggedUser, CreateRideDTO dto) {
         ride.setRoute(route);
         ride.setCreator((RegisteredUser) loggedUser);
         ride.setDriver(driver);
-
-        // ✅ Izračunaj cenu (sa dummy vrednosti za distancu)
         double price = calculatePrice(10.0, VehicleType.STANDARD);
         ride.setPrice(price);
 
