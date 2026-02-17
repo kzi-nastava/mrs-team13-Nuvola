@@ -1,0 +1,8 @@
+<a class="back-link" routerLink="/admin/support/inbox">Back to inbox</a>
+
+    <app-support-chat-component
+      *ngIf="receiverValid"
+      [isAdmin]="true"
+      [myId]="adminId"
+      [receiverUserId]="receiverUserId"
+    ></app-support-chat-component>

@@ -23,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -98,6 +99,7 @@ public class WebSecurityConfig {
                     .requestMatchers("/api/drivers/*/rides").permitAll()
                     .requestMatchers("api/reviews").permitAll()
                     .requestMatchers("api/reviews/*").permitAll()
+                    .requestMatchers("/api/support/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/drivers").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/drivers/*/picture").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll()
@@ -112,8 +114,13 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/admin/users/*/unblock").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/rides").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/drivers/{username}/assigned-rides").permitAll()
-
-
+                    .requestMatchers(HttpMethod.PUT, "/api/driver/profile/request-change").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/driver/profile/request-change").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/admin/profile-change-requests").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/admin/profile-change-requests/*/approve").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/admin/profile-change-requests/*/reject").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/rides/active-ride").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/rides/*/start").permitAll()
                     //Da nam lepsu poruku vrati
                     .requestMatchers("/error").permitAll()
                     //.requestMatchers(new AntPathRequestMatcher("/api/whoami")).hasRole("USER")

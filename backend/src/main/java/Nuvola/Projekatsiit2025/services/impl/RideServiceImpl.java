@@ -340,5 +340,177 @@ public class RideServiceImpl implements RideService {
                 .toList();
     }
 
+    @Override
+    public RideHistoryDetailsDTO getRideHistoryDetailsForUser(Long rideId, Long userId) {
+        Ride ride = rideRepository.findRideDetailsForUser(rideId, userId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found"));
+
+        return new RideHistoryDetailsDTO(ride);
+    }
+    @Override
+    public Page<RegisteredUserRideHistoryItemDTO> getUserRideHistory(
+            Long userId,
+            LocalDateTime from,
+            LocalDateTime to,
+            String sortBy,
+            String sortOrder,
+            Integer page,
+            Integer size
+    ) {
+        int pageNumber = (page != null) ? page : 0;
+        int pageSize = (size != null) ? size : 20;
+
+        Sort sort = (sortOrder != null && sortOrder.equalsIgnoreCase("asc"))
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+
+        var spec = (org.springframework.data.jpa.domain.Specification<Ride>) (root, query, cb) -> {
+            query.distinct(true);
+
+            var creatorPredicate = cb.equal(root.get("creator").get("id"), userId);
+
+
+            var passengersJoin = root.join("otherPassengers", jakarta.persistence.criteria.JoinType.LEFT);
+            var passengerPredicate = cb.equal(passengersJoin.get("id"), userId);
+
+            var userPredicate = cb.or(creatorPredicate, passengerPredicate);
+
+            var predicates = new java.util.ArrayList<jakarta.persistence.criteria.Predicate>();
+            predicates.add(userPredicate);
+
+            var statusPredicate = cb.equal(root.get("status"), RideStatus.FINISHED);
+            predicates.add(statusPredicate);
+
+            if (from != null) predicates.add(cb.greaterThanOrEqualTo(root.get("creationTime"), from));
+            if (to != null) predicates.add(cb.lessThanOrEqualTo(root.get("creationTime"), to));
+
+            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
+
+        RegisteredUser ru = registeredUserRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        return rideRepository.findAll(spec, pageable)
+                .map(ride -> {
+                    RegisteredUserRideHistoryItemDTO dto = new RegisteredUserRideHistoryItemDTO(ride);
+
+                    Long routeId = (ride.getRoute() != null) ? ride.getRoute().getId() : null;
+
+                    boolean fav = routeId != null && ru.getFavoriteRoutes().stream()
+                            .anyMatch(r -> r.getId() != null && r.getId().equals(routeId));
+
+                    dto.setFavourite(fav);
+                    return dto;
+                });
+
+    }
+
+    @Override
+    @Transactional
+    public boolean toggleFavoriteRouteForUser(Long rideId, Long userId) {
+
+        Ride ride = rideRepository.findRideDetailsForUser(rideId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found"));
+
+        Route route = ride.getRoute();
+        if (route == null || route.getId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Route not found");
+        }
+
+        RegisteredUser ru = registeredUserRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        Long routeId = route.getId();
+
+        boolean alreadyFav = ru.getFavoriteRoutes().stream()
+                .anyMatch(r -> r.getId() != null && r.getId().equals(routeId));
+
+        if (alreadyFav) {
+            ru.getFavoriteRoutes().removeIf(r -> r.getId() != null && r.getId().equals(routeId));
+            registeredUserRepository.save(ru);
+            return false;
+        } else {
+            Route managedRoute = routeRepository.findById(routeId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Route not found"));
+            ru.getFavoriteRoutes().add(managedRoute);
+            registeredUserRepository.save(ru);
+            return true;
+        }
+    }
+
+    @Override
+    public Ride createRideFromHistory(User loggedUser, CreateRideFromHistoryDTO dto) {
+        if (loggedUser instanceof RegisteredUser registeredUser) {
+            if (registeredUser.isBlocked()) {
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        registeredUser.getBlockingReason() != null
+                                ? "ACCOUNT_BLOCKED: " + registeredUser.getBlockingReason()
+                                : "ACCOUNT_BLOCKED"
+                );
+            }
+        }
+
+
+        Route route = routeRepository.findById(dto.getRouteId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Route not found"
+                ));
+
+
+        Driver driver = findDriver(route.getPickup(), route.getDropoff());
+        if (driver == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "NO_AVAILABLE_DRIVER"
+            );
+        }
+
+
+        Ride ride = new Ride();
+        ride.setStatus(RideStatus.SCHEDULED);
+        ride.setCreationTime(LocalDateTime.now());
+
+        // Ako je scheduledTime null, postavi ga na sada
+        if (dto.getScheduledTime() != null) {
+            ride.setStartTime(dto.getScheduledTime());
+        } else {
+            ride.setStartTime(LocalDateTime.now());
+        }
+
+        ride.setRoute(route);
+        ride.setCreator((RegisteredUser) loggedUser);
+        ride.setDriver(driver);
+
+        // ✅ Izračunaj cenu (sa dummy vrednosti za distancu)
+        double price = calculatePrice(10.0, VehicleType.STANDARD);
+        ride.setPrice(price);
+
+
+        ride.setOtherPassengers(List.of());
+
+        return rideRepository.save(ride);
+    }
+
+
+    private Driver findDriver(Location pickup, Location dropoff) {
+        List<Driver> drivers = driverRepository.findActiveDriversWithVehicle();
+
+        return drivers.stream()
+                .filter(d -> !d.isBlocked())
+                .filter(d -> d.getStatus() == DriverStatus.ACTIVE)
+                .findFirst()
+                .orElse(null);
+    }
+
+
+
+
+
 
 }

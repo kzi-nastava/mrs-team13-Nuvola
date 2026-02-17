@@ -6,6 +6,7 @@ import Nuvola.Projekatsiit2025.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface RideService {
@@ -19,4 +20,8 @@ public interface RideService {
     boolean userHasActiveRide(Long userId);
     void triggerPanic(Long rideId, Long userId);
     List<PanicDTO> getActivePanicNotifications();
+  Page<RegisteredUserRideHistoryItemDTO> getUserRideHistory(Long userId, LocalDateTime from, LocalDateTime to, String sortBy, String sortOrder, Integer page, Integer size);
+    RideHistoryDetailsDTO getRideHistoryDetailsForUser(Long rideId, Long userId);
+    boolean toggleFavoriteRouteForUser(Long rideId, Long id);
+    Ride createRideFromHistory(User loggedUser, CreateRideFromHistoryDTO dto);
 }

@@ -3,6 +3,8 @@ package Nuvola.Projekatsiit2025.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
+// Delete this class later
 @Data
 @NoArgsConstructor
 public class ActiveVehicleDTO {

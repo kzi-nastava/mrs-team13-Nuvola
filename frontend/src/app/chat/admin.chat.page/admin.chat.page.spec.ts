@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LogedinNavbarComponent } from './logedin.navbar.component';
+import { AdminChatPage } from './admin.chat.page';
 
-describe('LogedinNavbarComponent', () => {
-  let component: LogedinNavbarComponent;
-  let fixture: ComponentFixture<LogedinNavbarComponent>;
+describe('AdminChatPage', () => {
+  let component: AdminChatPage;
+  let fixture: ComponentFixture<AdminChatPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LogedinNavbarComponent]
+      imports: [AdminChatPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(LogedinNavbarComponent);
+    fixture = TestBed.createComponent(AdminChatPage);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
