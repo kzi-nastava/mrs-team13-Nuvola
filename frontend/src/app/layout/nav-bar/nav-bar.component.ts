@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/services/auth.service';
@@ -17,7 +17,7 @@ export class NavBarComponent {
   menuOpen: boolean = false;
   hasNotifications: boolean = false;
 
-  constructor(private router: Router, public authService: AuthService, private http: HttpClient) {
+  constructor(private router: Router, public authService: AuthService, private http: HttpClient, private cdr: ChangeDetectorRef) {
     
   }
 
@@ -64,9 +64,11 @@ export class NavBarComponent {
 
   onLogout(): void {
     
-    this.authService.logout();
-    this.menuOpen = false;
-    this.router.navigate(['/login']);
+    // this.authService.logout();
+    // this.menuOpen = false;
+    // this.cdr.detectChanges();
+    // this.router.navigate(['/login']);
+    this.logout();
   }
 
   onLogin(): void {
@@ -101,6 +103,22 @@ export class NavBarComponent {
       error: (err) => console.error('Error sending test notification', err)
     });
   }
+
+  logout() {
+      return this.http.post(environment.apiHost + '/api/auth/logout', {}).subscribe({
+      next: () => {
+        this.authService.logout();
+        this.menuOpen = false;
+        this.cdr.detectChanges();
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Logout error:', error);
+        this.menuOpen = false;
+        this.cdr.detectChanges();
+      }
+    });
+}
 
   onMyNotifications(): void {this.router.navigate(['/notifications']); this.menuOpen = false; }
 }

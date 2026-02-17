@@ -90,7 +90,6 @@ export class AuthService {
     this.chatWs.disconnect();
   }
 
-
   setUser(): void {
     this.user$.next(this.getRole());
   }
@@ -147,4 +146,19 @@ resetPassword(token: string, newPassword: string, confirmNewPassword: string): O
   );
 }
 
+// logout() {
+//     this.driverLocationPublisher.stop();
+//           return this.http.post(environment.apiHost + '/api/auth/logout', {}).subscribe({
+//       next: () => {
+//         localStorage.removeItem('user');  
+//         this.user$.next(this.getRole());
+//         this.driverLocationPublisher.stop();
+//         this.notifSocket.disconnect();
+//         this.chatWs.disconnect();
+//       },
+//       error: (error) => {
+//         console.error('Logout error:', error);
+//       }
+//     });
+// }
 }
