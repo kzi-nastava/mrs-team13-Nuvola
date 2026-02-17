@@ -56,6 +56,7 @@ public class RideServiceImpl implements RideService {
     private NotificationService notificationService;
 
 
+
     @Override
     public Page<DriverRideHistoryItemDTO> getDriverRideHistory(String username, String sortBy, String sortOrder, Integer page, Integer size) {
         Sort sort = sortOrder.equalsIgnoreCase("asc")
@@ -304,12 +305,11 @@ public Ride createRide(User loggedUser, CreateRideDTO dto) {
         for (RegisteredUser u : ride.getOtherPassengers()) {
             emailDetails.setRecipient(u.getEmail());
             emailService.sendRideFinished(emailDetails);
+            notificationService.sendNotification(u.getId(), "Ride " + ride.getId() + " Ended", "Your ride has ended. Price: " + ride.getPrice() + " RSD", NotificationType.RideEnded);
         }
         emailDetails.setRecipient(ride.getCreator().getEmail());
         emailService.sendRideFinished(emailDetails);
-
-        //TODO: send notification to passengers
-
+        notificationService.sendNotification(ride.getCreator().getId(), "Ride " + ride.getId() + " Ended", "Your ride has ended. Price: " + ride.getPrice() + " RSD", NotificationType.RideEnded);
 
         Ride scheduledRide = getNearestScheduledRideForDriver(driver.getId());
         if  (scheduledRide == null) {

@@ -34,31 +34,23 @@ public class RideRepositoryTestEmbedded {
     @Autowired
     private TestEntityManager em;
 
-    // -------------------- TEST 1 --------------------
+
     @Test
     void findFirstByDriverIdAndStatusAndStartTimeIsNotNullAndStartTimeGreaterThanEqualOrderByStartTimeAsc_returnsEarliestMatchingRide() {
         Driver driver = persistDriver("marko", "marko@mail.com");
         Driver otherDriver = persistDriver("jovan", "jovan@mail.com");
-
         LocalDateTime threshold = LocalDateTime.of(2026, 1, 10, 10, 0);
 
-        // Ne treba: startTime null
-        persistRide(driver, RideStatus.SCHEDULED, null);
+        // Shouldnt return
+        persistRide(driver, RideStatus.SCHEDULED, null);  // startTime null
+        persistRide(driver, RideStatus.SCHEDULED, threshold.minusMinutes(1));  // before threshold
+        persistRide(driver, RideStatus.CANCELED, threshold.plusMinutes(5));  // wrong status
+        persistRide(otherDriver, RideStatus.SCHEDULED, threshold.plusMinutes(1));  // different driver
 
-        // Ne treba: pre threshold
-        persistRide(driver, RideStatus.SCHEDULED, threshold.minusMinutes(1));
-
-        // Ne treba: pogrešan status
-        persistRide(driver, RideStatus.CANCELED, threshold.plusMinutes(5));
-
-        // Ne treba: drugi vozač
-        persistRide(otherDriver, RideStatus.SCHEDULED, threshold.plusMinutes(1));
-
-        // Treba: kandidati (treba da vrati NAJRANIJI startTime >= threshold)
-        Ride expected = persistRide(driver, RideStatus.SCHEDULED, threshold.plusMinutes(1));
+        // Should return
+        Ride expected = persistRide(driver, RideStatus.SCHEDULED, threshold.plusMinutes(1)); // earliest
         persistRide(driver, RideStatus.SCHEDULED, threshold.plusMinutes(2));
         persistRide(driver, RideStatus.SCHEDULED, threshold.plusMinutes(10));
-
         em.flush();
         em.clear();
 
@@ -77,11 +69,10 @@ public class RideRepositoryTestEmbedded {
         Driver driver = persistDriver("marko", "marko@mail.com");
         LocalDateTime threshold = LocalDateTime.of(2026, 1, 10, 10, 0);
 
-        // Sve ne odgovara
-        persistRide(driver, RideStatus.SCHEDULED, threshold.minusHours(1)); // pre threshold
-        persistRide(driver, RideStatus.CANCELED, threshold.plusMinutes(5)); // pogrešan status
+        // Everything is a no match case
+        persistRide(driver, RideStatus.SCHEDULED, threshold.minusHours(1)); // before threshold
+        persistRide(driver, RideStatus.CANCELED, threshold.plusMinutes(5)); // wrong status
         persistRide(driver, RideStatus.SCHEDULED, null);                    // null startTime
-
         em.flush();
         em.clear();
 
@@ -93,7 +84,7 @@ public class RideRepositoryTestEmbedded {
         assertThat(result).isEmpty();
     }
 
-    // -------------------- TEST 2 --------------------
+
     @Test
     void findByDriver_UsernameAndStatus_returnsOnlyRidesForThatUsernameAndStatus() {
         Driver d1 = persistDriver("marko", "marko@mail.com");
@@ -102,10 +93,9 @@ public class RideRepositoryTestEmbedded {
         Ride a = persistRide(d1, RideStatus.FINISHED, LocalDateTime.now().minusHours(3));
         Ride b = persistRide(d1, RideStatus.FINISHED, LocalDateTime.now().minusHours(1));
 
-        // Ne treba: isti driver, drugi status
+        // Shoudnt return - same driver, different status
         persistRide(d1, RideStatus.CANCELED, LocalDateTime.now().plusDays(1));
-
-        // Ne treba: drugi driver, isti status
+        // Shouldnt return - different driver, same status
         persistRide(d2, RideStatus.FINISHED, LocalDateTime.now().minusHours(2));
 
         em.flush();
@@ -132,7 +122,7 @@ public class RideRepositoryTestEmbedded {
     // -------------------- HELPERS --------------------
     private Driver persistDriver(String username, String email) {
         Driver d = new Driver();
-        d.setUsername(username);        // polje u bazi
+        d.setUsername(username);
         d.setEmail(email);
         d.setPassword("pass");
         d.setFirstName("Ime");
@@ -140,7 +130,7 @@ public class RideRepositoryTestEmbedded {
         d.setAddress("Adresa");
         d.setPhone("000");
         d.setBlocked(false);
-        d.setStatus(DriverStatus.ACTIVE);  // bitno jer je nullable=false
+        d.setStatus(DriverStatus.ACTIVE);
 
         return em.persist(d);
     }
