@@ -155,6 +155,7 @@ interface RideDTO {
   startingTime: string;
   driver: string;
   isFavouriteRoute: boolean;
+  isPanic: boolean;
 }
 
 interface PageResponse {
@@ -199,7 +200,8 @@ export class RideService {
       statingTime: new Date(dto.startingTime),
       driver: dto.driver,
       isFavouriteRoute: dto.isFavouriteRoute,
-      status: 'ASSIGNED'
+      status: 'ASSIGNED',
+      isPanic: dto.isPanic || false
     };
   }
 

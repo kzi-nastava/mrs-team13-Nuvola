@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { UserModel } from '../model/user.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -18,7 +18,9 @@ export class RegisteredUsersComponent implements OnInit {
   blockReason: string = '';
   showModal = false;
 
-  constructor(private adminUserService: AdminUserService) {}
+  constructor(private adminUserService: AdminUserService,
+              private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.loadUsers();   
@@ -27,6 +29,8 @@ export class RegisteredUsersComponent implements OnInit {
   loadUsers() {        
     this.adminUserService.getRegisteredUsers().subscribe(data => {
       this.users = data;
+
+      this.cdr.detectChanges();
     });
   }
 

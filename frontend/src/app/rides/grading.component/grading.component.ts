@@ -1,4 +1,4 @@
-import { Component , OnInit} from '@angular/core';
+import { ChangeDetectorRef, Component , OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -8,7 +8,7 @@ import {
   Validators,
   FormGroup,
 } from '@angular/forms';
-import { AuthService } from '../../layout/service/auth.service';
+import { AuthService } from '../../auth/services/auth.service';
 
 interface RatingRequestDTO {
   vehicleRating: number;    // 1-5
@@ -37,7 +37,8 @@ export class GradingComponent implements OnInit {
   constructor(private fb: FormBuilder,
      private http: HttpClient,
       private route: ActivatedRoute,
-      private auth: AuthService
+      private auth: AuthService,
+      private cdr: ChangeDetectorRef
     ) {
     this.form = this.fb.group({
       vehicleRating: [null, [Validators.required, Validators.min(1), Validators.max(5)]],
@@ -53,7 +54,7 @@ export class GradingComponent implements OnInit {
     this.rideId = Number.isFinite(parsed) ? parsed : 0;
 
     if (!this.rideId) {
-      this.errorMessage = 'Nevalidan rideId u ruti.';
+      this.errorMessage = 'Invalid rideId in URL.';
     }
 
     console.log('rideId =', this.rideId);
@@ -65,13 +66,13 @@ export class GradingComponent implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMessage = 'Popuni obavezna polja (ocene 1–5).';
+      this.errorMessage = 'Fill mandatory fields (ratings 1–5).';
       return;
     }
 
-    const username = this.auth.username();
+    const username = this.auth.getUsername();
     if (!username) {
-      this.errorMessage = 'Moraš biti ulogovan da pošalješ ocenu.';
+      this.errorMessage = 'You must be logged in to submit a rating.';
       return;
     }
 
@@ -88,8 +89,9 @@ export class GradingComponent implements OnInit {
     this.http.post('http://localhost:8080/api/reviews', payload).subscribe({
       next: () => {
         this.isSending = false;
-        this.successMessage = 'Ocena je poslata.';
+        this.successMessage = 'Rating submitted successfully.';
         this.form.reset();
+        this.cdr.detectChanges();
       },
       error: (err: HttpErrorResponse) => {
         this.isSending = false;
@@ -101,19 +103,24 @@ export class GradingComponent implements OnInit {
           null;
 
         if (err.status === 0) {
-          this.errorMessage = 'Canrt connect to server (network/CORS).';
+          this.errorMessage = 'Cannot connect to server (network/CORS).';
         } else if (err.status === 400) {
           this.errorMessage = backendMsg ?? 'Bad request.';
-        } else if (err.status === 401 || err.status === 403) {
+        } else if (err.status === 401) {
           this.errorMessage = 'You do not have permission to send a review.';
+        } else if (err.status === 403) {
+          this.errorMessage = 'You cant rate this ride (time limit is 3 days).';
+        } else if (err.status === 409) {
+          this.errorMessage = 'You have already submitted a review for this ride.';
         } else {
           this.errorMessage = backendMsg ?? 'Error sending review. Please try again.';
         }
+        this.cdr.detectChanges();
       },
     });
   }
 
-  // malo lakše za template
+  
   hasError(controlName: string, error: string): boolean {
     const c = this.form.get(controlName);
     return !!c && c.touched && c.hasError(error);

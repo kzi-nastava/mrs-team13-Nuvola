@@ -47,6 +47,7 @@
       <th>Status</th>
       <th>Fav</th>
       <th>Details</th>
+      <th>Grade</th>
     </tr>
   </thead>
 
@@ -60,16 +61,24 @@
       <td>{{ r.price }}</td>
       <td>{{ r.status }}</td>
       <td style="text-align:center;">
-  <button class="fav-btn"
-          type="button"
-          (click)="toggleFav(r)"
-          [attr.aria-label]="r.favorite ? 'Unfavorite' : 'Favorite'">
-    <span class="heart" [class.active]="r.favorite">♥</span>
-  </button>
-</td>
-<td>
-    <button class="details-btn" (click)="openDetails(r.id)">Details</button>
-</td>
+        <button class="fav-btn"
+                type="button"
+                (click)="toggleFav(r)"
+                [attr.aria-label]="r.favorite ? 'Unfavorite' : 'Favorite'">
+          <span class="heart" [class.active]="r.favorite">♥</span>
+        </button>
+      </td>
+      <td>
+          <button class="details-btn" (click)="openDetails(r.id)">Details</button>
+      </td>
+      <td>
+        <button class="grade-btn"
+                type="button"
+                (click)="openGrade(r.id)"
+                [disabled]="isGradingDisabled(r)">
+          Grade
+        </button>
+      </td>
     </tr>
   </tbody>
 </table>

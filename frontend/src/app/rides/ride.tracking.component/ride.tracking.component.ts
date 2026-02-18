@@ -70,6 +70,50 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
   private wsSub?: any;           // StompSubscription
   private useWebSocket = true;
 
+  remainingKm: number | null = null;
+  remainingMin: number | null = null;
+  private lastVehiclePos?: LocationDTO;
+  private remainingControl?: any;          // drugi Routing.control samo za "remaining"
+  private stops: LocationDTO[] = [];       // sačuvaj stops iz ride-a
+  private lastRemainingCalcAt = 0;         // throttle
+  private remainingRouter?: any;
+
+  // Estimated time and distance
+  private ensureRemainingRouter() {
+    if (this.remainingRouter) return;
+    // u LRM obično postoji: this.Routing.osrmv1()
+    this.remainingRouter = this.Routing.osrmv1({
+      serviceUrl: 'https://router.project-osrm.org/route/v1'
+    });
+  }
+
+  private updateRemainingFromPosition(pos: LocationDTO) {
+    if (!this.stops?.length) return;
+
+    const now = Date.now();
+    if (now - this.lastRemainingCalcAt < 2000) return;
+    this.lastRemainingCalcAt = now;
+
+    this.ensureRemainingRouter();
+
+    const lastStop = this.stops[this.stops.length - 1];
+    const waypoints = [
+      this.L.Routing.waypoint(this.L.latLng(pos.latitude, pos.longitude)),
+      this.L.Routing.waypoint(this.L.latLng(lastStop.latitude, lastStop.longitude)),
+    ];
+
+    this.remainingRouter.route(waypoints, (err: any, routes: any[]) => {
+      if (err || !routes?.length) return;
+
+      const summary = routes[0].summary;
+      this.remainingKm = Math.max(0, summary.totalDistance / 1000);
+      this.remainingMin = Math.max(0, Math.round(summary.totalTime / 60));
+      this.cdr.detectChanges();
+    });
+  }
+
+
+  
 
   // ------- WEBSOCKETS -------
 
@@ -133,10 +177,15 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
         this.map.removeLayer(this.vehicleMarker);
         this.vehicleMarker = undefined;
       }
+      this.remainingKm = null;
+      this.remainingMin = null;
       return;
     }
+    const pos = { latitude: update.latitude, longitude: update.longitude };
+    this.lastVehiclePos = pos;
+    this.updateVehicleMarker(pos);
+    this.updateRemainingFromPosition(pos);
 
-    this.updateVehicleMarker({ latitude: update.latitude, longitude: update.longitude });
   }
 
    // ------- REPORT UI STATE -------
@@ -316,7 +365,10 @@ export class RideTrackingComponent implements AfterViewInit, OnDestroy {
         // inicijalni centar = prva stanica
         this.initMap([stops[0].latitude, stops[0].longitude]);
 
+        this.stops = stops;
+
         this.renderRouteWithInstructions(stops);
+        this.updateRemainingFromPosition(stops[0]);
         //this.initializeWebSocketConnection();
         await this.initializeWebSocketConnection();
       },

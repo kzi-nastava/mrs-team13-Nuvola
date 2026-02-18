@@ -14,6 +14,7 @@ export interface RideModel {
     statingTime: Date,
     driver: string,
     isFavouriteRoute: boolean
+    isPanic: boolean;
 
     status?: RideStatus;
     canceled?: 'DRIVER' | 'PASSENGER';
