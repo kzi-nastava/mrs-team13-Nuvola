@@ -107,23 +107,27 @@
       Calculate route
     </button>
 
-    <!-- Passengers -->
     <div class="field" style="margin-top: 14px;">
-      <label>Passengers</label>
-      <input
-        type="text"
-        formControlName="passengerInput"
-        placeholder="Add passenger email"
-        (keydown.enter)="addPassengerFromInput(); $event.preventDefault()"
-      />
+  <label>Passengers</label>
+  <div class="input-row">
+    <input
+      type="text"
+      formControlName="passengerInput"
+      placeholder="Add passenger email"
+      (keydown.enter)="addPassengerFromInput(); $event.preventDefault()"
+    />
+    <button type="button" class="btn-add" (click)="addPassengerFromInput()">
+      Add
+    </button>
+  </div>
 
-      <div class="chips" *ngIf="passengers.length > 0">
-        <div class="chip" *ngFor="let p of passengers; let i = index">
-          {{ p }}
-          <span class="x" (click)="removePassenger(i)">✕</span>
-        </div>
-      </div>
+  <div class="chips" *ngIf="passengers.length > 0">
+    <div class="chip" *ngFor="let p of passengers; let i = index">
+      {{ p }}
+      <span class="x" (click)="removePassenger(i)">✕</span>
     </div>
+  </div>
+</div>
 
     <!-- Options -->
     <div class="field">

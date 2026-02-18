@@ -4,6 +4,9 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { EndRideService } from '../service/end.ride.service';
 import { AuthService } from '../../auth/services/auth.service';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { StopRideComponent, StopRideResult } from '../../stop-ride.component/stop-ride.component';
+import { CancelRideComponent } from '../cancel-ride.component/cancel-ride.component';
 
 
 type RideStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'CANCELLED';
@@ -24,19 +27,39 @@ type DriverRide = {
   status: RideStatus;
   price: number;
   panic?: boolean
+  cancelReason?: string;
+
+  stoppedAt?: string;
+  stoppedLat?: number;
+  stoppedLng?: number;
+  stoppedAddress?: string;
 };
 
 @Component({
   selector: 'app-driver.rides.component',
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule, CancelRideComponent, StopRideComponent],
   templateUrl: './driver.rides.component.html',
   styleUrl: './driver.rides.component.css',
+  standalone: true,
 })
 export class DriverRidesComponent implements OnInit {
   rides: DriverRide[] = [];
   upcomingRides: DriverRide[] = [];
   activeRide: DriverRide | null = null;
   errorMessage: string | null = null;
+  showCancelModal = false;
+  cancelRideTarget: DriverRide | null = null;
+
+  showStopModal = false;
+  stopRideTarget: DriverRide | null = null;
+
+  cancelForm = new FormGroup({
+    reason: new FormControl('', [Validators.required, Validators.minLength(5)]),
+  });
+
+  get reason() {
+    return this.cancelForm.controls.reason;
+  }
 
   constructor(
     private authService: AuthService,
@@ -48,6 +71,12 @@ export class DriverRidesComponent implements OnInit {
   ngOnInit(): void {
     this.loadRides();
   }
+
+
+
+//  get reason() {
+  //  return this.cancelForm.controls.reason;
+  //}
 
   loadRides() {
     const username = this.authService.getUsername();
@@ -120,22 +149,90 @@ get hasActiveRide(): boolean {
       });
   }
 
-  cancelRide(ride: DriverRide) {
-    this.http.put(`http://localhost:8080/api/rides/${ride.id}/cancel`, {
-      reason: 'Driver cancelled'
-    }).subscribe({
-      next: () => this.loadRides(),
-      error: () => this.errorMessage = 'Failed to cancel ride.'
-    });
+  openCancelModal(ride: DriverRide) {
+    console.log('OPEN MODAL FOR', ride.id);
+    if (ride.allPassengersJoined) return;
+    this.cancelRideTarget = ride;
+    this.cancelForm.reset({ reason: '' });
+    this.showCancelModal = true;
+  }
+  closeCancelModal() {
+    this.showCancelModal = false;
+    this.cancelRideTarget = null;
+    this.cancelForm.reset({ reason: '' });
   }
 
-  stopRide(ride: DriverRide) {
-    this.http.put(`http://localhost:8080/api/rides/${ride.id}/stop`, {})
-      .subscribe({
-        next: () => this.loadRides(),
-        error: () => this.errorMessage = 'Failed to stop ride.'
-      });
+  //cancelRide(ride: DriverRide) {
+    //if (ride.allPassengersJoined) return;
+    //ride.status = 'CANCELLED';
+  //}
+
+  confirmCancel() {  
+      if (!this.cancelRideTarget) return;    
+      if (this.cancelForm.invalid) {      
+        this.cancelForm.markAllAsTouched();      
+        return;    
+      }    
+      const reason = this.reason.value!.trim();   
+      // Send to backend    
+      this.http.put(`http://localhost:8080/api/rides/${this.cancelRideTarget.id}/cancel`, { reason })      
+      .subscribe({        
+        next: () => {          
+          if (this.cancelRideTarget) {
+            this.cancelRideTarget.status = 'CANCELLED';            
+            this.cancelRideTarget.cancelReason = reason;          
+          }          
+          this.closeCancelModal();          
+          this.loadRides();        },        
+          error: () => {          
+            this.errorMessage = 'Failed to cancel ride.';          
+            this.closeCancelModal();        
+          }      
+        });  
+      }
+
+  openStopModal(ride: DriverRide) {
+    console.log('OPEN STOP MODAL FOR', ride.id);    
+    this.stopRideTarget = ride;    
+    this.showStopModal = true;  
   }
+  closeStopModal() {
+    this.showStopModal = false;    
+    this.stopRideTarget = null;  
+  }
+  stopRide(ride: DriverRide) {    
+    this.openStopModal(ride); 
+   }
+
+  onStopConfirmed(result: StopRideResult) {
+    if (!this.stopRideTarget) return;    
+    // Update ride with stop info    
+    this.stopRideTarget.stoppedAt = result.stoppedAtIso;    
+    this.stopRideTarget.stoppedLat = result.lat;    
+    this.stopRideTarget.stoppedLng = result.lng;    
+    this.stopRideTarget.stoppedAddress = result.stopAddress;    
+    this.stopRideTarget.price = result.newPrice;    
+    // Send to backend    
+    this.http.put(`http://localhost:8080/api/rides/${this.stopRideTarget.id}/stop`, {      
+      stoppedAt: result.stoppedAtIso,      
+      lat: result.lat,      
+      lng: result.lng,      
+      address: result.stopAddress,      
+      newPrice: result.newPrice    
+    }).subscribe({      
+      next: () => {        
+        console.log('Ride stopped successfully');        
+        this.closeStopModal();        
+        this.loadRides();      
+      },      
+      error: (err) => {        
+        console.error('Failed to stop ride:', err);        
+        this.errorMessage = 'Failed to stop ride.';        
+        this.closeStopModal();      
+      }    
+    });  
+  }
+
 
   finishRide(ride: DriverRide) {
     const username = this.authService.getUsername();

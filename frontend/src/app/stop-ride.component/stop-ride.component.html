@@ -1,0 +1,51 @@
+<div class="overlay" (click)="onClose()">
+  <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div class="header">
+      <div>
+        <div class="title">Stop ride</div>
+        <div class="desc">Ride #{{ rideId }} — capture current location & time, recalculate price.</div>
+      </div>
+
+      <button class="x" type="button" (click)="onClose()">✕</button>
+    </div>
+
+    <div class="content">
+      <div class="row">
+        <div class="k">Stop time</div>
+        <div class="v">{{ stopTimeIso ? (stopTimeIso | date:'medium') : '—' }}</div>
+      </div>
+
+      <div class="row">
+        <div class="k">Location</div>
+        <div class="v">
+          <ng-container *ngIf="lat != null && lng != null; else noLoc">
+            {{ lat | number:'1.5-5' }}, {{ lng | number:'1.5-5' }}
+          </ng-container>
+          <ng-template #noLoc>—</ng-template>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="k">New destination</div>
+        <div class="v">{{ stopAddress ?? '—' }}</div>
+      </div>
+
+      <div class="row">
+        <div class="k">New price</div>
+        <div class="v">{{ newPrice != null ? (newPrice + ' RSD') : '—' }}</div>
+      </div>
+
+      <div class="error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+      <div class="actions">
+        <button class="btn gray" type="button" (click)="captureStop()" [disabled]="loading">
+          {{ loading ? 'Capturing...' : 'Capture stop data' }}
+        </button>
+
+        <button class="btn danger" type="button" (click)="confirmStop()" [disabled]="loading">
+          Stop & save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

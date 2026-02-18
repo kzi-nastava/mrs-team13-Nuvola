@@ -52,4 +52,59 @@ public interface RideRepository extends JpaRepository<Ride, Long>, JpaSpecificat
             Pageable pageable
     );
 
+    @Query("SELECT r FROM Ride r WHERE r.status = 'FINISHED' " +
+            "AND r.driver.id = :driverId " +
+            "AND r.startTime >= :start AND r.startTime <= :end")
+    List<Ride> findFinishedByDriverAndPeriod(
+            @Param("driverId") Long driverId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
+    @Query("SELECT r FROM Ride r WHERE r.status = 'FINISHED' " +
+            "AND (r.creator.id = :userId OR EXISTS (SELECT p FROM r.otherPassengers p WHERE p.id = :userId)) " +
+            "AND r.startTime >= :start AND r.startTime <= :end")
+    List<Ride> findFinishedByUserAndPeriod(
+            @Param("userId") Long userId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
+    @Query("SELECT r FROM Ride r WHERE r.status = 'FINISHED' " +
+            "AND r.startTime >= :start AND r.startTime <= :end")
+    List<Ride> findAllFinishedInPeriod(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+    Page<Ride> findByDriver_Id(Long driverId, Pageable pageable);
+    Page<Ride> findByCreator_Id(Long creatorId, Pageable pageable);
+    @Query("SELECT r FROM Ride r " +
+            "JOIN r.otherPassengers p " +
+            "WHERE p.id = :passengerId")
+    Page<Ride> findByOtherPassenger_Id(@Param("passengerId") Long passengerId, Pageable pageable);
+
+    Page<Ride> findByDriver_IdAndCreationTimeBetween(
+            Long driverId,
+            LocalDateTime from,
+            LocalDateTime to,
+            Pageable pageable
+    );
+
+    Page<Ride> findByCreator_IdAndCreationTimeBetween(
+            Long creatorId,
+            LocalDateTime from,
+            LocalDateTime to,
+            Pageable pageable
+    );
+
+    Page<Ride> findByCreationTimeBetween(
+            LocalDateTime from,
+            LocalDateTime to,
+            Pageable pageable
+    );
+    Page<Ride> findByIsPanicTrue(Pageable pageable);
+    Page<Ride> findByIsPanicFalse(Pageable pageable);
+    Page<Ride> findByStatus(RideStatus status, Pageable pageable);
+
+
 }

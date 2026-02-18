@@ -1,0 +1,236 @@
+.ride-history-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+/* FILTERI */
+.filters-section {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #555;
+}
+
+.date-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* TABELA */
+.table-container {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rides-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.rides-table thead {
+  background: #2c3e50;
+  color: white;
+}
+
+.rides-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #34495e;
+}
+
+.rides-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.3s;
+}
+
+.rides-table th.sortable:hover {
+  background: #34495e;
+}
+
+.rides-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.rides-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.rides-table tbody tr.panic-ride {
+  background: #fff5f5;
+}
+
+.rides-table tbody tr.panic-ride:hover {
+  background: #ffe6e6;
+}
+
+/* STATUS */
+.cancelled {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.panic-badge {
+  background: #e74c3c;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.safe-badge {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+/* DUGMADI */
+.btn-details,
+.btn-secondary,
+.btn-pagination {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-details {
+  background: #3498db;
+  color: white;
+}
+
+.btn-details:hover {
+  background: #2980b9;
+}
+
+.btn-secondary {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #7f8c8d;
+}
+
+.btn-pagination {
+  background: #3498db;
+  color: white;
+  margin: 0 5px;
+}
+
+.btn-pagination:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* PAGINACIJA */
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.page-info {
+  color: #555;
+  font-weight: 600;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  max-width: 900px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.3s;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+/* UČITAVANJE */
+.loading {
+  padding: 40px;
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 16px;
+}
+
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: #95a5a6;
+  font-size: 16px;
+}
+
+/* GREŠKA */
+.error-message {
+  background: #fadbd8;
+  color: #c0392b;
+  padding: 12px 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  border-left: 4px solid #c0392b;
+}
