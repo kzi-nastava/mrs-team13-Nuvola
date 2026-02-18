@@ -1,0 +1,106 @@
+.overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+.modal{
+  width: 100%;
+  max-width: 560px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  padding: 18px;
+}
+
+.header{
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.title{
+  font-size: 18px;
+  font-weight: 800;
+  color: #0A1128;
+}
+
+.desc{
+  font-size: 13px;
+  color: #555;
+  margin-top: 2px;
+}
+
+.x{
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: #f0f0f0;
+  font-size: 16px;
+}
+
+.content{
+  display: grid;
+  gap: 10px;
+}
+
+.row{
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+}
+
+.k{
+  font-size: 12px;
+  font-weight: 700;
+  color: #0A1128;
+}
+
+.v{
+  font-size: 13px;
+  color: #111;
+}
+
+.error{
+  font-size: 12px;
+  color: #b91c1c;
+  padding: 6px 2px;
+}
+
+.actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn{
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.btn.gray{
+  background: #e9e9e9;
+  color: #222;
+}
+
+.btn.danger{
+  background: #0A1128;
+  color: #fff;
+}

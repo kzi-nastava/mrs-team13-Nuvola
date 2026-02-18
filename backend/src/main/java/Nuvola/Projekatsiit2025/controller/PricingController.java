@@ -6,6 +6,7 @@ import Nuvola.Projekatsiit2025.model.enums.VehicleType;
 import Nuvola.Projekatsiit2025.services.PricingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class PricingController {
         return ResponseEntity.ok(pricingService.getAll());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/vehicle-types/{type}")
     public ResponseEntity<VehicleTypePricingDTO> upsertVehicleTypePrice(
             @PathVariable VehicleType type,

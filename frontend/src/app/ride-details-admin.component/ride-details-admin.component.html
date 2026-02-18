@@ -1,0 +1,109 @@
+<div class="ride-details" *ngIf="ride; else noRideData">
+  <!-- ✅ ISPRAVKA 1: ride.id -> ride?.id ?? 'N/A' -->
+  <h3>🚗 Detalji voznje #{{ ride?.id ?? 'N/A' }}</h3>
+
+  <!-- MAPA -->
+  <div class="map-section">
+    <div #mapContainer class="map-container"></div>
+  </div>
+
+  <!-- OSNOVNE INFORMACIJE -->
+  <div class="info-section">
+    <div class="info-row">
+      <span class="label">Polazište:</span>
+      <span class="value">{{ ride?.startLocation ?? 'N/A' }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Odredište:</span>
+      <span class="value">{{ ride?.destination ?? 'N/A' }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Vrijeme početka:</span>
+      <span class="value">{{ formatTime(ride?.startTime) }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Vrijeme kraja:</span>
+      <span class="value">{{ formatTime(ride?.endTime) }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Cena:</span>
+      <span class="value highlight">
+        💰 {{ (ride?.price ?? 0).toFixed(2) }} RSD
+      </span>
+    </div>
+    <div class="info-row">
+      <span class="label">PANIC:</span>
+      <span [class]="isPanic() ? 'panic' : 'safe'">
+        {{ isPanic() ? '⚠️ AKTIVIRANO' : '✓ NE' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- VOZAČ I PUTNICI -->
+  <div class="people-section">
+    <h4>👥 Sudionici</h4>
+    <div class="info-row">
+      <span class="label">Vozač:</span>
+      <span class="value">{{ ride?.driverName ?? 'N/A' }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Putnici:</span>
+      <span class="value">
+        <!-- ✅ ISPRAVKA 2: getPassengers() umjesto ride.passengerNames -->
+        <ng-container *ngIf="getPassengers().length > 0">
+          <span *ngFor="let passenger of getPassengers(); let last = last">
+            {{ passenger }}<span *ngIf="!last">, </span>
+          </span>
+        </ng-container>
+        <span *ngIf="getPassengers().length === 0" class="text-muted">
+          Nema putnika
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <!-- OCJENE -->
+  <div class="ratings-section">
+    <h4>⭐ Ocjene</h4>
+    <div class="info-row">
+      <span class="label">Ocjena vozača:</span>
+      <span class="value">{{ getRating(ride?.driverRating) }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Ocjena putnika:</span>
+      <span class="value">{{ getRating(ride?.passengersRating) }}</span>
+    </div>
+  </div>
+
+  <!-- PRIJAVE O NEKONZISTENTNOSTI -->
+  <!-- ✅ ISPRAVKA 3: getReports() umjesto ride.inconsistencyReports -->
+  <div class="reports-section" *ngIf="getReports().length > 0">
+    <h4>⚠️ Prijave o nekonzistentnosti</h4>
+    <div class="report-list">
+      <div *ngFor="let report of getReports()" class="report-item">
+        <p>{{ report?.description ?? 'Bez opisa' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="reports-section" *ngIf="getReports().length === 0">
+    <p class="no-reports">✓ Nema prijava o nekonzistentnosti</p>
+  </div>
+
+  <!-- OPCIJE ZA PONOVNO SLANJE -->
+  <div class="reorder-section">
+    <h4>🔄 Ponovna narudžba</h4>
+    <div class="reorder-options">
+      <span *ngFor="let option of getReorderOptions()" class="reorder-badge">
+        {{ option }}
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ FALLBACK TEMPLATE -->
+<ng-template #noRideData>
+  <div class="no-ride-message">
+    <p>⏳ Učitavanje podataka voznje...</p>
+  </div>
+</ng-template>

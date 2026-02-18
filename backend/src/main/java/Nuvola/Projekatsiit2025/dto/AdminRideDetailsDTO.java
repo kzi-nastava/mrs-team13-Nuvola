@@ -3,37 +3,37 @@ package Nuvola.Projekatsiit2025.dto;
 import java.util.List;
 
 public class AdminRideDetailsDTO {
-    private Long id;
+	private Long id;
 
-    private String startLocation;
-    private String destination;
-    private String startTime;
-    private String endTime;
-    private String creationDate;
+	private String startLocation;
+	private String destination;
+	private String startTime;
+	private String endTime;
+	private String creationDate;
 
-    private double price;
-    private boolean panic;
+	private double price;
+	private boolean panic;
 
-    // map
-    private List<String> routeCoordinates;
+	// map
+	private List<String> routeCoordinates;
 
-    // driver/passengers 
-    private String driverName;
-    private List<String> passengerNames;
+	// driver/passengers
+	private String driverName;
+	private List<String> passengerNames;
 
-    // added
-    private List<String> inconsistencyReports;
-    
-    private Double driverRating;
-    private Double passengersRating;
+	// added
+	private List<String> inconsistencyReports;
 
-    // reorder (stub)
-    private boolean canReorderNow;
-    private boolean canReorderLater;
+	private Double driverRating;
+	private Double passengersRating;
 
-    public AdminRideDetailsDTO() {}
-    
-    public Long getId() {
+	// reorder (stub)
+	private boolean canReorderNow;
+	private boolean canReorderLater;
+
+	public AdminRideDetailsDTO() {}
+
+	public Long getId() {
 		return id;
 	}
 
@@ -160,5 +160,5 @@ public class AdminRideDetailsDTO {
 	public void setCanReorderLater(boolean canReorderLater) {
 		this.canReorderLater = canReorderLater;
 	}
-    
+
 }

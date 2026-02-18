@@ -48,7 +48,12 @@ export class NavBarComponent {
 
 
   onRideHistory(): void {
-    this.router.navigate(['/ride-history/', this.authService.getUsername()]);
+    if (this.authService.getRole() === 'ROLE_DRIVER') {
+      this.router.navigate(['/ride-history/', this.authService.getUsername()]);
+    } else {
+      this.router.navigate(['/ride-history']);
+    }
+    
     this.menuOpen = false;
   }
 
@@ -80,6 +85,11 @@ export class NavBarComponent {
     this.router.navigate(['/register']);
     this.menuOpen = false;
   }
+
+  onRideReports(): void {
+  this.router.navigate(['/ride-reports']);
+  this.menuOpen = false;
+}
 
   onLogoClick(): void {
   if (this.authService.isLoggedIn()) {

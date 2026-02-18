@@ -111,10 +111,10 @@ public class RideServiceImpl implements RideService {
         for (RegisteredUser ru : ride.getOtherPassengers()) {
             emailDetails.setRecipient(ru.getEmail());
 
-            emailDetails.setLink(baseLink + ru.getEmail());
+            emailDetails.setLink(baseLink + rideId);
             emailService.sendTrackingPage(emailDetails);
         }
-        emailDetails.setLink(baseLink + ride.getCreator().getId());
+        emailDetails.setLink(baseLink + rideId);
         emailDetails.setRecipient(ride.getCreator().getEmail());
         emailService.sendTrackingPage(emailDetails);
 
@@ -147,6 +147,7 @@ public class RideServiceImpl implements RideService {
                     return l;
                 }).toList();
         route.setStops(stopLocations);
+        route.setDistance(dto.getDistanceKm());
         // route.setFavourite(false); nema vise ovog atributa
 
         return route;
@@ -217,12 +218,16 @@ public class RideServiceImpl implements RideService {
         ride.setCreator((RegisteredUser) loggedUser);
         ride.setDriver(driver);
 
-        double price = calculatePrice(10.0, dto.getVehicleType());
-        ride.setPrice(price);
+    double price = calculatePrice(dto.getDistanceKm(), dto.getVehicleType());
+    ride.setPrice(price);
 
-        List<RegisteredUser> passengers =
-                userRepository.findByEmailIn(dto.getPassengerEmails());
-        ride.setOtherPassengers(passengers);
+    List<RegisteredUser> passengers = dto.getPassengerEmails() == null || dto.getPassengerEmails().isEmpty()
+            ? List.of()
+            : registeredUserRepository.findByEmailIn(dto.getPassengerEmails());
+
+    System.out.println("=== PASSENGER EMAILS FROM DTO: " + dto.getPassengerEmails());
+    System.out.println("=== PASSENGERS FOUND: " + passengers.size());
+    ride.setOtherPassengers(passengers);
 
         Ride savedRide = rideRepository.save(ride);
 
@@ -238,16 +243,16 @@ public class RideServiceImpl implements RideService {
                 NotificationType.RideApproved
         );
 
-//    if (passengers != null && !passengers.isEmpty()) {
-//        for (RegisteredUser passenger : passengers) {
-//            notificationService.sendNotification(
-//                    passenger.getId(),
-//                    "You Have Been Added to a Ride",
-//                    "You have been added as a passenger to a ride." + rideTimeInfo,
-//                    NotificationType.LinkedPassanger
-//            );
-//        }
-//    }
+    if (!passengers.isEmpty()) {
+        for (RegisteredUser passenger : passengers) {
+            notificationService.sendNotification(
+                    passenger.getId(),
+                    "You Have Been Added to a Ride",
+                    "You have been added as a passenger to a ride." + rideTimeInfo,
+                    NotificationType.LinkedPassanger
+            );
+        }
+    }
 
         notificationService.sendNotification(
                 driver.getId(),

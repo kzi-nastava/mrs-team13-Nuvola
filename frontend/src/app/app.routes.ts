@@ -28,13 +28,15 @@ import { RideHistoryComponent } from './history.ride.registereduser.component/hi
 import { AdminChatPage } from './chat/admin.chat.page/admin.chat.page';
 import { UserChatPage } from './chat/user.chat.page/user.chat.page';
 import { AdminInboxComponent } from './chat/admin.inbox.component/admin.inbox.component';
+import { RideReportsComponent } from './rides/ride-reports.component/ride-reports.component';
+import { RideHistoryAdminComponent } from './admin-ride-history.component/admin-ride-history.component';
 import { AdminDriverInfoComponent } from './users/admin.driver.info.component/admin.driver.info.component';
 import { ChangePriceComponent } from './pricing/change.price.component/change.price.component';
 
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
-    {path: 'users', component: UsersComponent },
+    {path: 'users', component: UsersComponent, canActivate: [AuthGuard], data: {role: ['ROLE_ADMIN']} },
     {path: 'ride-history/:username', component: DriverRideHistoryComponent },
     { path: 'account-settings', component: AccountComponent },
     {path: 'login', component: LoginComponent },
@@ -50,8 +52,7 @@ export const routes: Routes = [
     {path: 'homepage', component: HomepageComponent },
     {path: 'ride-tracking/:rideId', component: RideTrackingComponent },
     {path:'grading/:rideId', component: GradingComponent },
-    {path: 'driver-rides/:username', component: DriverRidesComponent, canActivate: [AuthGuard],
-    data: {role: ['ROLE_REGISTERED_USER', 'ROLE_DRIVER']} },
+    { path: 'driver-rides/:username', component: DriverRidesComponent, canActivate: [AuthGuard], data: {role: ['ROLE_DRIVER']} },
     {path: 'activate-account', component: ResetPasswordComponent},
     { path: 'change-password', component: ChangePasswordComponent },
     { path: 'driver-account', component: DriverAccountComponent },
@@ -64,6 +65,9 @@ export const routes: Routes = [
     { path: 'admin/support/chat/:userId', component: AdminChatPage },
     { path: 'support/chat', component: UserChatPage },
     { path: 'admin/support/inbox', component: AdminInboxComponent },
+    { path: 'ride-reports', component: RideReportsComponent },
+    { path: 'admin/rides/:userId', component: RideHistoryAdminComponent},
     { path: 'admin/drivers/info/:driverId', component: AdminDriverInfoComponent },
-    { path: 'change-prices', component: ChangePriceComponent}
+    { path: 'change-prices', component: ChangePriceComponent, canActivate: [AuthGuard], data: {role: ['ROLE_ADMIN']} },
+
 ];
