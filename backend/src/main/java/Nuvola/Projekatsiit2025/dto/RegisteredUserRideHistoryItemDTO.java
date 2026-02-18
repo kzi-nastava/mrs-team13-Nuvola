@@ -43,7 +43,9 @@ public class RegisteredUserRideHistoryItemDTO {
         this.creationTime = ride.getCreationTime();
         this.price = ride.getPrice();
         this.status = ride.getStatus().name();
-        this.favourite = ride.getRoute() != null && ride.getRoute().isFavourite();
+        // TODO: NIJE DOBRO, NE KORISTIMO VISE atribut rute isFavourite, nego imamo posebnu tabelu za omiljene rute
+        //this.favourite = ride.getRoute() != null && ride.getRoute().isFavourite();
+        this.favourite = false;
         if (ride.getDriver() != null) {
             this.driver = new DriverInfoDTO(ride.getDriver());        }
 

@@ -1,6 +1,8 @@
 package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.CreateReviewDTO;
+import Nuvola.Projekatsiit2025.exceptions.RatingAlreadyExistsException;
+import Nuvola.Projekatsiit2025.exceptions.RatingTimeExpiredException;
 import Nuvola.Projekatsiit2025.exceptions.ride.RideNotFoundException;
 import Nuvola.Projekatsiit2025.services.RatingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,10 @@ public class ReviewController {
             ratingService.addRating(createReviewDTO);
         } catch (RideNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (RatingAlreadyExistsException ex) {
+            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+        } catch (RatingTimeExpiredException ex) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

@@ -45,11 +45,6 @@ public class VehiclePositionController {
             return;
         }
 
-//        ActiveVehicleDTO activeVehicleDTO = new ActiveVehicleDTO();
-//        activeVehicleDTO.setVehicleId(vehiclePosition.getVehicleId());
-//        activeVehicleDTO.setLatitude(vehiclePosition.getLatitude());
-//        activeVehicleDTO.setLongitude(vehiclePosition.getLongitude());
-//        activeVehicleDTO.setOccupied(status == DriverStatus.BUSY);
 
         DriverPositionUpdateDTO update = new DriverPositionUpdateDTO();
         update.setDriverId(vehiclePosition.getDriverId());

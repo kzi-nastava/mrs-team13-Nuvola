@@ -39,7 +39,7 @@ public class Route {
     })
     private List<Location> stops = new ArrayList<>();  // stops in between pickup and dropoff location
 
-    private boolean isFavourite;
+    //private boolean isFavourite; ne koristimo ovo vise
 
     private double distance;  // distance is in km
 }

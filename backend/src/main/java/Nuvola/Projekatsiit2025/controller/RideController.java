@@ -106,14 +106,14 @@ public class RideController {
     @GetMapping(value = "/now/user/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable String username){
         // find that ride
-        RouteDTO route = new RouteDTO();
-        route.appendStop(new CoordinateDTO(45.238796, 19.883819));
-        route.appendStop(new CoordinateDTO(45.242685, 19.841950));
-        route.appendStop(new CoordinateDTO(45.249336, 19.830732));
-        route.appendStop(new CoordinateDTO(45.251135, 19.797931));
-        LocalDateTime now = LocalDateTime.now();
-        TrackingRideDTO ride = new TrackingRideDTO(3L, route, 2L, 1203, "A", "B", now, false);
-
+//        RouteDTO route = new RouteDTO();
+//        route.appendStop(new CoordinateDTO(45.238796, 19.883819));
+//        route.appendStop(new CoordinateDTO(45.242685, 19.841950));
+//        route.appendStop(new CoordinateDTO(45.249336, 19.830732));
+//        route.appendStop(new CoordinateDTO(45.251135, 19.797931));
+//        LocalDateTime now = LocalDateTime.now();
+//        TrackingRideDTO ride = new TrackingRideDTO(3L, route, 2L, 1203, "A", "B", now, false);
+        TrackingRideDTO ride = rideService.getTrackingRideDTO(username);
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
 
