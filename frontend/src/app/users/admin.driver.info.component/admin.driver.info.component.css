@@ -1,0 +1,94 @@
+#ride-tracking-map {
+  width: 90%;
+  height: 470px;
+  border-radius: 14px;
+}
+
+h1 {
+  margin: 7px 0 10px 0;
+}
+
+.page {
+  min-height: 100vh;
+  background: #eeeeee;
+  padding-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.status {
+  width: 90%;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  background: #fff;
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+  min-width: 160px;
+}
+
+.pill-label {
+  font-size: 12px;
+  opacity: .65;
+}
+
+.pill-value {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.pill.panic {
+  border: 2px solid #ff4d4d;
+}
+
+.msg {
+  width: 90%;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.msg.error {
+  background: #ffe3e3;
+  border: 1px solid #ffb3b3;
+}
+
+.msg.info {
+  background: #e9f2ff;
+  border: 1px solid #b9d4ff;
+}
+
+.eta{
+  width: 90%;
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+  display:flex;
+  gap: 16px;
+}
+.eta-item{ display:flex; flex-direction:column; }
+.eta-label{ font-size: 12px; opacity: .65; }
+.eta-value{ font-size: 18px; font-weight: 700; }
+
+/* ako hoćeš da sakriješ routing panel kao u tvom primeru */
+.leaflet-routing-container {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  #ride-tracking-map {
+    height: 55vh;
+    width: 100%;
+  }
+  .status, .msg, .eta {
+    width: 100%;
+  }
+}

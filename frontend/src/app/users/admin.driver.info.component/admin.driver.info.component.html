@@ -1,0 +1,32 @@
+<main class="page">
+  <h1>Ride Tracking</h1>
+
+  <div class="status" *ngIf="rideInProgress && ride">
+    <div class="pill">
+      <div class="pill-label">Started</div>
+      <div class="pill-value">{{ ride.startingTime }}</div>
+    </div>
+
+    <div class="pill" [class.panic]="ride.panic">
+      <div class="pill-label">Panic</div>
+      <div class="pill-value">{{ ride.panic ? 'YES' : 'NO' }}</div>
+    </div>
+  </div>
+
+  <p class="msg info" *ngIf="infoMessage">{{ infoMessage }}</p>
+  <p class="msg error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <div id="ride-tracking-map"></div>
+
+  <div class="eta" *ngIf="remainingKm !== null && remainingMin !== null">
+    <div class="eta-item">
+      <div class="eta-label">Left</div>
+      <div class="eta-value">{{ remainingKm | number:'1.1-1' }} km</div>
+    </div>
+
+    <div class="eta-item">
+      <div class="eta-label">Estimate</div>
+      <div class="eta-value">{{ remainingMin }} min</div>
+    </div>
+  </div>
+</main>
