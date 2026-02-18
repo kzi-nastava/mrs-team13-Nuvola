@@ -46,10 +46,6 @@ fdescribe('RegisterDriversComponent - Full Validation Suite', () => {
     fixture.detectChanges();
   });
 
-  // =========================
-  // BASIC
-  // =========================
-
   it('should create component', () => {
     expect(component).toBeTruthy();
   });
@@ -64,14 +60,18 @@ fdescribe('RegisterDriversComponent - Full Validation Suite', () => {
     expect(component.driverForm.valid).toBeTrue();
   });
 
-  // =========================
-  // FIELD VALIDATION
-  // =========================
+
+  // field validation
 
   it('should invalidate wrong first name format', () => {
     component.driverForm.patchValue({ ...validFormData, firstName: 'marko123' });
     expect(component.driverForm.get('firstName')?.invalid).toBeTrue();
   });
+
+  it('should invalidate wrong last name format', () => {
+    component.driverForm.patchValue({ ...validFormData, lastName: 'markovic123' });
+    expect(component.driverForm.get('lastName')?.invalid).toBeTrue();
+});
 
   it('should invalidate wrong email format', () => {
     component.driverForm.patchValue({ ...validFormData, email: 'invalid' });
@@ -86,6 +86,11 @@ fdescribe('RegisterDriversComponent - Full Validation Suite', () => {
   it('should invalidate wrong address format', () => {
     component.driverForm.patchValue({ ...validFormData, address: '1' });
     expect(component.driverForm.get('address')?.invalid).toBeTrue();
+  });
+
+  it('should invalidate wrong vehicle model format', () => {
+    component.driverForm.patchValue({ ...validFormData, model: 'A' });
+    expect(component.driverForm.get('model')?.invalid).toBeTrue();
   });
 
   it('should invalidate wrong regNumber format', () => {
@@ -103,9 +108,19 @@ fdescribe('RegisterDriversComponent - Full Validation Suite', () => {
     expect(component.driverForm.get('numOfSeats')?.invalid).toBeTrue();
   });
 
-  // =========================
-  // SUBMIT
-  // =========================
+  // exactly 4 seats
+  it('should accept exactly 4 seats as valid', () => {
+      component.driverForm.patchValue({ ...validFormData, numOfSeats: 4 });
+      expect(component.driverForm.get('numOfSeats')?.valid).toBeTrue();
+  });
+
+  // exactly 10 seats
+  it('should accept exactly 10 seats as valid', () => {
+      component.driverForm.patchValue({ ...validFormData, numOfSeats: 10 });
+      expect(component.driverForm.get('numOfSeats')?.valid).toBeTrue();
+  });
+
+  // submit
 
   it('should call createDriver on valid submit', () => {
     component.driverForm.setValue(validFormData);
@@ -121,9 +136,7 @@ fdescribe('RegisterDriversComponent - Full Validation Suite', () => {
     expect(driverServiceSpy.createDriver).not.toHaveBeenCalled();
   });
 
-  // =========================
-  // SUCCESS FLOW
-  // =========================
+  
 
   it('should show success toast after successful registration', () => {
     component.driverForm.setValue(validFormData);
@@ -141,9 +154,7 @@ fdescribe('RegisterDriversComponent - Full Validation Suite', () => {
     expect(component.profilePreview).toBeNull();
   });
 
-  // =========================
-  // UPLOAD PICTURE
-  // =========================
+  // picture upload
 
   it('should call uploadDriverPicture when file is selected', () => {
     component.driverForm.setValue(validFormData);
@@ -174,9 +185,7 @@ fdescribe('RegisterDriversComponent - Full Validation Suite', () => {
     expect(component.profilePreview).toBeNull();
   });
 
-  // =========================
-  // ERROR HANDLING
-  // =========================
+  // error handling
 
   it('should set email error when EMAIL_ALREADY_EXISTS returned', () => {
     component.driverForm.setValue(validFormData);
@@ -202,9 +211,6 @@ fdescribe('RegisterDriversComponent - Full Validation Suite', () => {
     expect(component.driverForm.get('regNumber')?.hasError('alreadyExists')).toBeTrue();
   });
 
-  // =========================
-  // VALUE CHANGES CLEAR ERROR
-  // =========================
 
   it('should clear email alreadyExists error on value change', () => {
     component.driverForm.get('email')?.setErrors({ alreadyExists: true });
