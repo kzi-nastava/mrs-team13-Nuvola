@@ -241,12 +241,12 @@ get hasActiveRide(): boolean {
     this.endRideService.endRide(username).subscribe({
       next: (resp) => {
         const rideId = resp.body;
-        this.loadRides();
-        this.cdr.detectChanges();
 
         if (rideId) {
           this.router.navigate(['/scheduled-ride-start', rideId]);
         }
+        this.loadRides();
+        this.cdr.detectChanges();
       },
       error: () => {
         this.errorMessage = 'Failed to end ride.';

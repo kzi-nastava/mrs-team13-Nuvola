@@ -22,6 +22,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -496,12 +497,12 @@ public class AdminController {
 
         // ========== LOKACIJE ==========
         //if (ride.getRoute() != null) {
-          //  if (ride.getRoute().getPickup() != null) {
-            //    dto.setStartLocation(ride.getRoute().getPickup().getAddress());
-            //}
-           // if (ride.getRoute().getDropoff() != null) {
-             //   dto.setDestination(ride.getRoute().getDropoff().getAddress());
-            //}
+        //  if (ride.getRoute().getPickup() != null) {
+        //    dto.setStartLocation(ride.getRoute().getPickup().getAddress());
+        //}
+        // if (ride.getRoute().getDropoff() != null) {
+        //   dto.setDestination(ride.getRoute().getDropoff().getAddress());
+        //}
         //}
 
 
@@ -546,9 +547,6 @@ public class AdminController {
                 dto.setRouteCoordinates(coordinates);
             }
         }
-
-
-
 
 
         // ========== VREMENSKE OZNAKE ==========
@@ -628,9 +626,12 @@ public class AdminController {
         dto.setCanReorderLater(isCompleted || isCanceled);
 
         return dto;
+    }
+
     // 2.13
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/drivers/info/{driverId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable Long driverId){
+    public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable Long driverId) {
         // find that ride
 //        RouteDTO route = new RouteDTO();
 //        route.appendStop(new CoordinateDTO(45.238796, 19.883819));

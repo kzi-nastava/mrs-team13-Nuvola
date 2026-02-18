@@ -46,6 +46,7 @@ public class RideControllerIntegrationEndRideTest {
     void setUp() {
         rideRepository.deleteAll();
         driverRepository.deleteAll();
+        registeredUserRepository.deleteAll();
 
         marko = new Driver();
         marko.setUsername("marko");

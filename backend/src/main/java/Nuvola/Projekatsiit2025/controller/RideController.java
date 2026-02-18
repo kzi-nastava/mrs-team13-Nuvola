@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -103,6 +104,7 @@ public class RideController {
     }
 
     //2.6.2
+    @PreAuthorize("hasRole('REGISTERED_USER')")
     @GetMapping(value = "/now/user/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable String username){
         // find that ride
@@ -117,6 +119,7 @@ public class RideController {
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(value ="/report", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createReport(@RequestBody CreateReportDTO createReportDTO) {
         rideService.createReport(createReportDTO);
@@ -132,6 +135,7 @@ public class RideController {
     }
 
     // 2.7
+    //@PreAuthorize("hasRole('DRIVER')")
     @PutMapping(value="/{username}/end", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> endRide(@PathVariable String username) {
         Long rideId = null;
@@ -143,9 +147,10 @@ public class RideController {
         if (rideId == null) {
             return ResponseEntity.noContent().build(); // 204
         }
-        return ResponseEntity.ok(rideId); // 201
+        return ResponseEntity.ok(rideId); // 200
     }
 
+    @PreAuthorize("hasRole('DRIVER')")
     @GetMapping(value = "/scheduled-ride/{rideId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ScheduledRideDTO> getScheduledRide(@PathVariable Long rideId) {
         ScheduledRideDTO ride = rideService.getScheduledRide(rideId);

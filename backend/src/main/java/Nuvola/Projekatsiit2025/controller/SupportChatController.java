@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class SupportChatController {
         return ResponseEntity.ok(messages);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/inbox")
     public ResponseEntity<Page<AdminInboxItemDTO>> inbox(Pageable pageable, @RequestParam Long adminId) {
         return ResponseEntity.ok(supportChatService.getInboxForAdmin(adminId, pageable));

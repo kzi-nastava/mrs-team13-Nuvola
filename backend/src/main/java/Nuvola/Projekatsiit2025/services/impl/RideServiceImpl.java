@@ -112,10 +112,10 @@ public class RideServiceImpl implements RideService {
         for (RegisteredUser ru : ride.getOtherPassengers()) {
             emailDetails.setRecipient(ru.getEmail());
 
-            emailDetails.setLink(baseLink + ru.getEmail());
+            emailDetails.setLink(baseLink + rideId);
             emailService.sendTrackingPage(emailDetails);
         }
-        emailDetails.setLink(baseLink + ride.getCreator().getId());
+        emailDetails.setLink(baseLink + rideId);
         emailDetails.setRecipient(ride.getCreator().getEmail());
         emailService.sendTrackingPage(emailDetails);
 
