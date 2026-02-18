@@ -35,7 +35,7 @@ import { ChangePriceComponent } from './pricing/change.price.component/change.pr
 
 export const routes: Routes = [
     {path: '', component: LoginComponent },
-    {path: 'users', component: UsersComponent },
+    {path: 'users', component: UsersComponent, canActivate: [AuthGuard], data: {role: ['ROLE_ADMIN']} },
     {path: 'ride-history/:username', component: DriverRideHistoryComponent },
     { path: 'account-settings', component: AccountComponent },
     {path: 'login', component: LoginComponent },
@@ -51,8 +51,7 @@ export const routes: Routes = [
     {path: 'homepage', component: HomepageComponent },
     {path: 'ride-tracking/:rideId', component: RideTrackingComponent },
     {path:'grading/:rideId', component: GradingComponent },
-    {path: 'driver-rides/:username', component: DriverRidesComponent, canActivate: [AuthGuard],
-    data: {role: ['ROLE_REGISTERED_USER', 'ROLE_DRIVER']} },
+    { path: 'driver-rides/:username', component: DriverRidesComponent, canActivate: [AuthGuard], data: {role: ['ROLE_DRIVER']} },
     {path: 'activate-account', component: ResetPasswordComponent},
     { path: 'change-password', component: ChangePasswordComponent },
     { path: 'driver-account', component: DriverAccountComponent },
@@ -67,5 +66,6 @@ export const routes: Routes = [
     { path: 'admin/support/inbox', component: AdminInboxComponent },
     { path: 'ride-reports', component: RideReportsComponent },
     { path: 'admin/drivers/info/:driverId', component: AdminDriverInfoComponent },
-    { path: 'change-prices', component: ChangePriceComponent}
+    { path: 'change-prices', component: ChangePriceComponent, canActivate: [AuthGuard], data: {role: ['ROLE_ADMIN']} },
+
 ];
