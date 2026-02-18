@@ -28,6 +28,7 @@ import { RideHistoryComponent } from './history.ride.registereduser.component/hi
 import { AdminChatPage } from './chat/admin.chat.page/admin.chat.page';
 import { UserChatPage } from './chat/user.chat.page/user.chat.page';
 import { AdminInboxComponent } from './chat/admin.inbox.component/admin.inbox.component';
+import { RideHistoryAdminComponent } from './admin-ride-history.component/admin-ride-history.component';
 
 
 export const routes: Routes = [
@@ -62,4 +63,5 @@ export const routes: Routes = [
     { path: 'admin/support/chat/:userId', component: AdminChatPage },
     { path: 'support/chat', component: UserChatPage },
     { path: 'admin/support/inbox', component: AdminInboxComponent },
+    { path: 'admin/rides/:userId', component: RideHistoryAdminComponent}
 ];

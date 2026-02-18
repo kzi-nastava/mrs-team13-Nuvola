@@ -1,0 +1,128 @@
+<div class="ride-history-container">
+  <h2>Istorija voznji</h2>
+
+  <!-- FILTERI -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label>Filtriraj po datumu:</label>
+      <input 
+        type="date" 
+        [(ngModel)]="filterDate" 
+        (change)="filterByDate()"
+        class="date-input"
+      />
+      <button (click)="clearFilter()" class="btn-secondary">Očisti filter</button>
+    </div>
+  </div>
+
+  <!-- GREŠKA -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <!-- TABELA SA VOZNJAMA -->
+  <div class="table-container">
+    <table class="rides-table" *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th (click)="changeSortBy('startLocation')" class="sortable">
+            Ruta
+            <span *ngIf="sortBy === 'startLocation'">
+              {{ sortDir === 'ASC' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="changeSortBy('startTime')" class="sortable">
+            Vrijeme početka
+            <span *ngIf="sortBy === 'startTime'">
+              {{ sortDir === 'ASC' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="changeSortBy('endTime')" class="sortable">
+            Vrijeme kraja
+            <span *ngIf="sortBy === 'endTime'">
+              {{ sortDir === 'ASC' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="changeSortBy('price')" class="sortable">
+            Cijena
+            <span *ngIf="sortBy === 'price'">
+              {{ sortDir === 'ASC' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th>Status</th>
+          <th>PANIC</th>
+          <th>Akcije</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ride of rides" [class.panic-ride]="ride.panic">
+          <td>
+            {{ ride.startLocation }} → {{ ride.destination }}
+          </td>
+          <td>{{ formatTime(ride.startTime) }}</td>
+          <td>{{ formatTime(ride.endTime) }}</td>
+          <td>{{ ride.price.toFixed(2) }} RSD</td>
+          <td>
+            <span [class.cancelled]="ride.rideStatus === 'CANCELLED'">
+              {{ getCancelStatus(ride) }}
+            </span>
+          </td>
+          <td>
+            <span *ngIf="isPanic(ride)" class="panic-badge">⚠️ PANIC</span>
+            <span *ngIf="!isPanic(ride)" class="safe-badge">✓</span>
+          </td>
+          <td>
+            <button 
+              (click)="openRideDetails(ride.id)" 
+              class="btn-details"
+            >
+              Detaljno
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- UČITAVANJE -->
+    <div *ngIf="isLoading" class="loading">
+      Učitavanje voznji...
+    </div>
+
+    <!-- PRAZNA LISTA -->
+    <div *ngIf="!isLoading && rides.length === 0" class="empty-state">
+      Nema voznji za prikaz.
+    </div>
+  </div>
+
+  <!-- PAGINACIJA -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button 
+      [disabled]="currentPage === 0" 
+      (click)="goToPage(currentPage - 1)"
+      class="btn-pagination"
+    >
+      Prethodna
+    </button>
+
+    <span class="page-info">
+      Stranica {{ currentPage + 1 }} od {{ totalPages }} 
+      (Ukupno: {{ totalElements }} voznji)
+    </span>
+
+    <button 
+      [disabled]="currentPage === totalPages - 1" 
+      (click)="goToPage(currentPage + 1)"
+      class="btn-pagination"
+    >
+      Sledeća
+    </button>
+  </div>
+
+  <!-- DETALJNI PRIKAZ MODAL -->
+  <div *ngIf="showDetailsModal" class="modal-overlay" (click)="closeDetailsModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="close-btn" (click)="closeDetailsModal()">✕</button>
+      <app-ride-details [ride]="selectedRide"></app-ride-details>
+    </div>
+  </div>
+</div>
