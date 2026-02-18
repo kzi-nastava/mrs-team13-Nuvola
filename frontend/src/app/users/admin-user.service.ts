@@ -17,9 +17,13 @@ export class AdminUserService {
   );
 }
 
-getDrivers(): Observable<UserModel[]> {
+getDrivers(search?: string): Observable<UserModel[]> {
+  const params: any = {};
+  if (search && search.trim()) params.search = search.trim();
+
   return this.http.get<UserModel[]>(
-    environment.apiHost + '/api/admin/users/drivers'
+    environment.apiHost + '/api/admin/users/drivers',
+    { params }
   );
 }
 

@@ -147,3 +147,52 @@
 .confirm:hover {
   background: #16204a;
 }
+
+
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.search-input:focus {
+  border-color: #0A1128;
+  box-shadow: 0 0 0 2px rgba(10,17,40,0.1);
+}
+
+.clear-btn {
+  border: none;
+  background: #e0e0e0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+.clear-btn:hover {
+  background: #d5d5d5;
+}
+
+.info-btn {
+  background: #0A1128;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-right: 10px;
+}
+
+.info-btn:hover {
+  background: #70839a;
+}

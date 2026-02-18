@@ -1,3 +1,15 @@
+<div class="search-wrap">
+  <input
+    class="search-input"
+    type="text"
+    placeholder="Search driver by name..."
+    [(ngModel)]="searchTerm"
+    (ngModelChange)="loadDrivers(searchTerm)"
+  />
+  <button class="clear-btn" type="button" *ngIf="searchTerm" (click)="searchTerm=''; loadDrivers()">
+    ✕
+  </button>
+</div>
 <div class="user-list">
   <div class="user-card" *ngFor="let user of users">
 
@@ -21,6 +33,11 @@
       <div class="phone">{{ user.phone }}</div>
 
     </div>
+
+    <button class="info-btn" (click)="openInfo(user)">
+      Info
+    </button>
+
 
     <button *ngIf="!user.blocked" class="block-btn" (click)="openBlockModal(user)">
       Block

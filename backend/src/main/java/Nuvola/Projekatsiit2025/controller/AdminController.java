@@ -162,9 +162,9 @@ public class AdminController {
 
 
     @GetMapping("users/drivers")
-    public ResponseEntity<List<AdminUserDTO>> getAllDrivers() {
+    public ResponseEntity<List<AdminUserDTO>> getAllDrivers(@RequestParam(required = false) String search) {
 
-        List<AdminUserDTO> drivers = driverRepository.findAll()
+        List<AdminUserDTO> drivers = driverRepository.searchDriversByFullName(search)
                 .stream()
                 .map(d -> new AdminUserDTO(
                         d.getId(),
