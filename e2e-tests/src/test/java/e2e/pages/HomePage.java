@@ -30,21 +30,7 @@ public class HomePage {
 
         wait.until(ExpectedConditions.elementToBeClickable(btn)).click();
         wait.until(ExpectedConditions.urlContains("/ride-history"));
-//        wait.until(ExpectedConditions.or(
-//                ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[normalize-space()='Loading...']")),
-//                ExpectedConditions.visibilityOfElementLocated(By.cssSelector("table")),
-//                ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div[style*='color:red']"))
-//        ));
-//
-//        try {
-//            new WebDriverWait(driver, Duration.ofSeconds(15))
-//                    .until(ExpectedConditions.invisibilityOfElementLocated(
-//                            By.xpath("//*[normalize-space()='Loading...']")
-//                    ));
-//        } catch (TimeoutException ignored) {
-//
-//            throw new LoadsTooLongException();
-//        }
+
     }
 
     public void clickOrderARide() {
