@@ -33,7 +33,7 @@
     <button *ngIf="authService.getRole() === 'ROLE_ADMIN'" class="nav-link" (click)="onUsers()">Users</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideReports()">Ride reports</button>
     <button *ngIf="authService.getRole() === 'ROLE_DRIVER'" class="nav-link" (click)="onMyRides()">My rides</button>
-    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideHistory()">Ride history</button>
+    <button *ngIf="authService.isLoggedIn()" class="nav-link ride-history" (click)="onRideHistory()">Ride history</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onAccount()">Account</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onLogout()">Log out</button>
     <button *ngIf="!authService.isLoggedIn()" class="nav-link" (click)="onLogin()">Log in</button>
@@ -72,7 +72,7 @@
     
   <button *ngIf="authService.getRole() === 'ROLE_DRIVER'" class="nav-link" (click)="onMyRides()">My rides</button>
 
-  <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideHistory()">
+  <button *ngIf="authService.isLoggedIn()" class="nav-link ride-history" (click)="onRideHistory()">
     Ride history
   </button>
 
