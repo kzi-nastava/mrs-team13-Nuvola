@@ -40,5 +40,7 @@ Uber like application
 2\. Install:
 
 &nbsp;  - npm install @auth0/angular-jwt
+&nbsp;  - npm install @stomp/stompjs sockjs-client
+&nbsp;  - npm install --save-dev @types/sockjs-client
 
 

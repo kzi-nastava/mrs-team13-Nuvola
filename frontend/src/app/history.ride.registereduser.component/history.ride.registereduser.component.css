@@ -1,0 +1,257 @@
+:host {
+  display: block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.history-container {
+  max-width: 1100px;
+  margin: 24px auto 60px;
+  padding: 22px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Card wrapper da se odvoji od pozadine */
+.history-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  backdrop-filter: blur(6px);
+  padding: 18px;
+}
+
+.header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.muted {
+  color: #666;
+  font-size: 13px;
+}
+
+/* FILTERS */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+  margin: 14px 0 16px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(17,17,17,0.04);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+label {
+  color: #333;
+  font-weight: 600;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.18);
+  background: #fff;
+  outline: none;
+  transition: 0.15s ease;
+}
+
+input:focus, select:focus {
+  border-color: rgba(0,0,0,0.55);
+  box-shadow: 0 0 0 4px rgba(0,0,0,0.08);
+}
+
+/* Apply button */
+.apply-btn {
+  height: 42px;
+  padding: 0 16px;
+  border: none;
+  background: #111;
+  color: #fff;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform 0.12s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.apply-btn:hover {
+  background: #222;
+  transform: translateY(-1px);
+}
+
+.apply-btn:active {
+  transform: translateY(0);
+}
+
+/* TABLE */
+.table-wrap {
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.ride-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  min-width: 860px; /* da se ne raspadne na desktopu */
+}
+
+.ride-table th {
+  position: sticky;
+  top: 0;
+  background: #111;
+  color: white;
+  padding: 14px 14px;
+  text-align: left;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  z-index: 1;
+}
+
+.ride-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.ride-table tr:hover {
+  background: #fafafa;
+}
+
+/* Status pills */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.8;
+}
+
+.status.finished {
+  background: #e9f7ef;
+  color: #1e7b3a;
+  border-color: rgba(30,123,58,0.20);
+}
+
+.status.in_progress {
+  background: #fff7e6;
+  color: #a66800;
+  border-color: rgba(166,104,0,0.20);
+}
+
+.status.scheduled {
+  background: #e8f4ff;
+  color: #0b5ea8;
+  border-color: rgba(11,94,168,0.20);
+}
+
+/* Loading + error */
+.loading, .error {
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+.error { color: #c1121f; }
+
+/* Pagination */
+.pagination {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pagination .pager {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.14);
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.pagination button:disabled {
+  background: #aaa;
+  border-color: #aaa;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .apply-btn {
+    grid-column: 1 / -1;
+  }
+  .ride-table {
+    min-width: 760px; /* i dalje scroll, ali manje */
+  }
+}
+.fav-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  line-height: 1;
+}
+
+.fav-btn:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.heart {
+  font-size: 18px;
+  color: #999;
+  transition: 0.2s;
+}
+
+.heart.active {
+  color: #e63946;
+  transform: scale(1.1);
+}

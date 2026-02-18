@@ -2,8 +2,12 @@ package Nuvola.Projekatsiit2025.controller;
 
 
 import Nuvola.Projekatsiit2025.dto.*;
+import Nuvola.Projekatsiit2025.model.Admin;
 import Nuvola.Projekatsiit2025.model.User;
+import Nuvola.Projekatsiit2025.model.enums.NotificationType;
+import Nuvola.Projekatsiit2025.repositories.AdminRepository;
 import Nuvola.Projekatsiit2025.repositories.UserRepository;
+import Nuvola.Projekatsiit2025.services.NotificationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,7 +38,13 @@ public class ProfileController {
     private final UserRepository userRepository;
 
     @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public ProfileController(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -62,6 +72,8 @@ public class ProfileController {
         dto.setPhone(user.getPhone());
         dto.setAddress(user.getAddress());
         dto.setPicture(user.getPicture());
+        dto.setBlocked(user.isBlocked());
+        dto.setBlockingReason(user.getBlockingReason());
 
         return ResponseEntity.ok(dto);
     }
@@ -159,6 +171,23 @@ public class ProfileController {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
                 .body(resource);
+    }
+
+    @PutMapping("/notification-test")
+    public ResponseEntity<Void> testSendingNotification() {
+        Admin admin = new Admin();
+        admin.setEmail("admin@test.com");
+        admin.setUsername("admin@test.com"); // kod tebe getUsername() vraća email, ali kolona username je NOT NULL
+        admin.setPassword(passwordEncoder.encode("admin123")); // obavezno encode
+        admin.setFirstName("Test");
+        admin.setLastName("Admin");
+        admin.setAddress("Test address");
+        admin.setPhone("060000000");
+        admin.setBlocked(false);
+        admin = adminRepository.saveAndFlush(admin);
+
+        notificationService.sendNotification(1L, "Test notification", "This is a test notification", NotificationType.RideReminder);
+        return ResponseEntity.ok().build();
     }
 
 }

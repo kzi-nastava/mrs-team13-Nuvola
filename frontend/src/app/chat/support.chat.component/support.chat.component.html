@@ -1,0 +1,37 @@
+<div class="chat-shell">
+  <div class="chat-header">
+    <div class="title">Support chat</div>
+    <div class="meta">Chat</div>
+  </div>
+
+  <div id="chat-scroll" class="chat-body">
+    <div *ngIf="loading" class="hint">Loading…</div>
+
+    <div *ngIf="!loading && messages.length === 0" class="hint">
+      No messages yet.
+    </div>
+
+    <div *ngFor="let m of messages" class="row" [class.mine]="isMine(m)">
+      <div class="bubble">
+        <div class="sender">{{ m.senderName }}</div>
+        <div class="content">{{ m.content }}</div>
+        <div class="time" *ngIf="m.sentAt">{{ m.sentAt }}</div>
+      </div>
+    </div>
+  </div>
+
+  <form class="chat-input" (ngSubmit)="send()">
+    <input
+      type="text"
+      [(ngModel)]="draft"
+      name="draft"
+      placeholder="Type a message…"
+      autocomplete="off"
+    />
+    <button type="submit">Send</button>
+  </form>
+
+  <div class="hint" *ngIf="!userId">
+    (Waiting for chatId. If this is a brand new user chat, it will be created after first message.)
+  </div>
+</div>

@@ -1,10 +1,20 @@
 <nav class="navbar">
 
-  <div *ngIf="authService.isLoggedIn()" class="notification-icon icon-btn show-desktop" (click)="onInboxClick()">
+  <div *ngIf="authService.isLoggedIn()" class="notification-icon icon-btn show-desktop" (click)="onMyNotifications()">
     <svg width="36" height="36" viewBox="0 0 36 36" fill="white" xmlns="http://www.w3.org/2000/svg">
         <path d="M33 18H24L21 22.5H15L12 18H3M33 18V27C33 27.7956 32.6839 28.5587 32.1213 29.1213C31.5587 29.6839 30.7956 30 30 30H6C5.20435 30 4.44129 29.6839 3.87868 29.1213C3.31607 28.5587 3 27.7956 3 27V18M33 18L27.825 7.665C27.5766 7.16518 27.1938 6.74456 26.7194 6.45042C26.2451 6.15628 25.6981 6.0003 25.14 6H10.86C10.3019 6.0003 9.7549 6.15628 9.28057 6.45042C8.80624 6.74456 8.42337 7.16518 8.175 7.665L3 18" stroke="#1E1E1E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    <span class="notification-badge"></span>
+    <span *ngIf="hasNotifications" class="notification-badge"></span>
+  </div>
+
+  <div *ngIf="authService.isLoggedIn()"
+     class="notification-icon icon-btn show-desktop"
+     (click)="onInboxClick()">
+
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"
+            stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
   </div>
 
   <button class="menu-btn show-mobile" (click)="toggleMenu()">
@@ -16,10 +26,14 @@
   </div>
 
   <div class="nav-items show-desktop">
-    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onGrade()">Grade</button>
-    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onUsers()">Users</button> <!--Only admin -->
-    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onMyRides()">My rides</button> <!-- only drivers-->
-    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideHistory()">Ride history</button>
+    <!-- <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onMyNotifications()">My notifications</button> -->
+    <button *ngIf="authService.getRole() === 'ROLE_ADMIN'" class="nav-link" (click)="onChangePrices()">Change Prices</button> 
+    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onTestNotify()">Test notify</button>
+    <!-- <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onGrade()">Grade</button> -->
+    <button *ngIf="authService.getRole() === 'ROLE_ADMIN'" class="nav-link" (click)="onUsers()">Users</button>
+    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideReports()">Ride reports</button>
+    <button *ngIf="authService.getRole() === 'ROLE_DRIVER'" class="nav-link" (click)="onMyRides()">My rides</button>
+    <button *ngIf="authService.isLoggedIn()" class="nav-link ride-history" (click)="onRideHistory()">Ride history</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onAccount()">Account</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onLogout()">Log out</button>
     <button *ngIf="!authService.isLoggedIn()" class="nav-link" (click)="onLogin()">Log in</button>
@@ -39,7 +53,7 @@
       <svg width="30" height="30" viewBox="0 0 36 36" fill="white" xmlns="http://www.w3.org/2000/svg">
           <path d="M33 18H24L21 22.5H15L12 18H3M33 18V27C33 27.7956 32.6839 28.5587 32.1213 29.1213C31.5587 29.6839 30.7956 30 30 30H6C5.20435 30 4.44129 29.6839 3.87868 29.1213C3.31607 28.5587 3 27.7956 3 27V18M33 18L27.825 7.665C27.5766 7.16518 27.1938 6.74456 26.7194 6.45042C26.2451 6.15628 25.6981 6.0003 25.14 6H10.86C10.3019 6.0003 9.7549 6.15628 9.28057 6.45042C8.80624 6.74456 8.42337 7.16518 8.175 7.665L3 18" stroke="#1E1E1E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <span class="notification-badge"></span>
+      <span *ngIf="hasNotifications" class="notification-badge"></span>
     </div>
     Inbox
   </button>
@@ -48,15 +62,17 @@
     Grade
   </button>
 
-  <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onUsers()">
-    Users
+  <button *ngIf="authService.getRole() === 'ROLE_ADMIN'" class="nav-link" (click)="onChangePrices()">Change Prices</button> 
+
+  <button *ngIf="authService.getRole() === 'ROLE_ADMIN'" class="nav-link" (click)="onUsers()">Users</button>
+
+  <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideReports()">
+    Ride reports
   </button>
     
-  <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onMyRides()">
-    My rides
-  </button>
+  <button *ngIf="authService.getRole() === 'ROLE_DRIVER'" class="nav-link" (click)="onMyRides()">My rides</button>
 
-  <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideHistory()">
+  <button *ngIf="authService.isLoggedIn()" class="nav-link ride-history" (click)="onRideHistory()">
     Ride history
   </button>
 

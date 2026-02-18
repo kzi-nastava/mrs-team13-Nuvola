@@ -3,11 +3,13 @@ package Nuvola.Projekatsiit2025.model;
 import Nuvola.Projekatsiit2025.dto.CreatedReviewDTO;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Rating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

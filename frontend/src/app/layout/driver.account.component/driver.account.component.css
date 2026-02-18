@@ -244,6 +244,55 @@ input:focus, select:focus {
 }
 
 
+.blocked-banner {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border: 2px solid #dc2626;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin: 20px 0;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+
+.blocked-icon {
+  display: none; 
+}
+
+.blocked-content {
+  width: 100%;
+}
+
+.blocked-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #dc2626;
+  margin-bottom: 6px;
+}
+
+.blocked-subtitle {
+  font-size: 14px;
+  color: #991b1b;
+  margin-bottom: 0;
+}
+
+.blocked-reason {
+  font-size: 13px;
+  color: #7f1d1d;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 10px 16px;
+  border-radius: 8px;
+  margin-top: 12px;
+  display: inline-block;
+  max-width: 600px;
+}
+
+.blocked-reason strong {
+  font-weight: 600;
+  color: #991b1b;
+}
+
+
+
 
 @keyframes slideDown {
   from {
@@ -303,6 +352,23 @@ input:focus, select:focus {
     width: calc(100% - 24px);
     max-width: 360px;
     text-align: center;
+  }
+
+   .blocked-banner {
+    padding: 16px 18px;
+  }
+  
+  .blocked-title {
+    font-size: 16px;
+  }
+  
+  .blocked-subtitle {
+    font-size: 13px;
+  }
+  
+  .blocked-reason {
+    font-size: 12px;
+    padding: 8px 12px;
   }
 }
 

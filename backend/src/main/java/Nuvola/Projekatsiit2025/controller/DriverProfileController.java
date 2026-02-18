@@ -66,6 +66,8 @@ public class DriverProfileController {
         dto.setPhone(driver.getPhone());
         dto.setAddress(driver.getAddress());
         dto.setPicture(driver.getPicture());
+        dto.setBlocked(driver.isBlocked());
+        dto.setBlockingReason(driver.getBlockingReason());
 
         // vehicle
         dto.setModel(driver.getVehicle().getModel());
@@ -78,7 +80,7 @@ public class DriverProfileController {
         return ResponseEntity.ok(dto);
     }
 
-    @PutMapping
+    @PutMapping("/request-change")
     public ResponseEntity<Void> requestProfileChange(
             @Valid @RequestBody DriverProfileUpdateDTO dto
     ) {

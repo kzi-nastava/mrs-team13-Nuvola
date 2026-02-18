@@ -1,0 +1,47 @@
+<div class="card">
+  <h2>Vehicle type pricing</h2>
+
+  <div class="msg error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="msg ok" *ngIf="successMessage">{{ successMessage }}</div>
+
+  <div *ngIf="loading" class="loading">Loading...</div>
+
+  <form [formGroup]="form" *ngIf="!loading">
+    <div class="table">
+      <div class="row head">
+        <div>Type</div>
+        <div>Price</div>
+        <div></div>
+      </div>
+
+      <div class="row" *ngFor="let r of rows.controls; let i = index" [formGroup]="r">
+        <div class="type">{{ r.controls.vehicleType.value }}</div>
+
+        <div>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            formControlName="basePrice"
+            class="input"
+          />
+          <div class="field-error" *ngIf="r.controls.basePrice.touched && r.controls.basePrice.invalid">
+            Price mora biti >= 0
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn" (click)="saveRow(i)" [disabled]="saving">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button type="button" class="btn primary" (click)="saveAll()" [disabled]="saving">
+        Save all
+      </button>
+    </div>
+  </form>
+</div>

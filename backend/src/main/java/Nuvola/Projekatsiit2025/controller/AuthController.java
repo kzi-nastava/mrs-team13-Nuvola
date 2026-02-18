@@ -9,6 +9,8 @@ import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
 import Nuvola.Projekatsiit2025.repositories.ActivationTokenRepository;
 import Nuvola.Projekatsiit2025.repositories.UserRepository;
 
+import Nuvola.Projekatsiit2025.services.DriverService;
+//import Nuvola.Projekatsiit2025.services.PasswordResetService;
 import Nuvola.Projekatsiit2025.services.PasswordResetService;
 import Nuvola.Projekatsiit2025.services.UserService;
 import Nuvola.Projekatsiit2025.util.TokenUtils;
@@ -19,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +31,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
 
     @Autowired
@@ -36,6 +39,9 @@ public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    //@Autowired
+    //private UserService userService;
 
     @Autowired
     private UserService userService;
@@ -49,6 +55,10 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+
+
+    @Autowired
+    private DriverService driverService;
 
     @Autowired
     private PasswordResetService passwordResetService;
@@ -68,19 +78,29 @@ public class AuthController {
         String jwt = tokenUtils.generateToken(user);
         int expiresIn = tokenUtils.getExpiredIn();
 
+        if (user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_DRIVER"))) {
+            driverService.loginDriver(user.getId());
+        }
+
         return ResponseEntity.ok(new UserTokenState(jwt, expiresIn));
     }
 
     // 2.2.1 Logout
     // driver can't logout if he has active ride
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(
-            @RequestParam(defaultValue = "false") boolean hasActiveRide
-    ) {
-        if (hasActiveRide) {
-            return new ResponseEntity<>("Driver cannot logout while having an active ride.", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Void> logout() {
+        // TODO: cant logout if he has active ride (driver)
+        // get id
+        String username = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+        User user = userRepository.findByUsername(username);
+        if (user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_DRIVER"))) {
+            driverService.logoutDriver(user.getId());
         }
-        return new ResponseEntity<>("Logout successful.", HttpStatus.OK);
+        return ResponseEntity.ok().build();
+
     }
 
     // 2.2.1 Forgot password (email sent)
@@ -90,16 +110,44 @@ public class AuthController {
         if (dto == null || dto.getEmail() == null || dto.getEmail().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "EMAIL_REQUIRED");
         }
+
         passwordResetService.requestReset(dto.getEmail().trim());
 
-        // uvek isto, zbog security
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
                 .body("Ako email postoji u sistemu, poslat je link za reset lozinke.");
     }
 
 
+
     // 2.2.1 Reset password (tocken from mail)
+//    @PostMapping(value = "/reset-password", produces = MediaType.TEXT_PLAIN_VALUE)
+//    public ResponseEntity<String> resetPassword(@RequestParam String token,
+//                                                @RequestBody ResetPasswordRequestDTO dto) {
+//
+//        if (dto == null) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "BODY_REQUIRED");
+//        }
+//
+//        passwordResetService.resetPassword(
+//                token,
+//                dto.getNewPassword(),
+//                dto.getConfirmNewPassword()
+//
+//        );
+//
+//        return ResponseEntity.ok("Password has been reset successfully.");
+//    }
+
+
+    // 2.2.1 Reset password (tocken from mail)
+    //@PostMapping("/reset-password/{token}")
+    //public ResponseEntity<String> resetPassword(@PathVariable String token,
+      //                                          @RequestBody ResetPasswordRequestDTO dto) {
+        //return new ResponseEntity<>("Password has been reset (stub).", HttpStatus.OK);
+    //}
+
+
     @PostMapping(value = "/reset-password", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> resetPassword(@RequestParam String token,
                                                 @RequestBody ResetPasswordRequestDTO dto) {
@@ -112,14 +160,16 @@ public class AuthController {
                 token,
                 dto.getNewPassword(),
                 dto.getConfirmNewPassword()
-
         );
 
         return ResponseEntity.ok("Password has been reset successfully.");
     }
 
-
-
+    @PostMapping("/reset-password/{token}")
+    public ResponseEntity<String> driverSetPassword(@PathVariable String token,
+                                                @RequestBody ResetPasswordRequestDTO dto) {
+        return new ResponseEntity<>("Password has been reset (stub).", HttpStatus.OK);
+    }
 
     // 2.2.1 Driver change status active/inactive while user is on his profile
     // if he change into INACTIVE while he has a ride, he is gonna be INACTIVE after that ride
@@ -174,12 +224,12 @@ public class AuthController {
 
         User user = activationToken.getUser();
 
-        // ✅ aktiviraj nalog
+
         if (user instanceof RegisteredUser ru) {
             ru.setActivated(true);
             userRepository.save(ru);
         } else {
-            // ako ikad dođe neki drugi tip
+
             userRepository.save(user);
         }
 
@@ -224,6 +274,45 @@ public class AuthController {
 
         return ResponseEntity.ok().build();
     }
+
+
+    @GetMapping(value = "/reset-password/open", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> openResetPassword(@RequestParam String token) {
+
+        // deep link (app)
+        String appLink = "nuvola://reset-password?token=" + token;
+
+        // web fallback (frontend)
+        String webLink = "http://localhost:4200/reset-password?token=" + token;
+
+        String html = "<!doctype html><html><head>" +
+                "<meta charset='utf-8'/>" +
+                "<meta name='viewport' content='width=device-width,initial-scale=1'/>" +
+                "<title>Reset</title>" +
+                "</head><body style='font-family:Arial,sans-serif;padding:24px;'>" +
+                "<h2>Otvaram Nuvola aplikaciju...</h2>" +
+                "<p>Ako se aplikacija ne otvori automatski, bićeš preusmeren na web.</p>" +
+
+                "<script>" +
+                "var app = " + jsString(appLink) + ";" +
+                "var web = " + jsString(webLink) + ";" +
+                "var t = setTimeout(function(){ window.location.href = web; }, 900);" +
+                "window.location.href = app;" +
+                "setTimeout(function(){ clearTimeout(t); }, 1200);" +
+                "</script>" +
+
+                "<p><a href='" + appLink + "'>Otvori u aplikaciji</a></p>" +
+                "<p><a href='" + webLink + "'>Otvori web link</a></p>" +
+                "</body></html>";
+
+        return ResponseEntity.ok(html);
+    }
+
+    private String jsString(String s) {
+        return "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'";
+    }
+
+
 }
 
 

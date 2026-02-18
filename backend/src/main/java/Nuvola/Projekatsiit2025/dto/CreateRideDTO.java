@@ -27,6 +27,8 @@ public class CreateRideDTO {
 
     private LocalDateTime scheduledTime;
 
+    private double distanceKm;
+
     public CoordinateDTO getFrom() {
         return from;
     }
@@ -90,4 +92,8 @@ public class CreateRideDTO {
     public void setScheduledTime(LocalDateTime scheduledTime) {
         this.scheduledTime = scheduledTime;
     }
+
+    public double getDistanceKm() { return distanceKm; }
+
+    public void setDistanceKm(double distanceKm) { this.distanceKm = distanceKm; }
 }

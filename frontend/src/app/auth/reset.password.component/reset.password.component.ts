@@ -1,14 +1,21 @@
+import { AuthService } from "../../auth/services/auth.service";
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AuthService } from '../services/auth.service';
 
-function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
+function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const newPass = group.get('newPassword')?.value;
   const confirm = group.get('confirmNewPassword')?.value;
   if (!newPass || !confirm) return null;
-  return newPass === confirm ? null : { passwordMismatch: true };
+  return newPass === confirm ? null : { passwordsMismatch: true };
 }
 
 @Component({
@@ -19,84 +26,52 @@ function passwordMatchValidator(group: AbstractControl): ValidationErrors | null
   styleUrl: './reset.password.component.css',
 })
 export class ResetPasswordComponent {
-  hideNewPassword = true;
-  hideConfirmPassword = true;
-
-  loading = false;
-  sent = false;
-  error = '';
-  message = '';
-
-  token = '';
+  token: string | null = null;
+  hide1 = true;
+  hide2 = true;
+  done = false;
 
   form = new FormGroup(
     {
-      newPassword: new FormControl('', [Validators.required, Validators.minLength(8)]),
+      newPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
       confirmNewPassword: new FormControl('', [Validators.required]),
     },
-    { validators: passwordMatchValidator }
+    { validators: passwordsMatchValidator }
   );
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService
-  ) {
-    this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
-    if (!this.token) {
-      this.error = 'Token nedostaje u linku.';
-    }
+  constructor(private route: ActivatedRoute, private router: Router, private authService: AuthService) {
+    this.token = this.route.snapshot.queryParamMap.get('token') ?? this.route.snapshot.paramMap.get('token');
   }
 
-  get newPassword() {
-    return this.form.controls.newPassword;
+  get mismatch(): boolean {
+    return !!this.form.errors?.['passwordsMismatch'];
   }
 
-  get confirmNewPassword() {
-    return this.form.controls.confirmNewPassword;
-  }
-
-  toggleNewPassword() {
-    this.hideNewPassword = !this.hideNewPassword;
-  }
-
-  toggleConfirmPassword() {
-    this.hideConfirmPassword = !this.hideConfirmPassword;
-  }
-
-  submit() {
-    this.sent = false;
-    this.error = '';
-    this.message = '';
-
-    if (!this.token) {
-      this.error = 'Token nedostaje u linku.';
-      return;
-    }
-
-    if (this.form.invalid) {
+  submit(): void {
+    if (this.form.invalid || !this.token) {
       this.form.markAllAsTouched();
       return;
     }
 
-    this.loading = true;
+    const newPassword = this.form.value.newPassword!;
+    const confirmNewPassword = this.form.value.confirmNewPassword!;
 
-    // backend: POST /api/auth/reset-password?token=...  body: { newPassword, confirmNewPassword }
-    this.authService
-      .resetPassword(this.token, this.newPassword.value!, this.confirmNewPassword.value!)
-      .subscribe({
-        next: (res) => {
-          this.sent = true;
-          this.message = res; // backend vraća text
-          this.loading = false;
-
-          // opcionalno: prebaci na login posle 1.5s
-          setTimeout(() => this.router.navigate(['/login']), 1500);
-        },
-        error: (err) => {
-          this.error = err?.error || 'Greška pri resetovanju lozinke.';
-          this.loading = false;
-        },
-      });
+    this.authService.resetPassword(this.token, newPassword, confirmNewPassword).subscribe({
+      next: () => {
+        this.done = true;
+        setTimeout(() => this.router.navigate(['/login']), 1000);
+      },
+      error: (err: any) => {
+        alert(err?.error || 'Reset link is invalid or expired.');
+      },
+    });
   }
+  get newPassword(): FormControl {
+  return this.form.get('newPassword') as FormControl;
+}
+
+get confirmNewPassword(): FormControl {
+  return this.form.get('confirmNewPassword') as FormControl;
+}
+
 }

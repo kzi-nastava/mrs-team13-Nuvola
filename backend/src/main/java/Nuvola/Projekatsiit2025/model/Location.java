@@ -1,30 +1,29 @@
 package Nuvola.Projekatsiit2025.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @Embeddable
 public class Location {
-    //private String title;
     private Double latitude;
     private Double longitude;
+    @Column(insertable=false, updatable=false)
+    private String address;
 
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(Double latitude) {
+    public Location(Double latitude, Double longitude, String address) {
         this.latitude = latitude;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(Double longitude) {
         this.longitude = longitude;
+        this.address = address;
+    }
+
+    public Location(Double latitude, Double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.address = "";
     }
 
     @Override

@@ -23,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -46,16 +47,15 @@ public class WebSecurityConfig {
 //    public UserDetailsService userDetailsService() {
 //        return new UserServiceImpl();
 //    }
-
     @Autowired
     private UserService userService;
 
     // Implementacija PasswordEncoder-a koriscenjem BCrypt hashing funkcije.
     // BCrypt po defalt-u radi 10 rundi hesiranja prosledjene vrednosti.
-//    @Bean
-//    public BCryptPasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
+    //@Bean
+    //public BCryptPasswordEncoder passwordEncoder() {
+      //  return new BCryptPasswordEncoder();
+    //}
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -87,29 +87,47 @@ public class WebSecurityConfig {
         http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(restAuthenticationEntryPoint));
         http.authorizeHttpRequests(request -> {
             request.requestMatchers("/api/auth/login").permitAll()
+                    .requestMatchers("/ws/**").permitAll()
                     .requestMatchers("/api/auth/register").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/auth/activate-email").permitAll()
-                    .requestMatchers("/api/foo").permitAll()
-                    .requestMatchers("/api/drivers/active-vehicles").permitAll()
-                    .requestMatchers("/api/drivers/*/rides").permitAll()
-                    .requestMatchers("/api/rides/now/**").permitAll()
-                    .requestMatchers("/api/drivers/active-vehicles").permitAll()
-                    .requestMatchers("/api/rides/**").permitAll()
-                    .requestMatchers("/api/reviews").permitAll()
-                    .requestMatchers("/api/reviews/*").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/drivers").permitAll() //ovo sam dodala
-                    .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll() // i ovo
-                    .requestMatchers(HttpMethod.GET, "/api/profile").permitAll() // i ovo
-                    .requestMatchers(HttpMethod.PUT, "/api/profile").permitAll() // i ovo
-                    .requestMatchers(HttpMethod.GET, "/api/profile/picture/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/drivers/*/picture").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/forgot-password").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/reset-password").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/auth/reset-password/**").permitAll()
+                    .requestMatchers("/api/foo").permitAll()
+                    .requestMatchers("/api/drivers/active-vehicles").permitAll()
+                    .requestMatchers("/api/rides/now/**").permitAll()
+                    .requestMatchers("/api/drivers/active-vehicles").permitAll()
+                    .requestMatchers("/api/drivers/*/rides").permitAll()
+                    .requestMatchers("api/reviews").permitAll()
+                    .requestMatchers("api/reviews/*").permitAll()
+                    .requestMatchers("/api/support/**").permitAll()
+                    .requestMatchers("/api/admin/drivers/info/*").permitAll()
+                    .requestMatchers("/api/pricing/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/drivers").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/drivers/*/picture").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/profile").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/profile").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/profile/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/profile/picture").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/profile/picture/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/auth/reset-password/open").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/admin/users/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/admin/users/*/block").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/admin/users/*/unblock").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/rides").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/drivers/{username}/assigned-rides").hasRole("DRIVER")
+                    .requestMatchers(HttpMethod.PUT, "/api/driver/profile/request-change").hasRole("DRIVER")
+                    .requestMatchers(HttpMethod.GET, "/api/admin/profile-change-requests").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/admin/profile-change-requests/*/approve").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/admin/profile-change-requests/*/reject").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/rides/active-ride").permitAll()
+                    .requestMatchers(HttpMethod.PUT, "/api/rides/*/start").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/favorites").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/reports/my").hasAnyRole("REGISTERED_USER", "DRIVER")
+                    .requestMatchers(HttpMethod.GET, "/api/reports/admin").hasRole("ADMIN")
                     //Da nam lepsu poruku vrati
                     .requestMatchers("/error").permitAll()
                     //.requestMatchers(new AntPathRequestMatcher("/api/whoami")).hasRole("USER")
-                    .requestMatchers("/api/rides/estimate").permitAll()
                     .anyRequest().authenticated();
         });
         http.addFilterBefore(new TokenAuthenticationFilter(tokenUtils, userService), UsernamePasswordAuthenticationFilter.class);
@@ -137,6 +155,7 @@ public class WebSecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("POST", "PUT", "GET", "OPTIONS", "DELETE", "PATCH")); // or simply "*"
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

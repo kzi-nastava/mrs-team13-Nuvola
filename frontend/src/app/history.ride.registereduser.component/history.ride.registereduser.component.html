@@ -1,0 +1,96 @@
+<div style="display:flex; gap:12px; align-items:end; flex-wrap:wrap;">
+  <div>
+    <label>From</label><br/>
+    <input type="date" [(ngModel)]="fromDate">
+  </div>
+
+  <div>
+    <label>To</label><br/>
+    <input type="date" [(ngModel)]="toDate">
+  </div>
+
+  <div>
+    <label>Sort by</label><br/>
+    <select [(ngModel)]="sortBy" (change)="applyFilters()">
+      <option value="startTime">Start time</option>
+      <option value="endTime">End time</option>
+      <option value="creationTime">Creation time</option>
+      <option value="price">Price</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Order</label><br/>
+    <select [(ngModel)]="sortOrder" (change)="applyFilters()">
+      <option value="desc">desc</option>
+      <option value="asc">asc</option>
+    </select>
+  </div>
+
+  <button (click)="applyFilters()">Apply</button>
+</div>
+
+<hr/>
+
+<div *ngIf="loading">Loading...</div>
+<div *ngIf="error" style="color:red">{{ error }}</div>
+
+<table *ngIf="pageData && !loading" border="1" cellpadding="8" cellspacing="0" style="width:100%">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Pickup</th>
+      <th>Dropoff</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Price</th>
+      <th>Status</th>
+      <th>Fav</th>
+      <th>Details</th>
+      <th>Grade</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let r of pageData.content">
+      <td>{{ r.id }}</td>
+      <td>{{ r.pickup }}</td>
+      <td>{{ r.dropoff }}</td>
+      <td>{{ r.startTime }}</td>
+      <td>{{ r.endTime }}</td>
+      <td>{{ r.price }}</td>
+      <td>{{ r.status }}</td>
+      <td style="text-align:center;">
+        <button class="fav-btn"
+                type="button"
+                (click)="toggleFav(r)"
+                [attr.aria-label]="r.favorite ? 'Unfavorite' : 'Favorite'">
+          <span class="heart" [class.active]="r.favorite">♥</span>
+        </button>
+      </td>
+      <td>
+          <button class="details-btn" (click)="openDetails(r.id)">Details</button>
+      </td>
+      <td>
+        <button class="grade-btn"
+                type="button"
+                (click)="openGrade(r.id)"
+                [disabled]="isGradingDisabled(r)">
+          Grade
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="pageData" style="display:flex; gap:8px; align-items:center; margin-top:12px;">
+  <button (click)="prevPage()" [disabled]="page===0">Prev</button>
+  <span>Page {{ page + 1 }} / {{ pageData.totalPages }}</span>
+  <button (click)="nextPage()" [disabled]="pageData.last">Next</button>
+</div>
+
+<app-ride-history-details
+  *ngIf="selectedRideId"
+  [rideId]="selectedRideId"
+  (closed)="closeDetails()">
+</app-ride-history-details>

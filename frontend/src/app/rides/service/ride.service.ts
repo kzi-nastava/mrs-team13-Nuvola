@@ -155,6 +155,7 @@ interface RideDTO {
   startingTime: string;
   driver: string;
   isFavouriteRoute: boolean;
+  isPanic: boolean;
 }
 
 interface PageResponse {
@@ -176,7 +177,7 @@ export class RideService {
 
   constructor(private http: HttpClient) {}
 
-  loadDriverRides(username: string, sortBy: string = 'startingTime', sortOrder: string = 'desc'): Observable<RideModel[]> {
+  loadDriverRides(username: string, sortBy: string = 'startTime', sortOrder: string = 'desc'): Observable<RideModel[]> {
     const params = new HttpParams()
       .set('sortBy', sortBy)
       .set('sortOrder', sortOrder);
@@ -199,7 +200,8 @@ export class RideService {
       statingTime: new Date(dto.startingTime),
       driver: dto.driver,
       isFavouriteRoute: dto.isFavouriteRoute,
-      status: 'ASSIGNED'
+      status: 'ASSIGNED',
+      isPanic: dto.isPanic || false
     };
   }
 

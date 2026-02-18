@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RideOrderService, VehicleType } from '../services/ride-order.service';
 import { GeocodingService } from '../services/geocoding.service';
 import { LocationModel } from '../models/location.model';
+import { PricingService } from '../../pricing/services/pricing.service';
+import { VehicleTypePricingDTO } from '../../pricing/model/pricing.model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -29,12 +31,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private currentVehicleType: VehicleType = 'standard';
 
+  private pricingMap: Record<string, number> = {};
+
   private clickStep: 0 | 1 | 2 = 0;
 
   constructor(
     private rideOrder: RideOrderService,
     private geocoding: GeocodingService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private pricingService: PricingService
   ) {}
 
   ngOnDestroy(): void {
@@ -48,10 +53,28 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     (window as any).L = leaflet;
     await import('leaflet-routing-machine');
     this.L = (window as any).L;
+    await this.loadPrices();
 
     this.initMap();
     this.listenToLocations();
     this.enableClickToPick();
+  }
+
+  private loadPrices(): Promise<void> {
+    return new Promise((resolve) => {
+      this.pricingService.getAllVehicleTypePrices().subscribe({
+        next: (prices) => {
+          for (const p of prices) {
+            this.pricingMap[p.vehicleType.toLowerCase()] = Number(p.basePrice);
+          }
+          resolve();
+        },
+        error: () => {
+          console.warn('Failed to load pricing, defaulting to 0 base prices.');
+          resolve();
+        }
+      });
+    });
   }
 
   private initMap() {
@@ -93,12 +116,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       })
     );
 
-
     this.subs.add(
       this.rideOrder.vehicleType$.subscribe((t) => {
         this.currentVehicleType = t;
         if (this.distanceKm != null) {
           this.priceRsd = this.calculatePrice(this.distanceKm, t);
+          this.etaText = `Estimated time: ${this.durationMin} min · Distance: ${this.distanceKm} km · Price: ${this.priceRsd} RSD`;
           this.cdr.detectChanges();
         }
       })
@@ -143,8 +166,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-    private updateStopMarkers(stops: LocationModel[]) {
-
+  private updateStopMarkers(stops: LocationModel[]) {
     this.stopMarkers.forEach(m => this.map.removeLayer(m));
     this.stopMarkers = [];
 
@@ -159,17 +181,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-
   private calculatePrice(distanceKm: number, type: VehicleType): number {
-    const basePriceMap: Record<VehicleType, number> = {
-      standard: 250,
-      luxury: 450,
-      van: 350,
-    };
-
-    const base = basePriceMap[type];
+    const base = this.pricingMap[type] ?? 0;
     const perKm = 120;
-
     return Math.round(base + distanceKm * perKm);
   }
 
@@ -193,8 +207,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.distanceKm = null;
       this.durationMin = null;
       this.priceRsd = null;
+      this.rideOrder.setDistanceKm(null);
       this.updateStopMarkers([]);
-      
       this.cdr.detectChanges();
       return;
     }
@@ -233,6 +247,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.durationMin = minutes;
       this.distanceKm = km;
       this.priceRsd = this.calculatePrice(km, this.currentVehicleType);
+
+      this.rideOrder.setDistanceKm(km);
 
       this.etaText = `Estimated time: ${minutes} min · Distance: ${km} km · Price: ${this.priceRsd} RSD`;
       this.cdr.detectChanges();

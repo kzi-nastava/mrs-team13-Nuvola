@@ -3,6 +3,7 @@ package Nuvola.Projekatsiit2025.controller;
 import Nuvola.Projekatsiit2025.dto.*;
 import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.Location;
+import Nuvola.Projekatsiit2025.model.Ride;
 import Nuvola.Projekatsiit2025.services.DriverService;
 import Nuvola.Projekatsiit2025.repositories.DriverRepository;
 import Nuvola.Projekatsiit2025.services.RideService;
@@ -37,9 +38,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class DriverController {
     @Autowired
     private RideService rideService;
-
-    @Autowired
-    private VehicleTrackingService vehicleTrackingService;
 
     @Autowired
     private DriverService driverService;
@@ -89,33 +87,51 @@ public class DriverController {
     @GetMapping(value = "/{username}/rides", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<DriverRideHistoryItemDTO>> getDriverRideHistory(
             @PathVariable String username,
-            @RequestParam(required = false, defaultValue = "startingTime") String sortBy,
+            @RequestParam(required = false, defaultValue = "startTime") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String sortOrder,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
 
-        // TEMPORARY: Mock data for testing when database is empty
-        List<DriverRideHistoryItemDTO> mockRides = createMockRides();
+//        // TEMPORARY: Mock data for testing when database is empty
+//        List<DriverRideHistoryItemDTO> mockRides = createMockRides();
+//
+//        // Sort mock data
+//        if (sortOrder.equalsIgnoreCase("desc")) {
+//            mockRides.sort((a, b) -> b.getStartingTime().compareTo(a.getStartingTime()));
+//        } else {
+//            mockRides.sort((a, b) -> a.getStartingTime().compareTo(b.getStartingTime()));
+//        }
+//
+//        // Create page from mock data
+//        int pageNumber = (page != null) ? page : 0;
+//        int pageSize = (size != null) ? size : mockRides.size();
+//
+//        Page<DriverRideHistoryItemDTO> mockPage = new PageImpl<>(
+//                mockRides,
+//                PageRequest.of(pageNumber, pageSize),
+//                mockRides.size()
+//        );
 
-        // Sort mock data
-        if (sortOrder.equalsIgnoreCase("desc")) {
-            mockRides.sort((a, b) -> b.getStartingTime().compareTo(a.getStartingTime()));
-        } else {
-            mockRides.sort((a, b) -> a.getStartingTime().compareTo(b.getStartingTime()));
-        }
+        Page<DriverRideHistoryItemDTO> rides = rideService.getDriverRideHistory(username, sortBy, sortOrder, page, size);
 
-        // Create page from mock data
-        int pageNumber = (page != null) ? page : 0;
-        int pageSize = (size != null) ? size : mockRides.size();
+        return ResponseEntity.ok(rides);
 
-        Page<DriverRideHistoryItemDTO> mockPage = new PageImpl<>(
-                mockRides,
-                PageRequest.of(pageNumber, pageSize),
-                mockRides.size()
-        );
+    }
 
-        return ResponseEntity.ok(mockPage);
+    @GetMapping("/{username}/assigned-rides")
+    public ResponseEntity<List<DriverAssignedRideDTO>> getAssignedRides(
+            @PathVariable String username) {
 
+        List<Ride> rides = rideService.getAssignedRidesForDriver(username);
+
+        List<DriverAssignedRideDTO> dtos =
+                rides.stream()
+                        .map(DriverAssignedRideDTO::new)
+                        .toList();
+
+        System.out.println("USERNAME FROM URL: " + username);
+
+        return ResponseEntity.ok(dtos);
     }
 
     private List<DriverRideHistoryItemDTO> createMockRides() {
@@ -197,41 +213,37 @@ public class DriverController {
     }
 
     // 2.1.1
-    @GetMapping(value="/active-vehicles", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ActiveVehicleDTO>> getActiveVehicles() {
-        List<ActiveVehicleDTO> response = new ArrayList<>();
-        ActiveVehicleDTO activeVehicleDTO = new ActiveVehicleDTO(45.2671, 19.8335, true, 1L);
-        response.add(activeVehicleDTO);
-        ActiveVehicleDTO activeVehicleDTO2 = new ActiveVehicleDTO(44.7866, 20.4489, false, 2L);
-        response.add(activeVehicleDTO2);
+//    @GetMapping(value="/active-vehicles", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<List<ActiveVehicleDTO>> getActiveVehicles() {
+//        List<ActiveVehicleDTO> response = new ArrayList<>();
+//        ActiveVehicleDTO activeVehicleDTO = new ActiveVehicleDTO(45.2671, 19.8335, true, 1L);
+//        response.add(activeVehicleDTO);
+//        ActiveVehicleDTO activeVehicleDTO2 = new ActiveVehicleDTO(44.7866, 20.4489, false, 2L);
+//        response.add(activeVehicleDTO2);
+//
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 
-    // public ResponseEntity<List<VehicleLocationDTO>> getActiveVehicles() {
-    //     List<VehicleLocationDTO> vehicles = vehicleTrackingService.getAllActiveVehicleLocations();
-    //     return ResponseEntity.ok(vehicles);
-    // }
-
-    @PreAuthorize("hasRole('DRIVER')")
-    @PutMapping("/{vehicleId}/location")
-    public ResponseEntity<Void> updateLocation(
-            @PathVariable Long vehicleId,
-            @RequestBody LocationUpdateRequestDTO request) {
-
-        try {
-            vehicleTrackingService.updateVehicleLocation(
-                    new VehiclePositionDTO(
-                            vehicleId,
-                            request.getLatitude(),
-                            request.getLongitude()
-                    )
-            );
-        }  catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok().build();
-    }
+//    @PreAuthorize("hasRole('DRIVER')")
+//    @PutMapping("/{vehicleId}/location")
+//    public ResponseEntity<Void> updateLocation(
+//            @PathVariable Long vehicleId,
+//            @RequestBody LocationUpdateRequestDTO request) {
+//
+//        try {
+//            vehicleTrackingService.updateVehicleLocation(
+//                    new VehiclePositionDTO(
+//                            vehicleId,
+//                            request.getLatitude(),
+//                            request.getLongitude()
+//                    )
+//            );
+//        }  catch (Exception e) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//
+//        return ResponseEntity.ok().build();
+//    }
 
 }

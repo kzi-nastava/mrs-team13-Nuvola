@@ -12,13 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.transaction.annotation.Transactional;
-
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Transactional
 @Service
 public class PasswordResetServiceImpl implements PasswordResetService {
 
@@ -27,8 +24,11 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    @Value("${app.frontend.reset-password-url:http://localhost:4200/reset-password}")
-    private String resetPasswordUrl;
+    @Value("${app.reset.base-url:http://localhost:8080/api/auth/reset-password/open?token=}")
+    private String resetBaseUrl;
+
+    @Value("${app.reset.token-minutes:30}")
+    private long tokenMinutes;
 
     public PasswordResetServiceImpl(
             UserRepository userRepository,
@@ -41,55 +41,66 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
     }
-    @Transactional
+
     @Override
     public void requestReset(String email) {
-        // Security: uvek vraćaj "OK" čak i ako email ne postoji (da ne otkrivaš korisnike)
-        userRepository.findByEmailIgnoreCase(email).ifPresent(user -> {
+        if (email == null || email.isBlank()) return;
 
-            // obriši stare tokene za tog user-a (da ne ostanu aktivni)
-            tokenRepository.deleteByUserId(user.getId());
+        var maybeUser = userRepository.findByEmailIgnoreCase(email.trim());
 
-            String token = UUID.randomUUID().toString();
+        if (maybeUser.isEmpty()) {
+            // security: ne otkrivamo da ne postoji
+            return;
+        }
 
-            PasswordResetToken prt = new PasswordResetToken();
-            prt.setToken(token);
-            prt.setUser(user);
-            prt.setExpiresAt(LocalDateTime.now().plusMinutes(30));
-            prt.setUsed(false);
+        User user = maybeUser.get();
 
-            tokenRepository.save(prt);
+        // samo 1 aktivan token
+        tokenRepository.deleteAllByUser(user);
 
-            // Link koji ide na FRONT (front čita token i šalje ga backend-u)
-            String link = resetPasswordUrl + "?token=" + token;
+        String token = UUID.randomUUID().toString();
 
-            String body =
-                    "Zahtev za reset lozinke.\n\n" +
-                            "Klikni na link da postaviš novu lozinku:\n" + link + "\n\n" +
-                            "Link važi 30 minuta. Ako nisi ti tražio reset, ignoriši ovu poruku.";
+        PasswordResetToken prt = PasswordResetToken.builder()
+                .token(token)
+                .user(user)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(tokenMinutes))
+                .used(false)
+                .build();
 
-            emailService.sendSimpleMail(new EmailDetails(user.getEmail(), body, "Reset lozinke"));
-        });
+        tokenRepository.save(prt);
+
+        String link = resetBaseUrl + token; // ide na /reset-password/open?token=...
+        EmailDetails details = new EmailDetails();
+        details.setRecipient(user.getEmail());
+        details.setSubject("Reset lozinke - Nuvola");
+
+        details.setMsgBody("http://localhost:4200/reset-password?token=" + token);
+
+        emailService.sendPasswordReset(details);
+
     }
 
     @Override
-    public void resetPassword(String token, String newPassword, String confirmPassword) {
-        if (newPassword == null || newPassword.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NEW_PASSWORD_REQUIRED");
+    public void resetPassword(String token, String newPassword, String confirmNewPassword) {
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TOKEN_REQUIRED");
         }
-        if (!newPassword.equals(confirmPassword)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PASSWORDS_DO_NOT_MATCH");
+        if (newPassword == null || confirmNewPassword == null ||
+                newPassword.isBlank() || confirmNewPassword.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PASSWORD_REQUIRED");
         }
-
-        // (opciono) minimalna pravila
-        if (newPassword.length() < 8) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PASSWORD_TOO_SHORT");
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "PASSWORD_MISMATCH");
         }
 
         PasswordResetToken prt = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_TOKEN"));
 
-        if (prt.isUsed() || prt.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (prt.isUsed()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TOKEN_USED");
+        }
+        if (prt.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TOKEN_EXPIRED");
         }
 

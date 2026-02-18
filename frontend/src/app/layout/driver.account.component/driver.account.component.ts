@@ -21,6 +21,9 @@ export class DriverAccountComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  isBlocked = false;
+  blockingReason: string | null = null;
+
   // REGEX 
   private namePattern = /^[A-ZŠĐČĆŽ][a-zšđčćž]+(?:[ -][A-ZŠĐČĆŽ][a-zšđčćž]+)*$/;
   private addressPattern = /^[A-ZŠĐČĆŽ][A-Za-zŠĐČĆŽšđčćž0-9\s,.\-\/]{2,}$/;
@@ -64,10 +67,23 @@ export class DriverAccountComponent implements OnInit {
   private loadProfile() {
     this.driverService.getDriverProfile().subscribe({
       next: (profile) => {
+        console.log('=== PROFILE RESPONSE ===', profile);
+        console.log('isBlocked:', profile.blocked);
+        console.log('blockingReason:', profile.blockingReason);
         this.driverForm.patchValue(profile);
         this.profilePreview = this.getImageUrl(profile.picture);
+
+        this.isBlocked = profile.blocked || false;
+        this.blockingReason = profile.blockingReason || null;
+
+
+        console.log('=== COMPONENT STATE ===');
+        console.log('this.isBlocked:', this.isBlocked);
+        console.log('this.blockingReason:', this.blockingReason);
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error loading profile:', err);
         this.errorMessage = 'Failed to load profile.';
       }
     });

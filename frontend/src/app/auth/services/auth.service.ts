@@ -6,6 +6,9 @@ import {JwtHelperService} from '@auth0/angular-jwt';
 import { AuthResponse } from '../model/auth.response';
 import { LoginModel } from '../model/login.model';
 import { RegisterModel } from '../model/register.model';
+import { DriverLocationPublisherService } from '../../services/driver.location.publisher.service';
+import { NotificationSocketService } from '../../notifications/services/notification.socket.service';
+import { SupportChatWsService } from '../../chat/services/support.chat.ws.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +23,10 @@ export class AuthService {
   user$ = new BehaviorSubject("");
   userState = this.user$.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, 
+              private driverLocationPublisher: DriverLocationPublisherService, 
+              private notifSocket: NotificationSocketService,
+              private chatWs: SupportChatWsService) {
     this.user$.next(this.getRole());
   }
 
@@ -59,11 +65,30 @@ export class AuthService {
     return null;
   }
 
+  getUserId(): number | null {
+    if (!this.isLoggedIn()) return null;
+
+    const token = localStorage.getItem('user');
+    if (!token) return null;
+
+    const helper = new JwtHelperService();
+    const decoded: any = helper.decodeToken(token);
+
+    const id = decoded.userId;
+    if (id === undefined || id === null) return null;
+
+    // in case it's a string, try to convert to number, if it's not a valid number return null
+    const num = Number(id);
+    return Number.isFinite(num) ? num : null;
+  }
+
   logout(): void {
     localStorage.removeItem('user');
     this.user$.next(this.getRole());
+    this.driverLocationPublisher.stop();
+    this.notifSocket.disconnect();
+    this.chatWs.disconnect();
   }
-
 
   setUser(): void {
     this.user$.next(this.getRole());
@@ -78,13 +103,23 @@ export class AuthService {
       }
     );
   }
+    private authApi = 'http://localhost:8080/api/auth';
+    activateAccount(token: string, password: string): Observable<any> {
+      return this.http.post(
+        `${this.authApi}/activate`,
+        null,
+        {
+          params: { token, password }
+        }
+      );
+    }
 
   activateEmail(token: string): Observable<string> {
     return this.http.get(
       environment.apiHost + '/api/auth/activate-email',
       {
         params: { token },
-        responseType: 'text' // backend vraća plain text
+        responseType: 'text'
       }
     );
   }
@@ -99,7 +134,6 @@ export class AuthService {
   );
 }
 uploadProfilePicture(formData: FormData) {
-    // bolje ovako:
     return this.http.post(
       environment.apiHost + '/api/profile/picture',
       formData
@@ -116,10 +150,33 @@ uploadProfilePicture(formData: FormData) {
 
 resetPassword(token: string, newPassword: string, confirmNewPassword: string): Observable<string> {
   return this.http.post(
+    environment.apiHost + '/api/auth/reset-password',
+    { newPassword, confirmNewPassword },
+    { headers: this.headers, params: { token }, responseType: 'text' }
+  );
+}
+
+driverSetPassword(token: string, newPassword: string, confirmNewPassword: string): Observable<string> {
+  return this.http.post(
     `http://localhost:8080/api/auth/reset-password?token=${encodeURIComponent(token)}`,
     { newPassword, confirmNewPassword },
     { headers: this.headers, responseType: 'text' }
   );
 }
 
+// logout() {
+//     this.driverLocationPublisher.stop();
+//           return this.http.post(environment.apiHost + '/api/auth/logout', {}).subscribe({
+//       next: () => {
+//         localStorage.removeItem('user');  
+//         this.user$.next(this.getRole());
+//         this.driverLocationPublisher.stop();
+//         this.notifSocket.disconnect();
+//         this.chatWs.disconnect();
+//       },
+//       error: (error) => {
+//         console.error('Logout error:', error);
+//       }
+//     });
+// }
 }

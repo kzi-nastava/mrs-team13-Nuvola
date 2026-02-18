@@ -2,6 +2,17 @@
   <div class="card">
     <h2 class="title">Your Account</h2>
 
+    <div class="blocked-banner" *ngIf="isBlocked">
+      <div class="blocked-icon">⚠️</div>
+      <div class="blocked-content">
+        <div class="blocked-title">You are blocked</div>
+        <div class="blocked-subtitle">You won't be able to accept any rides.</div>
+        <div class="blocked-reason" *ngIf="blockingReason">
+          <strong>Reason:</strong> {{ blockingReason }}
+        </div>
+      </div>
+    </div>
+
     <form [formGroup]="driverForm" class="form-grid">
 
       <!-- LEFT -->

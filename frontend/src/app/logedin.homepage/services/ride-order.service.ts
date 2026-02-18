@@ -22,6 +22,10 @@ export class RideOrderService {
 
   vehicleType$ = this.vehicleTypeSubject.asObservable();
 
+  private distanceKmSubject = new BehaviorSubject<number | null>(null);
+  distanceKm$ = this.distanceKmSubject.asObservable();
+
+
   getFrom() {
     return this.fromSubject.value;
   }
@@ -80,6 +84,14 @@ export class RideOrderService {
     this.vehicleTypeSubject.next(type);
   }
 
+  getDistanceKm(): number | null {
+  return this.distanceKmSubject.value;
+}
+
+setDistanceKm(km: number | null) {
+  this.distanceKmSubject.next(km);
+}
+
   clearStops() {
     this.stopsSubject.next([]);
   }
@@ -91,5 +103,6 @@ export class RideOrderService {
     this.stopsSubject.next([]);
     this.passengersSubject.next([]);
     this.vehicleTypeSubject.next('standard');
+    this.distanceKmSubject.next(null); 
   }
 }

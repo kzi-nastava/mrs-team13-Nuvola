@@ -1,14 +1,22 @@
-import { Component, ChangeDetectorRef, OnDestroy} from '@angular/core';
+import { Component, ChangeDetectorRef,OnInit, OnDestroy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MapComponent } from '../map.component/map.component';
 import { PanelComponent } from '../panel.component/panel.component';
 import { LocationModel } from '../models/location.model';
+import { FavoriteApiService } from '../services/favorite-api.service';
 
 type FavoriteRoute = {
   id: number;
   from: LocationModel;
   to: LocationModel;
   stops: LocationModel[];
+};
+
+type FavoriteRouteDTO = {
+  id: number;
+  startLocation: string; // "lat, lng" format
+  destination: string;
+  stops: string[];
 };
 
 @Component({
@@ -19,58 +27,72 @@ type FavoriteRoute = {
   styleUrls: ['./logedin.page.component.css'],
 })
 
-export class LogedinPageComponent implements OnDestroy {
+export class LogedinPageComponent implements OnInit, OnDestroy {
   panelOpen = false;
 
-  toastMessage = '';
-  private toastTimer: any;
-
-  constructor(private cdr: ChangeDetectorRef) {}
+  // toastMessage = '';
+  // private toastTimer: any;
 
 
   favoritesOpen = false;
-
   selectedFavoriteRoute: FavoriteRoute | null = null;
+  favoriteRoutes: FavoriteRoute[] = [];
+  favoritesLoading = false;
+  favoritesError = false;
 
-  favoriteRoutes: FavoriteRoute[] = [
-  {
-    id: 1,
-    from: { address: 'Bulevar Oslobođenja 30', lat: 45.257, lng: 19.845 },
-    to: { address: 'Železnička 40', lat: 45.267, lng: 19.833 },
-    stops: [{ address: 'Kisačka 12', lat: 45.271, lng: 19.833 }],
-  },
-  {
-    id: 2,
-    from: { address: 'Narodnog fronta 10', lat: 45.244, lng: 19.842 },
-    to: { address: 'Bulevar Mihajla Pupina 1', lat: 45.2555, lng: 19.8445 },
-    stops: [],
-  },
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private favoriteApi: FavoriteApiService
+  ) {}
 
-  {
-    id: 3,
-    from: { address: 'Cara Dušana 5', lat: 45.252, lng: 19.836 },
-    to: { address: 'Bulevar patrijarha Pavla 12', lat: 45.264, lng: 19.804 },
-    stops: [],
-  },
+  ngOnInit(): void {
+    this.loadFavorites();
+  }
 
-  {
-    id: 4,
-    from: { address: 'Jevrejska 18', lat: 45.255, lng: 19.843 },
-    to: { address: 'Futoška 109', lat: 45.259, lng: 19.816 },
-    stops: [{ address: 'Bulevar cara Lazara 79', lat: 45.2456, lng: 19.8401 }],
+loadFavorites(): void {
+  this.favoritesError = false;
+  console.log('=== loadFavorites() called');
 
-  },
+  this.favoriteApi.getFavorites().subscribe({
+    next: (data: any[]) => {
+      console.log('=== Favorites data received:', data);
+      console.log('=== Count:', data.length);
+      this.favoriteRoutes = data.map(r => this.mapToFavoriteRoute(r));
+      console.log('=== Mapped routes:', this.favoriteRoutes);
+    },
+    error: (err) => {
+      console.error('=== Favorites failed:', err);
+      this.favoritesError = true;
+      this.favoriteRoutes = [];
+    }
+  });
+}
 
-  {
-    id: 5,
-    from: { address: 'Bulevar cara Lazara 92', lat: 45.239, lng: 19.845 },
-    to: { address: 'Temerinska 101', lat: 45.287, lng: 19.845 },
-    stops: [
-      { address: 'Bulevar Evrope 25', lat: 45.266, lng: 19.801 },
-      { address: 'Rumenacka 35', lat: 45.269, lng: 19.790 },
-    ],
-  },
-];
+  private mapToFavoriteRoute(r: any): FavoriteRoute {
+    return {
+      id: r.id,
+      from: this.parseLocation(r.startLocation),
+      to: this.parseLocation(r.destination),
+      stops: (r.stops ?? []).map((s: string) => this.parseLocation(s)),
+    };
+  }
+
+   private parseLocation(value: string): LocationModel {
+    if (!value) return { address: '', lat: 0, lng: 0 };
+
+    // Pokušaj da parsiraš "lat, lng" format
+    const parts = value.split(',').map(p => p.trim());
+    if (parts.length === 2 && !isNaN(Number(parts[0])) && !isNaN(Number(parts[1]))) {
+      return {
+        address: value, // koristimo koordinate kao adresu dok backend ne vrati pravu adresu
+        lat: Number(parts[0]),
+        lng: Number(parts[1]),
+      };
+    }
+
+    // Ako je već adresa (string koji nije koordinate)
+    return { address: value, lat: 0, lng: 0 };
+  }
 
 
   togglePanel() {
@@ -81,19 +103,20 @@ export class LogedinPageComponent implements OnDestroy {
     }, 300);
   }
 
-  showToast(msg: string) {
-  this.toastMessage = msg;
-  this.cdr.detectChanges();
+//   showToast(msg: string) {
+//   this.toastMessage = msg;
+//   this.cdr.detectChanges();
 
-  if (this.toastTimer) clearTimeout(this.toastTimer);
+//   if (this.toastTimer) clearTimeout(this.toastTimer);
 
-  this.toastTimer = setTimeout(() => {
-    this.toastMessage = '';
-    this.cdr.detectChanges(); 
-  }, 2000);
-}
+//   this.toastTimer = setTimeout(() => {
+//     this.toastMessage = '';
+//     this.cdr.detectChanges(); 
+//   }, 2000);
+// }
 
   openFavoritesPopup() {
+    this.loadFavorites();
     this.favoritesOpen = true;
   }
 
@@ -108,18 +131,11 @@ export class LogedinPageComponent implements OnDestroy {
 };
     this.favoritesOpen = false;
 
-    this.showToast('Route loaded from favorites.');
+    //this.showToast('Route loaded from favorites.');
   }
 
-  removeFromFavorites(routeId: number) {
-    this.favoriteRoutes = this.favoriteRoutes.filter(r => r.id !== routeId);
-
-    if (this.selectedFavoriteRoute?.id === routeId) {
-      this.selectedFavoriteRoute = null;
-    }
-  }
   ngOnDestroy(): void {
-  if (this.toastTimer) clearTimeout(this.toastTimer);
+  //if (this.toastTimer) clearTimeout(this.toastTimer);
 }
 
 }

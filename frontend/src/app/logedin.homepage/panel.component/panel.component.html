@@ -1,4 +1,26 @@
 <div class="panel-card">
+
+  <div class="blocked-overlay" *ngIf="isBlocked">
+    <div class="blocked-message">
+      <div class="blocked-icon">🚫</div>
+      <h3>ACCOUNT BLOCKED</h3>
+      <p class="blocked-main">You cannot order rides at this time.</p>
+      <div class="blocked-reason" *ngIf="blockingReason">
+        <strong>Reason:</strong> {{ blockingReason }}
+      </div>
+    </div>
+  </div>
+
+    <div class="blocked-overlay active-ride-overlay" *ngIf="!isBlocked && hasActiveRide">
+    <div class="blocked-message">
+      <div class="blocked-icon">🚗</div>
+      <h3>ACTIVE RIDE IN PROGRESS</h3>
+      <p class="blocked-main">You cannot order a new ride while you have an active ride.</p>
+      <p class="hint-text">Please wait for your current ride to finish.</p>
+    </div>
+  </div>
+
+
   <div class="panel-header">
     <h3>Pick a ride</h3>
 
@@ -7,7 +29,7 @@
     </button>
   </div>
 
-  <form [formGroup]="form">
+<form [formGroup]="form" [class.disabled]="isBlocked">
     <!-- From -->
     <div class="field">
       <label>From *</label>
@@ -85,23 +107,27 @@
       Calculate route
     </button>
 
-    <!-- Passengers -->
     <div class="field" style="margin-top: 14px;">
-      <label>Passengers</label>
-      <input
-        type="text"
-        formControlName="passengerInput"
-        placeholder="Add passenger email"
-        (keydown.enter)="addPassengerFromInput(); $event.preventDefault()"
-      />
+  <label>Passengers</label>
+  <div class="input-row">
+    <input
+      type="text"
+      formControlName="passengerInput"
+      placeholder="Add passenger email"
+      (keydown.enter)="addPassengerFromInput(); $event.preventDefault()"
+    />
+    <button type="button" class="btn-add" (click)="addPassengerFromInput()">
+      Add
+    </button>
+  </div>
 
-      <div class="chips" *ngIf="passengers.length > 0">
-        <div class="chip" *ngFor="let p of passengers; let i = index">
-          {{ p }}
-          <span class="x" (click)="removePassenger(i)">✕</span>
-        </div>
-      </div>
+  <div class="chips" *ngIf="passengers.length > 0">
+    <div class="chip" *ngFor="let p of passengers; let i = index">
+      {{ p }}
+      <span class="x" (click)="removePassenger(i)">✕</span>
     </div>
+  </div>
+</div>
 
     <!-- Options -->
     <div class="field">

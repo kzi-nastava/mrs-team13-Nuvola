@@ -20,11 +20,16 @@
         </div>
 
         <div class="ride-actions">
-          <button class="btn danger" (click)="panic(ar)">
-            PANIC
-          </button>
+          <button
+            class="btn danger"
+            [class.disabled]="ar.panic"
+            [disabled]="ar.panic"
+            (click)="panic(ar)"
+          >
+          {{ ar.panic ? 'PANIC active' : 'PANIC' }}
+        </button>
 
-          <button class="btn gray" (click)="stopRide(ar)">
+          <button class="btn gray" (click)="openStopModal(ar)">
             Stop
           </button>
 
@@ -66,9 +71,9 @@
   <div class="section">
     <h2 class="section-title">Upcoming rides</h2>
 
-    <div class="empty" *ngIf="upcomingRides.length === 0">
+    <div class="empty" *ngIf="!upcomingRides || upcomingRides.length === 0">
       No upcoming rides at the moment.
-    </div>
+    </div> 
 
     <div class="ride-list" *ngIf="upcomingRides.length > 0">
       <div class="ride-card" *ngFor="let r of upcomingRides">
@@ -95,7 +100,7 @@
               class="btn gray"
               [class.disabled]="r.allPassengersJoined"
               [disabled]="r.allPassengersJoined"
-              (click)="cancelRide(r)"
+              (click)="openCancelModal(r)"
             >
               Cancel
             </button>
@@ -138,4 +143,54 @@
       </div>
     </div>
   </div>
-</div>
+  <div class="modal-backdrop" *ngIf="showCancelModal">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="modal-title">Cancel ride</div>
+        <button class="x-btn" type="button" (click)="closeCancelModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-subtitle" *ngIf="cancelRideTarget as cr">
+          {{ cr.from.address }} → {{ cr.to.address }}
+        </div>
+
+        <form [formGroup]="cancelForm" (ngSubmit)="confirmCancel()">
+          <label class="modal-label">Reason for cancellation</label>
+          <textarea
+            class="modal-textarea"
+            rows="4"
+            formControlName="reason"
+            placeholder="Write a short reason (min 5 characters)..."
+          ></textarea>
+
+          <div class="modal-error" *ngIf="reason.touched && reason.invalid">
+            <span *ngIf="reason.errors?.['required']">Reason is required.</span>
+            <span *ngIf="reason.errors?.['minlength']">Minimum 5 characters.</span>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn gray" (click)="closeCancelModal()">
+              Back
+            </button>
+
+            <button type="submit" class="btn danger">
+              Confirm cancel
+            </button>
+          </div>
+          </form>
+        </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- STOP MODAL (keep OUTSIDE other modals) -->
+<app-stop-ride
+  *ngIf="showStopModal && stopRideTarget as sr"
+  [rideId]="sr.id"
+  [currentPrice]="sr.price"
+  (close)="closeStopModal()"
+  (confirm)="onStopConfirmed($event)"
+></app-stop-ride>
+
+

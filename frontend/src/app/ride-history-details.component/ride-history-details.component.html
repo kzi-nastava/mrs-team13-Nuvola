@@ -1,0 +1,106 @@
+<div class="overlay" (click)="close()"></div>
+
+<div class="modal" (click)="$event.stopPropagation()">
+  <div class="header">
+    <h3>Ride details #{{ details?.id }}</h3>
+    <button class="x" (click)="close()">×</button>
+  </div>
+
+  <div *ngIf="loading">Loading...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="details && !loading" class="grid">
+    <!-- MAPA -->
+    <div class="card map-card">
+      <h4>Route</h4>
+      <div #mapEl class="map"></div>
+      <div class="route-info">
+        <div><b>Pickup:</b> {{ details.pickup }}</div>
+        <div><b>Dropoff:</b> {{ details.dropoff }}</div>
+      </div>
+    </div>
+
+    <!-- DRIVER -->
+    <!-- DRIVER -->
+<div class="card">
+  <h4>Driver</h4>
+  <div *ngIf="details.driver; else noDriver">
+    <div><b>Name:</b> {{ details.driver.firstName }} {{ details.driver.lastName }}</div>
+    <div><b>Phone:</b> {{ details.driver.phone }}</div>
+    <div><b>Email:</b> {{ details.driver.email }}</div>
+    <div><b>Vehicle:</b> {{ details.driver.vehicleType }}</div>
+    <div><b>Status:</b> {{ details.driver.status }}</div>
+  </div>
+  <ng-template #noDriver>
+    <div style="color: #999; font-size: 13px;">Driver info not available.</div>
+  </ng-template>
+</div>
+
+
+    <!-- REPORTS -->
+    <div class="card">
+      <h4>Inconsistency reports</h4>
+      <div *ngIf="details.reports?.length; else noReports">
+        <div class="list-item" *ngFor="let rep of details.reports">
+          <div><b>Reason:</b> {{ rep.reason }}</div>
+          <div class="muted">{{ rep.createdAt || '' }}</div>
+        </div>
+      </div>
+      <ng-template #noReports><span class="muted">No reports.</span></ng-template>
+    </div>
+
+    <!-- RATINGS -->
+    <div class="card">
+      <h4>Ratings</h4>
+      <div *ngIf="details.ratings?.length; else noRatings">
+        <div class="list-item" *ngFor="let rat of details.ratings">
+          <div><b>Score:</b> {{ rat.score }}</div>
+          <div>{{ rat.comment || '' }}</div>
+        </div>
+      </div>
+      <ng-template #noRatings><span class="muted">No ratings.</span></ng-template>
+    </div>
+
+    <!-- REORDER -->
+    <div class="card">
+      <h4>Reorder this route</h4>
+
+      <div class="row">
+        <label><input type="radio" [(ngModel)]="scheduleMode" value="now"> Order now</label>
+        <label><input type="radio" [(ngModel)]="scheduleMode" value="later"> Order later</label>
+      </div>
+
+      <div *ngIf="scheduleMode==='later'" class="row">
+        <input type="datetime-local" [(ngModel)]="scheduledTime">
+      </div>
+
+      <button class="primary" (click)="reorder()">Reorder</button>
+    </div>
+  </div>
+</div>
+<!-- Success Message -->
+<div *ngIf="reorderSuccess" class="success-message">
+  <div class="success-content">
+    <span class="success-icon">✓</span>
+    <p>Voznja je uspešno naručena!</p>
+    <small>Detalji će biti dostupni u mojim voznjama.</small>
+  </div>
+</div>
+
+<!-- Error Message -->
+<div *ngIf="error" class="error-message">
+  <p>{{ error }}</p>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="reorderLoading" class="loading-message">
+  <p>Obrada narudžbine...</p>
+</div>
+
+<!-- Reorder Button -->
+<button 
+  (click)="reorder()" 
+  [disabled]="reorderLoading || reorderSuccess"
+  class="reorder-btn">
+  {{ reorderLoading ? 'Obrada...' : reorderSuccess ? 'Uspešno naručeno' : 'Ponovi voznju' }}
+</button>

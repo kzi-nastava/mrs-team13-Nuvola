@@ -1,0 +1,170 @@
+.overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000;
+}
+.modal{
+  position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:min(1100px, 92vw); max-height:90vh; overflow:auto;
+  background:#fff; border-radius:14px; z-index:1001;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+  padding:16px;
+}
+.header{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.x{ border:none; background:transparent; font-size:26px; cursor:pointer; }
+.grid{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap:12px;
+}
+.card{
+  border:1px solid #eee; border-radius:12px; padding:12px;
+}
+
+
+.route-info{ margin-top:8px; font-size:14px; }
+.list-item{ padding:8px 0; border-bottom:1px solid #f0f0f0; }
+.list-item:last-child{ border-bottom:none; }
+.muted{ color:#777; font-size:12px; }
+.row{ display:flex; gap:12px; align-items:center; margin:10px 0; flex-wrap:wrap; }
+.primary{
+  padding:10px 14px; border:none; border-radius:10px;
+  background:#111; color:#fff; cursor:pointer;
+}
+.error{ color:#c00; margin:10px 0; }
+.map-card {
+  grid-column: 1 / -1; /* Mapa zauzima čitav red */
+}
+
+
+.map {
+  height: 320px;
+  min-height: 320px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f0f0f0;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Leaflet popup stil */
+.leaflet-popup-content {
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.leaflet-popup-content strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+.success-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  animation: slideIn 0.3s ease-out;
+  z-index: 1000;
+  max-width: 350px;
+
+  .success-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .success-icon {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    small {
+      display: block;
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+  }
+}
+
+.error-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  animation: slideIn 0.3s ease-out;
+  z-index: 1000;
+  max-width: 350px;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.loading-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  animation: slideIn 0.3s ease-out;
+  z-index: 1000;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.reorder-btn {
+  padding: 12px 24px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

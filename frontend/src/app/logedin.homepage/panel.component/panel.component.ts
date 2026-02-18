@@ -7,6 +7,9 @@ import { RideOrderService, VehicleType } from '../services/ride-order.service';
 import { GeocodingService } from '../services/geocoding.service';
 import { LocationModel } from '../models/location.model';
 import { RideApiService } from '../../rides/service/ride-api.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../env/enviroment';
 
 @Component({
   selector: 'app-panel',
@@ -26,6 +29,10 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
   toastMessage: string = '';
   private toastTimeout: any = null;
 
+  isBlocked = false;
+  blockingReason: string | null = null;
+  hasActiveRide = false;
+
   scheduledOptions: { value: string; label: string }[] = [];
 
   @Output() rideOrdered = new EventEmitter<string>();
@@ -40,7 +47,9 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
     private fb: FormBuilder,
     private geocoding: GeocodingService,
     private rideOrder: RideOrderService,
-    private rideApi: RideApiService
+    private rideApi: RideApiService,
+    private authService: AuthService,     
+    private http: HttpClient               
   ) {
     this.form = this.fb.group({
       from: ['', Validators.required],
@@ -133,7 +142,66 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
     this.subs.add(syncTo);
 
     this.rideOrder.setVehicleType('standard');
+    this.checkIfBlocked();
+
   }
+
+private checkIfBlocked() {
+  const role = this.authService.getRole();
+  console.log('=== CHECK IF BLOCKED ===');
+  console.log('User role:', role);
+
+  if (role !== 'ROLE_REGISTERED_USER') {
+    console.log('Not a registered user, skipping block check');
+    return;
+  }
+
+  console.log('Fetching profile from:', environment.apiHost + '/api/profile');
+  
+  this.http.get<any>(environment.apiHost + '/api/profile')
+    .subscribe({
+      next: (profile) => {
+        console.log('=== PROFILE RESPONSE ===', profile);
+        console.log('profile.blocked:', profile.blocked);
+        console.log('profile.blockingReason:', profile.blockingReason);
+        
+        if (profile.blocked) {
+          this.isBlocked = true;
+          this.blockingReason = profile.blockingReason || null;
+          this.form.disable();
+          console.log(' User is BLOCKED - form disabled');
+        } else {
+          console.log(' User is NOT blocked');
+          this.checkActiveRide();
+        }
+      },
+      error: (err) => {
+        console.error(' Failed to fetch profile:', err);
+        console.error('Error status:', err.status);
+        console.error('Error message:', err.message);
+      }
+    });
+}
+
+private checkActiveRide() {
+  this.http.get<any>(environment.apiHost + '/api/rides/active-ride')
+    .subscribe({
+      next: (response) => {
+        console.log('=== ACTIVE RIDE CHECK ===', response);
+        
+        if (response.hasActiveRide) {
+          this.hasActiveRide = true;
+          this.form.disable();
+          console.log('User has ACTIVE RIDE - form disabled');
+        } else {
+          console.log('User has NO active ride');
+        }
+      },
+      error: (err) => {
+        console.error('Failed to check active ride:', err);
+      }
+    });
+}
 
   ngOnDestroy(): void {
     this.subs.unsubscribe();
@@ -277,12 +345,15 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
 
   addPassengerFromInput() {
     const email = this.form.value.passengerInput?.trim();
+     console.log('=== ADD PASSENGER ===');
+      console.log('email from input:', email);
     if (!email) return;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return;
 
     this.rideOrder.addPassenger(email);
+    console.log('passengers after add:', this.rideOrder.getPassengers());
     this.form.patchValue({ passengerInput: '' }, { emitEvent: false });
   }
 
@@ -315,43 +386,45 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
     this.openFavorites.emit();
   }
 
-  // orderRide() {
-  //   this.form.get('from')?.markAsTouched();
-  //   this.form.get('to')?.markAsTouched();
-
-  //   const fromValue = this.form.get('from')?.value?.trim();
-  //   const toValue = this.form.get('to')?.value?.trim();
-
-  //   if (!fromValue || !toValue) {
-  //     return; 
-  //   }
-
-  //   this.rideOrdered.emit(
-  //     "Ride request submitted. You'll receive a notification with ride details once a driver is assigned."
-  //   );
-  // }
-
   orderRide() {
+
+  if (this.isBlocked) {
+      this.rideOrdered.emit(
+      this.blockingReason
+        ? `Your account is blocked. Reason: ${this.blockingReason}`
+        : 'Your account is blocked.'
+    );
+    return;
+  }
+  if (this.hasActiveRide) {
+    this.rideOrdered.emit('You cannot order a new ride while you have an active ride.');
+    return;
+  }
+
   this.form.get('from')?.markAsTouched();
   this.form.get('to')?.markAsTouched();
 
   const from = this.rideOrder.getFrom();
   const to = this.rideOrder.getTo();
+  const distanceKm = this.rideOrder.getDistanceKm() ?? 0;
 
   if (!from || !to) return;
 
   const payload = {
     from: {
       latitude: from.lat,
-      longitude: from.lng
+      longitude: from.lng,
+      address: from.address
     },
     to: {
       latitude: to.lat,
-      longitude: to.lng
+      longitude: to.lng,
+      address: to.address
     },
     stops: this.rideOrder.getStops().map(s => ({
       latitude: s.lat,
-      longitude: s.lng
+      longitude: s.lng,
+      address: s.address
     })),
     passengerEmails: this.passengers,
     vehicleType: this.form.value.vehicleType.toUpperCase(),
@@ -360,8 +433,15 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
     scheduledTime:
       this.form.value.rideTimeMode === 'scheduled'
         ? this.form.value.scheduledTime
-        : null
+        : null,
+    distanceKm: distanceKm
   };
+
+  console.log('=== ORDER RIDE DEBUG ===');
+  console.log('this.passengers (local array):', this.passengers);
+  console.log('rideOrder.getPassengers():', this.rideOrder.getPassengers());
+  console.log('payload.passengerEmails:', payload.passengerEmails);
+  console.log('Full payload:', JSON.stringify(payload, null, 2));
 
   this.rideApi.createRide(payload).subscribe({
     next: (res) => {
@@ -369,9 +449,44 @@ export class PanelComponent implements OnInit, OnDestroy, OnChanges  {
       console.log('Ride created:', res);
     },
     error: (err) => {
-      console.error(err);
-      this.rideOrdered.emit('No available drivers at the moment.');
+
+  if (err.status === 403) {
+
+    const backendMessage = err.error?.message;
+
+    if (backendMessage && backendMessage.startsWith('ACCOUNT_BLOCKED')) {
+
+      const reason = backendMessage.replace('ACCOUNT_BLOCKED:', '').trim();
+
+      this.isBlocked = true;
+      this.blockingReason = reason || null;
+
+      this.form.disable();
+
+      this.rideOrdered.emit(
+        reason
+          ? `Your account is blocked. Reason: ${reason}`
+          : 'Your account is blocked.'
+      );
+
+      return;
     }
+  }
+
+   if (err.status === 400) {
+    const msg = err.error?.message;
+    if (msg === 'NO_ACTIVE_DRIVERS') {
+      this.rideOrdered.emit('There are currently no active drivers. Please try again later.');
+      return;
+    }
+    if (msg === 'NO_AVAILABLE_DRIVER') {
+      this.rideOrdered.emit('All drivers are currently busy. Please try again in a few minutes.');
+      return;
+    }
+  }
+
+  this.rideOrdered.emit('Something went wrong.');
+}
   });
 }
 
