@@ -160,47 +160,100 @@ public class RideServiceImpl implements RideService {
                 .orElse(null);
     }
 
-    public Ride createRide(User loggedUser, CreateRideDTO dto) {
+public Ride createRide(User loggedUser, CreateRideDTO dto) {
 
-        if (loggedUser instanceof RegisteredUser registeredUser) {
-
-            if (registeredUser.isBlocked()) {
-                throw new ResponseStatusException(
-                        HttpStatus.FORBIDDEN,
-                        registeredUser.getBlockingReason() != null
-                                ? "ACCOUNT_BLOCKED: " + registeredUser.getBlockingReason()
-                                : "ACCOUNT_BLOCKED"
-                );
-            }
-        }
-        Route route = createRoute(dto);
-
-        Driver driver = findDriver(dto);
-        if (driver == null) {
+    if (loggedUser instanceof RegisteredUser registeredUser) {
+        if (registeredUser.isBlocked()) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "NO_AVAILABLE_DRIVER"
+                    HttpStatus.FORBIDDEN,
+                    registeredUser.getBlockingReason() != null
+                            ? "ACCOUNT_BLOCKED: " + registeredUser.getBlockingReason()
+                            : "ACCOUNT_BLOCKED"
             );
         }
-        route = routeRepository.save(route);
-
-        Ride ride = new Ride();
-        ride.setStatus(RideStatus.SCHEDULED);
-        ride.setCreationTime(LocalDateTime.now());
-        ride.setStartTime(dto.getScheduledTime());
-        ride.setRoute(route);
-        ride.setCreator((RegisteredUser) loggedUser);
-        ride.setDriver(driver);
-
-        double price = calculatePrice(10.0, dto.getVehicleType());
-        ride.setPrice(price);
-
-        List<RegisteredUser> passengers =
-                userRepository.findByEmailIn(dto.getPassengerEmails());
-        ride.setOtherPassengers(passengers);
-
-        return rideRepository.save(ride);
     }
+
+    Long userId = loggedUser.getId();
+
+    List<Driver> allNonInactiveDrivers = driverRepository.findActiveAndBusyDriversWithVehicle()
+            .stream()
+            .filter(d -> !d.isBlocked())
+            .toList();
+
+    if (allNonInactiveDrivers.isEmpty()) {
+        notificationService.sendNotification(
+                userId,
+                "No Active Drivers",
+                "There are currently no active drivers available. Please try again later.",
+                NotificationType.NoVehicleAvailable
+        );
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NO_ACTIVE_DRIVERS");
+    }
+
+    Route route = createRoute(dto);
+    Driver driver = findDriver(dto);
+
+    if (driver == null) {
+        notificationService.sendNotification(
+                userId,
+                "No Available Drivers",
+                "All drivers are currently busy. Please try again in a few minutes.",
+                NotificationType.NoVehicleAvailable
+        );
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NO_AVAILABLE_DRIVER");
+    }
+
+    route = routeRepository.save(route);
+
+    Ride ride = new Ride();
+    ride.setStatus(RideStatus.SCHEDULED);
+    ride.setCreationTime(LocalDateTime.now());
+    ride.setStartTime(dto.getScheduledTime());
+    ride.setRoute(route);
+    ride.setCreator((RegisteredUser) loggedUser);
+    ride.setDriver(driver);
+
+    double price = calculatePrice(10.0, dto.getVehicleType());
+    ride.setPrice(price);
+
+    List<RegisteredUser> passengers =
+            userRepository.findByEmailIn(dto.getPassengerEmails());
+    ride.setOtherPassengers(passengers);
+
+    Ride savedRide = rideRepository.save(ride);
+
+    LocalDateTime scheduledTime = dto.getScheduledTime();
+    String rideTimeInfo = scheduledTime != null
+            ? " Your ride is scheduled for " + scheduledTime + "."
+            : " Your driver is on the way.";
+
+    notificationService.sendNotification(
+            userId,
+            "Ride Approved",
+            "Your ride has been successfully booked." + rideTimeInfo,
+            NotificationType.RideApproved
+    );
+
+//    if (passengers != null && !passengers.isEmpty()) {
+//        for (RegisteredUser passenger : passengers) {
+//            notificationService.sendNotification(
+//                    passenger.getId(),
+//                    "You Have Been Added to a Ride",
+//                    "You have been added as a passenger to a ride." + rideTimeInfo,
+//                    NotificationType.LinkedPassanger
+//            );
+//        }
+//    }
+
+    notificationService.sendNotification(
+            driver.getId(),
+            "New Ride Assigned",
+            "You have been assigned a new ride. Please check the details and proceed to the pickup location.",
+            NotificationType.YouAreAssignedToRide
+    );
+
+    return savedRide;
+}
 
     @Override
     public Long endRide(String username) {
@@ -509,7 +562,6 @@ public class RideServiceImpl implements RideService {
         ride.setCreator((RegisteredUser) loggedUser);
         ride.setDriver(driver);
 
-        // Izračunaj cenu (sa dummy vrednosti za distancu)
         double price = calculatePrice(10.0, VehicleType.STANDARD);
         ride.setPrice(price);
 

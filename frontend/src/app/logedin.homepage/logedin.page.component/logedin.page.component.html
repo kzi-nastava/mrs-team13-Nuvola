@@ -1,6 +1,6 @@
-<div class="global-toast" *ngIf="toastMessage">
+<!-- <div class="global-toast" *ngIf="toastMessage">
   {{ toastMessage }}
-</div>
+</div> -->
 
 <div class="page">
   <button class="order-btn" (click)="togglePanel()">
@@ -10,7 +10,7 @@
   <div class="content">
     <div class="panel" *ngIf="panelOpen">
       <app-panel
-  (rideOrdered)="showToast($event)"
+  (rideOrdered)="$any(null)"
   (openFavorites)="openFavoritesPopup()"
   (cleared)="selectedFavoriteRoute = null"
   [favoriteRouteToLoad]="selectedFavoriteRoute"
@@ -32,11 +32,21 @@
       <h2>Your favorite routes</h2>
       <p>View your favorite routes and order them again in just one click</p>
     </div>
-
     <button class="fav-close" (click)="closeFavoritesPopup()">✕</button>
   </div>
 
-  <div class="fav-list">
+  <!-- Loading state -->
+  <div class="fav-loading" *ngIf="favoritesLoading">
+    Loading your favorite routes...
+  </div>
+
+  <!-- Error state -->
+  <div class="fav-empty" *ngIf="!favoritesLoading && favoritesError">
+    Could not load favorite routes. Please try again.
+  </div>
+
+  <!-- Lista ruta -->
+  <div class="fav-list" *ngIf="!favoritesLoading && !favoritesError">
     <div class="fav-card" *ngFor="let r of favoriteRoutes">
       <div class="fav-info">
         <div class="fav-col">
@@ -65,15 +75,11 @@
         <button class="fav-order" (click)="orderFromFavorite(r)">
           Order Again
         </button>
-
-        <button class="fav-remove" (click)="removeFromFavorites(r.id)">
-          Remove
-        </button>
       </div>
     </div>
 
     <div class="fav-empty" *ngIf="favoriteRoutes.length === 0">
-      You don’t have any favorite routes yet.
+      You don't have any favorite routes yet.
     </div>
   </div>
 </div>

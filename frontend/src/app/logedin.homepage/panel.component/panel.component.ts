@@ -462,9 +462,16 @@ private checkActiveRide() {
     }
   }
 
-  if (err.status === 400 && err.error?.message === 'NO_AVAILABLE_DRIVER') {
-    this.rideOrdered.emit('No available drivers at the moment.');
-    return;
+   if (err.status === 400) {
+    const msg = err.error?.message;
+    if (msg === 'NO_ACTIVE_DRIVERS') {
+      this.rideOrdered.emit('There are currently no active drivers. Please try again later.');
+      return;
+    }
+    if (msg === 'NO_AVAILABLE_DRIVER') {
+      this.rideOrdered.emit('All drivers are currently busy. Please try again in a few minutes.');
+      return;
+    }
   }
 
   this.rideOrdered.emit('Something went wrong.');
