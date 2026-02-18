@@ -345,12 +345,15 @@ private checkActiveRide() {
 
   addPassengerFromInput() {
     const email = this.form.value.passengerInput?.trim();
+     console.log('=== ADD PASSENGER ===');
+      console.log('email from input:', email);
     if (!email) return;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return;
 
     this.rideOrder.addPassenger(email);
+    console.log('passengers after add:', this.rideOrder.getPassengers());
     this.form.patchValue({ passengerInput: '' }, { emitEvent: false });
   }
 
@@ -403,6 +406,7 @@ private checkActiveRide() {
 
   const from = this.rideOrder.getFrom();
   const to = this.rideOrder.getTo();
+  const distanceKm = this.rideOrder.getDistanceKm() ?? 0;
 
   if (!from || !to) return;
 
@@ -429,8 +433,15 @@ private checkActiveRide() {
     scheduledTime:
       this.form.value.rideTimeMode === 'scheduled'
         ? this.form.value.scheduledTime
-        : null
+        : null,
+    distanceKm: distanceKm
   };
+
+  console.log('=== ORDER RIDE DEBUG ===');
+  console.log('this.passengers (local array):', this.passengers);
+  console.log('rideOrder.getPassengers():', this.rideOrder.getPassengers());
+  console.log('payload.passengerEmails:', payload.passengerEmails);
+  console.log('Full payload:', JSON.stringify(payload, null, 2));
 
   this.rideApi.createRide(payload).subscribe({
     next: (res) => {

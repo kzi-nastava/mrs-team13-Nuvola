@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,7 +19,6 @@ public class RideReportServiceImpl implements RideReportService {
     @Autowired
     private RideRepository rideRepository;
 
-    private static final double KM_PER_RSD = 1.0 / 120.0;
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
@@ -30,7 +28,7 @@ public class RideReportServiceImpl implements RideReportService {
                 startDate.atStartOfDay(),
                 endDate.atTime(23, 59, 59)
         );
-        return buildResponse(rides, startDate, endDate, false);
+        return buildResponse(rides, startDate, endDate);
     }
 
     @Override
@@ -40,7 +38,7 @@ public class RideReportServiceImpl implements RideReportService {
                 startDate.atStartOfDay(),
                 endDate.atTime(23, 59, 59)
         );
-        return buildResponse(rides, startDate, endDate, true);
+        return buildResponse(rides, startDate, endDate);
     }
 
     @Override
@@ -49,7 +47,7 @@ public class RideReportServiceImpl implements RideReportService {
                 startDate.atStartOfDay(),
                 endDate.atTime(23, 59, 59)
         );
-        return buildResponse(rides, startDate, endDate, true);
+        return buildResponse(rides, startDate, endDate);
     }
 
     @Override
@@ -58,14 +56,14 @@ public class RideReportServiceImpl implements RideReportService {
                 startDate.atStartOfDay(),
                 endDate.atTime(23, 59, 59)
         );
-        return buildResponse(rides, startDate, endDate, false);
+        return buildResponse(rides, startDate, endDate);
     }
 
-    private RideReportResponse buildResponse(List<Ride> rides, LocalDate startDate, LocalDate endDate, boolean isDriver) {
-        // Grupiši po danu
+    private RideReportResponse buildResponse(List<Ride> rides, LocalDate startDate, LocalDate endDate) {
+        // Grupiši po startTime danu
         Map<LocalDate, List<Ride>> byDay = rides.stream()
-                .filter(r -> r.getEndTime() != null)
-                .collect(Collectors.groupingBy(r -> r.getEndTime().toLocalDate()));
+                .filter(r -> r.getStartTime() != null)
+                .collect(Collectors.groupingBy(r -> r.getStartTime().toLocalDate()));
 
         // Kreiraj entry za svaki dan u opsegu (čak i prazne)
         List<RideReportDayDTO> data = new ArrayList<>();
@@ -74,7 +72,9 @@ public class RideReportServiceImpl implements RideReportService {
             List<Ride> dayRides = byDay.getOrDefault(current, List.of());
             long count = dayRides.size();
             double money = dayRides.stream().mapToDouble(Ride::getPrice).sum();
-            double km = money * KM_PER_RSD;
+            double km = dayRides.stream()
+                    .mapToDouble(r -> r.getRoute() != null ? r.getRoute().getDistance() : 0.0)
+                    .sum();
             data.add(new RideReportDayDTO(current.format(FMT), count, km, money));
             current = current.plusDays(1);
         }

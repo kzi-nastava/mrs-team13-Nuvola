@@ -28,7 +28,6 @@ public class ReportController {
     @Autowired
     private UserRepository userRepository;
 
-    // Za vozača i korisnika — uvek njihovi podaci
     @GetMapping("/my")
     public ResponseEntity<RideReportResponse> getMyReport(
             @AuthenticationPrincipal User user,
@@ -47,7 +46,6 @@ public class ReportController {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
-    // Samo za admina
     @GetMapping("/admin")
     public ResponseEntity<RideReportResponse> getAdminReport(
             @AuthenticationPrincipal User user,
