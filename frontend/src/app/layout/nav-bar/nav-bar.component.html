@@ -27,11 +27,12 @@
 
   <div class="nav-items show-desktop">
     <!-- <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onMyNotifications()">My notifications</button> -->
-    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onChangePrices()">Change Prices</button> 
+    <button *ngIf="authService.getRole() === 'ROLE_ADMIN'" class="nav-link" (click)="onChangePrices()">Change Prices</button> 
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onTestNotify()">Test notify</button>
     <!-- <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onGrade()">Grade</button> -->
-    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onUsers()">Users</button> <!--Only admin -->
-    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onMyRides()">My rides</button> <!-- only drivers-->
+    <button *ngIf="authService.getRole() === 'ROLE_ADMIN'" class="nav-link" (click)="onUsers()">Users</button>
+    <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideReports()">Ride reports</button>
+    <button *ngIf="authService.getRole() === 'ROLE_DRIVER'" class="nav-link" (click)="onMyRides()">My rides</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideHistory()">Ride history</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onAccount()">Account</button>
     <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onLogout()">Log out</button>
@@ -61,13 +62,15 @@
     Grade
   </button>
 
-  <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onUsers()">
-    Users
+  <button *ngIf="authService.getRole() === 'ROLE_ADMIN'" class="nav-link" (click)="onChangePrices()">Change Prices</button> 
+
+  <button *ngIf="authService.getRole() === 'ROLE_ADMIN'" class="nav-link" (click)="onUsers()">Users</button>
+
+  <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideReports()">
+    Ride reports
   </button>
     
-  <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onMyRides()">
-    My rides
-  </button>
+  <button *ngIf="authService.getRole() === 'ROLE_DRIVER'" class="nav-link" (click)="onMyRides()">My rides</button>
 
   <button *ngIf="authService.isLoggedIn()" class="nav-link" (click)="onRideHistory()">
     Ride history

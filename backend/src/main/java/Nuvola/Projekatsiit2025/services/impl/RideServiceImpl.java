@@ -148,6 +148,7 @@ public class RideServiceImpl implements RideService {
                     return l;
                 }).toList();
         route.setStops(stopLocations);
+        route.setDistance(dto.getDistanceKm());
         // route.setFavourite(false); nema vise ovog atributa
 
         return route;
@@ -218,11 +219,15 @@ public Ride createRide(User loggedUser, CreateRideDTO dto) {
     ride.setCreator((RegisteredUser) loggedUser);
     ride.setDriver(driver);
 
-    double price = calculatePrice(10.0, dto.getVehicleType());
+    double price = calculatePrice(dto.getDistanceKm(), dto.getVehicleType());
     ride.setPrice(price);
 
-    List<RegisteredUser> passengers =
-            userRepository.findByEmailIn(dto.getPassengerEmails());
+    List<RegisteredUser> passengers = dto.getPassengerEmails() == null || dto.getPassengerEmails().isEmpty()
+            ? List.of()
+            : registeredUserRepository.findByEmailIn(dto.getPassengerEmails());
+
+    System.out.println("=== PASSENGER EMAILS FROM DTO: " + dto.getPassengerEmails());
+    System.out.println("=== PASSENGERS FOUND: " + passengers.size());
     ride.setOtherPassengers(passengers);
 
     Ride savedRide = rideRepository.save(ride);
@@ -239,16 +244,16 @@ public Ride createRide(User loggedUser, CreateRideDTO dto) {
             NotificationType.RideApproved
     );
 
-//    if (passengers != null && !passengers.isEmpty()) {
-//        for (RegisteredUser passenger : passengers) {
-//            notificationService.sendNotification(
-//                    passenger.getId(),
-//                    "You Have Been Added to a Ride",
-//                    "You have been added as a passenger to a ride." + rideTimeInfo,
-//                    NotificationType.LinkedPassanger
-//            );
-//        }
-//    }
+    if (!passengers.isEmpty()) {
+        for (RegisteredUser passenger : passengers) {
+            notificationService.sendNotification(
+                    passenger.getId(),
+                    "You Have Been Added to a Ride",
+                    "You have been added as a passenger to a ride." + rideTimeInfo,
+                    NotificationType.LinkedPassanger
+            );
+        }
+    }
 
     notificationService.sendNotification(
             driver.getId(),

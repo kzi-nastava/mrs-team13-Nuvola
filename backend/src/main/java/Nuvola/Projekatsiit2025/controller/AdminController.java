@@ -128,7 +128,6 @@ public class AdminController {
             ));
         }
 
-        // ako nije registered user, pokušamo driver
         Driver driver = driverRepository.findById(id).orElse(null);
 
         if (driver != null) {
