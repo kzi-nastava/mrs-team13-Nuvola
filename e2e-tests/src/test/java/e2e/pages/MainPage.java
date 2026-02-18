@@ -10,7 +10,7 @@ import java.time.Duration;
 public class MainPage {
     private WebDriver driver;
     private WebDriverWait wait;
-    private static final String URL = "http://localhost:4200/homepage";
+    private static final String URL = System.getProperty("app.baseUrl", "http://localhost:4200/homepage");
 
     public MainPage(WebDriver driver) {
         this.driver = driver;
