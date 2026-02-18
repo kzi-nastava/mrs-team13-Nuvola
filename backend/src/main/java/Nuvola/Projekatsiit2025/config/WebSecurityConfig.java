@@ -101,6 +101,7 @@ public class WebSecurityConfig {
                     .requestMatchers("api/reviews/*").permitAll()
                     .requestMatchers("/api/support/**").permitAll()
                     .requestMatchers("/api/admin/drivers/info/*").permitAll()
+                    .requestMatchers("/api/pricing/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/drivers").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/drivers/*/picture").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll()

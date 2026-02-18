@@ -1,6 +1,7 @@
 package Nuvola.Projekatsiit2025.services.impl;
 import Nuvola.Projekatsiit2025.model.enums.NotificationType;
 import Nuvola.Projekatsiit2025.services.NotificationService;
+import Nuvola.Projekatsiit2025.services.PricingService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import Nuvola.Projekatsiit2025.dto.*;
@@ -31,6 +32,9 @@ import java.util.stream.Collectors;
 public class RideServiceImpl implements RideService {
     @Autowired
     private RideRepository rideRepository;
+
+    @Autowired
+    private PricingService pricingService;
 
     @Autowired
     EmailService emailService;
@@ -328,16 +332,19 @@ public Ride createRide(User loggedUser, CreateRideDTO dto) {
 
 
     private double calculatePrice(double distanceKm, VehicleType type) {
-        double basePrice;
+//        double basePrice;
+//
+//        switch (type) {
+//            case STANDARD -> basePrice = 250;
+//            case LUXURY -> basePrice = 450;
+//            case VAN -> basePrice = 350;
+//            default -> basePrice = 250;
+//        }
 
-        switch (type) {
-            case STANDARD -> basePrice = 250;
-            case LUXURY -> basePrice = 450;
-            case VAN -> basePrice = 350;
-            default -> basePrice = 250;
-        }
+        Double base = pricingService.getOne(type).getBasePrice();
+        double vehiclePrice = base != null ? base : 0.0;
 
-        return basePrice + distanceKm * 120;
+        return vehiclePrice + distanceKm * 120;
     }
 
     public List<Ride> getAssignedRidesForDriver(String username) {
