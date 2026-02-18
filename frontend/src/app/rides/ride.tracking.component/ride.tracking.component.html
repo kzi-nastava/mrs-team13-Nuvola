@@ -3,6 +3,18 @@
 
     <div id="ride-tracking-map"></div>
 
+    <div class="eta" *ngIf="remainingKm !== null && remainingMin !== null">
+      <div class="eta-item">
+        <div class="eta-label">Left</div>
+        <div class="eta-value">{{ remainingKm | number:'1.1-1' }} km</div>
+      </div>
+
+      <div class="eta-item">
+        <div class="eta-label">Estimate</div>
+        <div class="eta-value">{{ remainingMin }} min</div>
+      </div>
+    </div>
+
 
   <div class="actions">
     <button class="btn" type="button" (click)="toggleReportForm()">

@@ -16,6 +16,7 @@ public class DriverRideHistoryItemDTO {
     private String pickup;
     private LocalDateTime startingTime;
     private String driver;
+    private boolean isPanic;
 
     private boolean isFavouriteRoute;
 
@@ -30,7 +31,8 @@ public class DriverRideHistoryItemDTO {
         startingTime = ride.getStartTime();
         Driver rideDriver = ride.getDriver();
         driver = rideDriver.getFirstName() + " " + rideDriver.getLastName();
-        isFavouriteRoute = route.isFavourite();
+        isFavouriteRoute = false;
+        isPanic = ride.isPanic();
 
     }
 

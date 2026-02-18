@@ -17,6 +17,8 @@ import java.util.Optional;
 public interface RideRepository extends JpaRepository<Ride, Long>, JpaSpecificationExecutor<Ride> {
     List<Ride> findByDriverId(Long driverId, Sort sort);
     Page<Ride> findByDriverId(Long driverId, Pageable pageable);
+    List<Ride> findByDriverIdAndStatus(Long driverId, RideStatus status, Sort sort);
+    Page<Ride> findByDriverIdAndStatus(Long driverId, RideStatus status, Pageable pageable);
     List<Ride> findByDriver_UsernameAndStatus(String username, RideStatus status);
     Optional<Ride> findFirstByDriverIdAndStatusAndStartTimeIsNotNullAndStartTimeGreaterThanEqualOrderByStartTimeAsc(
             Long driverId, RideStatus status, LocalDateTime time
@@ -42,6 +44,7 @@ public interface RideRepository extends JpaRepository<Ride, Long>, JpaSpecificat
             @Param("rideId") Long rideId,
             @Param("userId") Long userId
     );
+
     Page<Ride> findByCreatorIdAndStatus(
             Long creatorId,
             RideStatus status,

@@ -41,6 +41,9 @@ public class RideServiceImpl implements RideService {
     private UserRepository userRepository;
 
     @Autowired
+    private RatingRepository ratingRepository;
+
+    @Autowired
     private RegisteredUserRepository registeredUserRepository;
 
     @Autowired
@@ -69,12 +72,14 @@ public class RideServiceImpl implements RideService {
         // if pagination
         if ((page != null && size != null) && ((page >= 1) && (size >= 1))) {
             Pageable pageable = PageRequest.of(page, size, sort);
-            Page<Ride> ridesPage = rideRepository.findByDriverId(driverId, pageable);
+            // Page<Ride> ridesPage = rideRepository.findByDriverId(driverId, pageable);
+            Page<Ride> ridesPage = rideRepository.findByDriverIdAndStatus(driverId, RideStatus.FINISHED, pageable);
 
             return ridesPage.map(DriverRideHistoryItemDTO::new);
         }
 
-        List<Ride> rides = rideRepository.findByDriverId(driverId, sort);
+        // List<Ride> rides = rideRepository.findByDriverId(driverId, sort);
+        List<Ride> rides = rideRepository.findByDriverIdAndStatus(driverId, RideStatus.FINISHED, sort);
         List<DriverRideHistoryItemDTO> dtos = rides.stream()
                 .map(DriverRideHistoryItemDTO::new)
                 .collect(Collectors.toList());
@@ -138,7 +143,7 @@ public class RideServiceImpl implements RideService {
                     return l;
                 }).toList();
         route.setStops(stopLocations);
-        route.setFavourite(false);
+        // route.setFavourite(false); nema vise ovog atributa
 
         return route;
     }
@@ -394,12 +399,29 @@ public Ride createRide(User loggedUser, CreateRideDTO dto) {
     }
 
     @Override
+    @Transactional
     public RideHistoryDetailsDTO getRideHistoryDetailsForUser(Long rideId, Long userId) {
-        Ride ride = rideRepository.findRideDetailsForUser(rideId, userId)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found"));
+//        Ride ride = rideRepository.findRideDetailsForUser(rideId, userId)
+//                .orElseThrow(() ->
+//                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found"));
+//
+//        return new RideHistoryDetailsDTO(ride);
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found"));
 
-        return new RideHistoryDetailsDTO(ride);
+        boolean isCreator = ride.getCreator().getId().equals(userId);
+        boolean isPassenger = ride.getOtherPassengers().stream()
+                .anyMatch(p -> p.getId().equals(userId));
+
+        if (!isCreator && !isPassenger) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found");
+        }
+
+        RideHistoryDetailsDTO dto = new RideHistoryDetailsDTO(ride);
+        List<Rating> ratings = ratingRepository.findByRideId(rideId);
+        dto.setRatings(ratings.stream().map(RatingInfoDTO::new).toList());
+
+        return dto;
     }
     @Override
     public Page<RegisteredUserRideHistoryItemDTO> getUserRideHistory(
@@ -539,6 +561,7 @@ public Ride createRide(User loggedUser, CreateRideDTO dto) {
         ride.setRoute(route);
         ride.setCreator((RegisteredUser) loggedUser);
         ride.setDriver(driver);
+
         double price = calculatePrice(10.0, VehicleType.STANDARD);
         ride.setPrice(price);
 
@@ -559,8 +582,23 @@ public Ride createRide(User loggedUser, CreateRideDTO dto) {
                 .orElse(null);
     }
 
+    @Override
+    public TrackingRideDTO getTrackingRideDTO(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UserNotFoundException(username);
+        }
+        List<Ride> rides = rideRepository.findActiveRidesByUser(user.getId());
+        if (rides.isEmpty()) {
+            throw new RideNotFoundException("No active ride found for user " + username);
+        }
+        if (rides.size() > 1) {
+            throw new InvalidRideStateException("Multiple active rides found for user " + username);
+        }
+        Ride ride = rides.get(0);
+        return new TrackingRideDTO(ride);
 
-
+    }
 
 
 

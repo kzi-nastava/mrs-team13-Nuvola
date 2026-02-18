@@ -4,6 +4,8 @@ import { PageResponse, RegisteredUserRideHistoryItemDTO }
   from './model/ride-history.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ChangeDetectorRef } from '@angular/core';
 import { RideHistoryDetailsComponent } from '../ride-history-details.component/ride-history-details.component';
 
 @Component({
@@ -26,7 +28,7 @@ export class RideHistoryComponent implements OnInit {
   page = 0;
   size = 20;
 
-  constructor(private rideHistory: RideHistoryService) {}
+  constructor(private rideHistory: RideHistoryService, private router: Router, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.load();
@@ -51,10 +53,12 @@ export class RideHistoryComponent implements OnInit {
       next: (res) => {
         this.pageData = res;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.loading = false;
         this.error = err?.error?.message || err?.error?.error || 'Greška pri učitavanju istorije vožnji.';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -109,6 +113,15 @@ openDetails(id: number) {
 
 closeDetails() {
   this.selectedRideId = undefined;
+}
+
+isGradingDisabled(ride: RegisteredUserRideHistoryItemDTO): boolean {
+  return ride.status !== 'FINISHED';
+}
+
+openGrade(rideId: number) {
+  this.selectedRideId = rideId;
+  this.router.navigate(['/grading/', rideId]);
 }
 
 }

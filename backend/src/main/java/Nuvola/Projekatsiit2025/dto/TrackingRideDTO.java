@@ -32,5 +32,16 @@ public class TrackingRideDTO {
         this.isFavouriteRoute = isFavouriteRoute;
     }
 
+    public TrackingRideDTO(Ride ride) {
+        this.id = ride.getId();
+        this.route = new RouteDTO(ride.getRoute());
+        this.driverId = ride.getDriver().getId();
+        this.price = ride.getPrice();
+        this.dropoff = ride.getRoute().getDropoff().getAddress();
+        this.pickup = ride.getRoute().getPickup().getAddress();
+        this.startingTime = ride.getStartTime();
+        this.isFavouriteRoute = false;
+    }
+
 
 }
