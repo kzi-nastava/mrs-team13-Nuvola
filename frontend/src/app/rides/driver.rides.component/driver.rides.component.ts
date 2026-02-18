@@ -4,9 +4,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { EndRideService } from '../service/end.ride.service';
 import { AuthService } from '../../auth/services/auth.service';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { StopRideComponent, StopRideResult } from '../../stop-ride.component/stop-ride.component';
-import { CancelRideComponent } from '../cancel-ride.component/cancel-ride.component';
+import { RideApiService } from '../service/ride-api.service';
 
 
 type RideStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'CANCELLED';
@@ -35,6 +33,17 @@ type DriverRide = {
   stoppedAddress?: string;
 };
 
+type StopResult = {
+  rideId: number;
+  status: string;
+  price: number;
+  message?: string;
+  stoppedAt: string;
+  lat: number;
+  lng: number;
+  address: string;
+};
+
 @Component({
   selector: 'app-driver.rides.component',
   imports: [CommonModule, ReactiveFormsModule, CancelRideComponent, StopRideComponent],
@@ -61,12 +70,17 @@ export class DriverRidesComponent implements OnInit {
     return this.cancelForm.controls.reason;
   }
 
+  stopResult: StopResult | null = null;
+
   constructor(
     private authService: AuthService,
     private http: HttpClient,
     private endRideService: EndRideService,
-    private router: Router,  private cdr: ChangeDetectorRef
+    private router: Router,  private cdr: ChangeDetectorRef,
+    private rideApi: RideApiService 
   ) {}
+
+  
 
   ngOnInit(): void {
     this.loadRides();
@@ -162,76 +176,100 @@ get hasActiveRide(): boolean {
     this.cancelForm.reset({ reason: '' });
   }
 
-  //cancelRide(ride: DriverRide) {
-    //if (ride.allPassengersJoined) return;
-    //ride.status = 'CANCELLED';
-  //}
+  stopRide(ride: DriverRide) {
+  const ok = confirm('Da li ste sigurni? Vožnja će biti završena na trenutnoj lokaciji.');
+  if (!ok) return;
 
-  confirmCancel() {  
-      if (!this.cancelRideTarget) return;    
-      if (this.cancelForm.invalid) {      
-        this.cancelForm.markAllAsTouched();      
-        return;    
-      }    
-      const reason = this.reason.value!.trim();   
-      // Send to backend    
-      this.http.put(`http://localhost:8080/api/rides/${this.cancelRideTarget.id}/cancel`, { reason })      
-      .subscribe({        
-        next: () => {          
-          if (this.cancelRideTarget) {
-            this.cancelRideTarget.status = 'CANCELLED';            
-            this.cancelRideTarget.cancelReason = reason;          
-          }          
-          this.closeCancelModal();          
-          this.loadRides();        },        
-          error: () => {          
-            this.errorMessage = 'Failed to cancel ride.';          
-            this.closeCancelModal();        
-          }      
-        });  
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const stoppedAt = new Date().toISOString();
+
+      let address = '';
+      try {
+        address = await this.reverseGeocode(lat, lng);
+      } catch {
+        address = `${lat}, ${lng}`; 
       }
 
-  openStopModal(ride: DriverRide) {
-    console.log('OPEN STOP MODAL FOR', ride.id);    
-    this.stopRideTarget = ride;    
-    this.showStopModal = true;  
-  }
-  closeStopModal() {
-    this.showStopModal = false;    
-    this.stopRideTarget = null;  
-  }
-  stopRide(ride: DriverRide) {    
-    this.openStopModal(ride); 
-   }
+      const payload = { lat, lng, stoppedAt, address };
 
-  onStopConfirmed(result: StopRideResult) {
-    if (!this.stopRideTarget) return;    
-    // Update ride with stop info    
-    this.stopRideTarget.stoppedAt = result.stoppedAtIso;    
-    this.stopRideTarget.stoppedLat = result.lat;    
-    this.stopRideTarget.stoppedLng = result.lng;    
-    this.stopRideTarget.stoppedAddress = result.stopAddress;    
-    this.stopRideTarget.price = result.newPrice;    
-    // Send to backend    
-    this.http.put(`http://localhost:8080/api/rides/${this.stopRideTarget.id}/stop`, {      
-      stoppedAt: result.stoppedAtIso,      
-      lat: result.lat,      
-      lng: result.lng,      
-      address: result.stopAddress,      
-      newPrice: result.newPrice    
-    }).subscribe({      
-      next: () => {        
-        console.log('Ride stopped successfully');        
-        this.closeStopModal();        
-        this.loadRides();      
-      },      
-      error: (err) => {        
-        console.error('Failed to stop ride:', err);        
-        this.errorMessage = 'Failed to stop ride.';        
-        this.closeStopModal();      
-      }    
-    });  
-  }
+      this.rideApi.stopRide(ride.id, payload).subscribe({
+        next: (res) => {
+          ride.status = res.status as RideStatus;
+          ride.price = res.price;
+
+          this.stopResult = {
+            rideId: ride.id,
+            status: res.status,
+            price: res.price,
+            message: res.message,
+            stoppedAt,
+            lat,
+            lng,
+            address, 
+          } as any;
+
+          this.loadRides();
+        },
+        error: () => this.errorMessage = 'Failed to stop ride.'
+      });
+    },
+    () => this.errorMessage = 'Location permission denied (allow GPS).',
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+
+
+  //stopRide(ride: DriverRide) {
+  //const ok = confirm('Da li ste sigurni? Vožnja će biti završena na trenutnoj lokaciji.');
+  //if (!ok) return;
+
+  //navigator.geolocation.getCurrentPosition(
+    //(pos) => {
+      //const stoppedAt = new Date().toISOString().slice(0, 19);
+
+     // const payload = {
+       // lat: pos.coords.latitude,
+        //lng: pos.coords.longitude,
+        //stoppedAt,
+      //};
+
+      //this.rideApi.stopRide(ride.id, payload).subscribe({
+        //next: (res) => {
+  //ride.status = res.status as RideStatus;
+  //ride.price = res.price;
+
+  //this.stopResult = {
+    //rideId: ride.id,
+    //status: res.status,
+    //price: res.price,
+    //message: res.message,
+    //stoppedAt,
+    //lat: payload.lat,
+    //lng: payload.lng,
+  //};
+
+  //this.loadRides(); 
+//},
+        //error: (err) => {
+          //if (err?.status === 403) this.errorMessage = 'Forbidden: only driver can stop this ride.';
+          //else if (err?.status === 409) this.errorMessage = 'Ride is not IN_PROGRESS.';
+          //else if (err?.status === 401) this.errorMessage = 'Unauthorized.';
+          //else this.errorMessage = 'Failed to stop ride.';
+        //},
+      //});
+    //},
+    //(geoErr) => {
+      //if (geoErr?.code === 1) this.errorMessage = 'Location permission denied (allow GPS).';
+     // else this.errorMessage = 'Cannot get current location.';
+    //},
+    //{ enableHighAccuracy: true, timeout: 10000 }
+  //);
+//} 
+
 
 
   finishRide(ride: DriverRide) {
@@ -276,4 +314,19 @@ get hasActiveRide(): boolean {
       }
     });
 }
+private async reverseGeocode(lat: number, lng: number): Promise<string> {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+
+  const res = await fetch(url, {
+    headers: {
+      'Accept': 'application/json',
+      // bitno: Nominatim voli identifikaciju
+      'User-Agent': 'NuvolaApp/1.0 (local dev)'
+    }
+  });
+
+  const data = await res.json();
+  return data?.display_name ?? `${lat}, ${lng}`;
+}
+
 }

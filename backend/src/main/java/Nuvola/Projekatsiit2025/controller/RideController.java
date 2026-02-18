@@ -44,7 +44,6 @@ public class RideController {
     private UserRepository userRepository;
 
 
-
     // 2.1.2 - Estimate ride
     @PostMapping(value = "/estimate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RideEstimateResponseDTO> estimateRide(@RequestBody RideEstimateRequestDTO request) {
@@ -106,7 +105,7 @@ public class RideController {
     //2.6.2
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @GetMapping(value = "/now/user/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable String username){
+    public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable String username) {
         // find that ride
 //        RouteDTO route = new RouteDTO();
 //        route.appendStop(new CoordinateDTO(45.238796, 19.883819));
@@ -119,6 +118,7 @@ public class RideController {
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
 
+    @PostMapping(value = "/report", consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(value ="/report", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createReport(@RequestBody CreateReportDTO createReportDTO) {
@@ -128,7 +128,7 @@ public class RideController {
     }
 
     @GetMapping(value = "/now/user/{id}/position", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CoordinateDTO> getDriverPosition(@PathVariable Long id){
+    public ResponseEntity<CoordinateDTO> getDriverPosition(@PathVariable Long id) {
         // find that ride
         CoordinateDTO position = new CoordinateDTO(45.234116, 19.849381);
         return new ResponseEntity<>(position, HttpStatus.OK);
@@ -158,34 +158,39 @@ public class RideController {
     }
 
 
-
-    
     // 2.5 Cancel ride
     @PutMapping(value = "/{rideId}/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CreatedRideDTO> cancelRide(@PathVariable Long rideId, @RequestBody CancelRideDTO dto) {
 
         CreatedRideDTO response = new CreatedRideDTO();
         response.setId(rideId);
-        response.setStatus(RideStatus.CANCELED);   
+        response.setStatus(RideStatus.CANCELED);
         response.setPrice(0.0);
         response.setMessage("Ride canceled. Reason: " + dto.getReason());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    
-    
+
+
     // 2.6.5 Stop ride while it's active
-    @PutMapping(value = "/{rideId}/stop", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CreatedRideDTO> stopRide(@PathVariable Long rideId) {
+    @PatchMapping("/{rideId}/stop")
+    public ResponseEntity<CreatedRideDTO> stopRide(
+            @PathVariable Long rideId,
+            @RequestBody StopRideRequestDTO req,
+            Principal principal
+    ) {
+        User currentUser = userRepository.findByUsername(principal.getName());
+        Ride ride = rideService.stopRide(rideId, currentUser, req);
 
         CreatedRideDTO response = new CreatedRideDTO();
-        response.setId(rideId);
-        response.setStatus(RideStatus.FINISHED);   
-        response.setPrice(900.0);
-        response.setMessage("Ride stopped successfully");
+        response.setId(ride.getId());
+        response.setStatus(ride.getStatus());
+        response.setPrice(ride.getPrice());
+        response.setMessage("Ride successfully stopped");
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/active-ride")
     public ResponseEntity<?> hasActiveRide(@AuthenticationPrincipal User user) {

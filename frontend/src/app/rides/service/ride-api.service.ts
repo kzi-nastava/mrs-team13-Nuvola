@@ -10,6 +10,13 @@ export interface CreatedRideDTO {
   message?: string;
 }
 
+export interface StopRideRequestDTO {
+  lat: number;
+  lng: number;
+  stoppedAt: string; // YYYY-MM-DDTHH:mm:ss
+  address?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class RideApiService {
   private http = inject(HttpClient);
@@ -21,9 +28,10 @@ private baseUrl = environment.apiHost + '/api/rides';
     return this.http.post<CreatedRideDTO>(this.baseUrl, payload);
   }
   
-  stopRide(rideId: number): Observable<CreatedRideDTO> {
-    return this.http.put<CreatedRideDTO>(`${this.baseUrl}/${rideId}/stop`, {});
-  }
+  stopRide(rideId: number, body: StopRideRequestDTO): Observable<CreatedRideDTO> {
+  return this.http.patch<CreatedRideDTO>(`${this.baseUrl}/${rideId}/stop`, body);
+}
+
 
   // ride-api.service.ts
 reorderRide(payload: { 

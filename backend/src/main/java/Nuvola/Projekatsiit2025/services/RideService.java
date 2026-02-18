@@ -26,4 +26,5 @@ public interface RideService {
     Ride createRideFromHistory(User loggedUser, CreateRideFromHistoryDTO dto);
     TrackingRideDTO getTrackingRideDTO(String username);
     TrackingRideDTO getTrackingRideDTOForAdmin(Long driverId);
+    Ride stopRide(Long rideId, User currentUser, StopRideRequestDTO req);
 }
