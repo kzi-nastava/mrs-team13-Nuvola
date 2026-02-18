@@ -40,7 +40,7 @@ public class RatingServiceImpl implements RatingService {
         if (author == null) throw new UserNotFoundException("Registered user " + createReviewDTO.getUsername() + " not found");
 
         // chack if this user already rated this ride
-        if (ratingRepository.existsByRideIdAndUserId(ride.getId(), author.getId())) {
+        if (ratingRepository.existsByRideIdAndAuthorId(ride.getId(), author.getId())) {
             throw new RatingAlreadyExistsException("User " + createReviewDTO.getUsername() + " has already rated this ride");
         }
 
