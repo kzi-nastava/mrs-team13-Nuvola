@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { EndRideService } from '../service/end.ride.service';
 import { AuthService } from '../../auth/services/auth.service';
+import { RideApiService } from '../service/ride-api.service';
 
 
 type RideStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'CANCELLED';
@@ -26,6 +27,17 @@ type DriverRide = {
   panic?: boolean
 };
 
+type StopResult = {
+  rideId: number;
+  status: string;
+  price: number;
+  message?: string;
+  stoppedAt: string;
+  lat: number;
+  lng: number;
+  address: string;
+};
+
 @Component({
   selector: 'app-driver.rides.component',
   imports: [CommonModule],
@@ -38,12 +50,17 @@ export class DriverRidesComponent implements OnInit {
   activeRide: DriverRide | null = null;
   errorMessage: string | null = null;
 
+  stopResult: StopResult | null = null;
+
   constructor(
     private authService: AuthService,
     private http: HttpClient,
     private endRideService: EndRideService,
-    private router: Router,  private cdr: ChangeDetectorRef
+    private router: Router,  private cdr: ChangeDetectorRef,
+    private rideApi: RideApiService 
   ) {}
+
+  
 
   ngOnInit(): void {
     this.loadRides();
@@ -130,12 +147,99 @@ get hasActiveRide(): boolean {
   }
 
   stopRide(ride: DriverRide) {
-    this.http.put(`http://localhost:8080/api/rides/${ride.id}/stop`, {})
-      .subscribe({
-        next: () => this.loadRides(),
+  const ok = confirm('Da li ste sigurni? Vožnja će biti završena na trenutnoj lokaciji.');
+  if (!ok) return;
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const stoppedAt = new Date().toISOString();
+
+      let address = '';
+      try {
+        address = await this.reverseGeocode(lat, lng);
+      } catch {
+        address = `${lat}, ${lng}`; 
+      }
+
+      const payload = { lat, lng, stoppedAt, address };
+
+      this.rideApi.stopRide(ride.id, payload).subscribe({
+        next: (res) => {
+          ride.status = res.status as RideStatus;
+          ride.price = res.price;
+
+          this.stopResult = {
+            rideId: ride.id,
+            status: res.status,
+            price: res.price,
+            message: res.message,
+            stoppedAt,
+            lat,
+            lng,
+            address, 
+          } as any;
+
+          this.loadRides();
+        },
         error: () => this.errorMessage = 'Failed to stop ride.'
       });
-  }
+    },
+    () => this.errorMessage = 'Location permission denied (allow GPS).',
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+
+
+  //stopRide(ride: DriverRide) {
+  //const ok = confirm('Da li ste sigurni? Vožnja će biti završena na trenutnoj lokaciji.');
+  //if (!ok) return;
+
+  //navigator.geolocation.getCurrentPosition(
+    //(pos) => {
+      //const stoppedAt = new Date().toISOString().slice(0, 19);
+
+     // const payload = {
+       // lat: pos.coords.latitude,
+        //lng: pos.coords.longitude,
+        //stoppedAt,
+      //};
+
+      //this.rideApi.stopRide(ride.id, payload).subscribe({
+        //next: (res) => {
+  //ride.status = res.status as RideStatus;
+  //ride.price = res.price;
+
+  //this.stopResult = {
+    //rideId: ride.id,
+    //status: res.status,
+    //price: res.price,
+    //message: res.message,
+    //stoppedAt,
+    //lat: payload.lat,
+    //lng: payload.lng,
+  //};
+
+  //this.loadRides(); 
+//},
+        //error: (err) => {
+          //if (err?.status === 403) this.errorMessage = 'Forbidden: only driver can stop this ride.';
+          //else if (err?.status === 409) this.errorMessage = 'Ride is not IN_PROGRESS.';
+          //else if (err?.status === 401) this.errorMessage = 'Unauthorized.';
+          //else this.errorMessage = 'Failed to stop ride.';
+        //},
+      //});
+    //},
+    //(geoErr) => {
+      //if (geoErr?.code === 1) this.errorMessage = 'Location permission denied (allow GPS).';
+     // else this.errorMessage = 'Cannot get current location.';
+    //},
+    //{ enableHighAccuracy: true, timeout: 10000 }
+  //);
+//} 
+
 
   finishRide(ride: DriverRide) {
     const username = this.authService.getUsername();
@@ -179,4 +283,19 @@ get hasActiveRide(): boolean {
       }
     });
 }
+private async reverseGeocode(lat: number, lng: number): Promise<string> {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+
+  const res = await fetch(url, {
+    headers: {
+      'Accept': 'application/json',
+      // bitno: Nominatim voli identifikaciju
+      'User-Agent': 'NuvolaApp/1.0 (local dev)'
+    }
+  });
+
+  const data = await res.json();
+  return data?.display_name ?? `${lat}, ${lng}`;
+}
+
 }

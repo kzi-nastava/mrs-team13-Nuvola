@@ -66,6 +66,19 @@
       </div>
     </div>
   </div>
+  <div class="stop-result" *ngIf="stopResult as s">
+  <h3>Ride stopped ✅</h3>
+  <div><b>Ride ID:</b> {{ s.rideId }}</div>
+  <div><b>Status:</b> {{ s.status }}</div>
+  <div><b>Price:</b> {{ s.price | number:'1.0-2' }} RSD</div>
+  <div><b>Stopped at:</b> {{ s.stoppedAt }}</div>
+  <b>New destination:</b> {{ stopResult.address }} <br/>
+  <small>({{ stopResult.lat }}, {{ stopResult.lng }})</small>
+  <div *ngIf="s.message"><b>Message:</b> {{ s.message }}</div>
+
+  <button class="btn" (click)="stopResult = null">Close</button>
+</div>
+
 
   <!-- upcoming rides -->
   <div class="section">

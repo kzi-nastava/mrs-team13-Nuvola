@@ -10,6 +10,7 @@ import { RideApiService, CreatedRideDTO } from '../service/ride-api.service';
   styleUrls: ['./stop-ride-button.component.css'],
 })
 export class StopRideButtonComponent {
+
   @Input({ required: true }) rideId!: number;
 
   loading = signal(false);
@@ -20,6 +21,7 @@ export class StopRideButtonComponent {
   constructor(private api: RideApiService) {}
 
   stopRide() {
+
     const ok = confirm('Da li ste sigurni? Vožnja će biti završena na trenutnoj lokaciji.');
     if (!ok) return;
 
@@ -27,26 +29,57 @@ export class StopRideButtonComponent {
     this.error.set('');
     this.response.set(null);
 
-    // Zahtev traži da aplikacija "kupi podatke o mestu i vremenu"
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const time = new Date().toISOString();
-        this.lastStopInfo.set({
-          time,
+
+        // Backend prima LocalDateTime, zato skidamo "Z"
+        const stoppedAt = new Date().toISOString().slice(0, 19);
+
+        const payload = {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
+          stoppedAt: stoppedAt
+        };
+
+        this.lastStopInfo.set({
+          time: stoppedAt,
+          lat: payload.lat,
+          lng: payload.lng
         });
 
-        // Backend trenutno ne prima lokaciju/vreme u body-u (stub), ali mi ih skupljamo u FE.
-        this.api.stopRide(this.rideId).subscribe({
-          next: (res) => this.response.set(res),
-          error: () => this.error.set('Greška pri zaustavljanju vožnje. Proveri da li backend radi i da li rideId postoji.'),
+        this.api.stopRide(this.rideId, payload).subscribe({
+          next: (res) => {
+            this.response.set(res);
+          },
+          error: (err) => {
+
+            if (err?.status === 403) {
+              this.error.set('Nemate dozvolu da zaustavite ovu vožnju.');
+            } else if (err?.status === 409) {
+              this.error.set('Vožnja nije u toku.');
+            } else if (err?.status === 401) {
+              this.error.set('Niste ulogovani.');
+            } else {
+              this.error.set('Greška pri zaustavljanju vožnje.');
+            }
+
+          },
           complete: () => this.loading.set(false),
         });
+
       },
-      () => {
+      (geoError) => {
         this.loading.set(false);
-        this.error.set('Ne mogu da dobijem lokaciju (GPS permission).');
+
+        if (geoError?.code === 1) {
+          this.error.set('GPS dozvola nije odobrena.');
+        } else {
+          this.error.set('Ne mogu da dobijem lokaciju.');
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000
       }
     );
   }
