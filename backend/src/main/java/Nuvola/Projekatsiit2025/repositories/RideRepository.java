@@ -51,4 +51,29 @@ public interface RideRepository extends JpaRepository<Ride, Long>, JpaSpecificat
             Pageable pageable
     );
 
+    @Query("SELECT r FROM Ride r WHERE r.status = 'FINISHED' " +
+            "AND r.driver.id = :driverId " +
+            "AND r.endTime >= :start AND r.endTime <= :end")
+    List<Ride> findFinishedByDriverAndPeriod(
+            @Param("driverId") Long driverId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
+    @Query("SELECT r FROM Ride r WHERE r.status = 'FINISHED' " +
+            "AND (r.creator.id = :userId OR EXISTS (SELECT p FROM r.otherPassengers p WHERE p.id = :userId)) " +
+            "AND r.endTime >= :start AND r.endTime <= :end")
+    List<Ride> findFinishedByUserAndPeriod(
+            @Param("userId") Long userId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
+    @Query("SELECT r FROM Ride r WHERE r.status = 'FINISHED' " +
+            "AND r.endTime >= :start AND r.endTime <= :end")
+    List<Ride> findAllFinishedInPeriod(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
+
 }

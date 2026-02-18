@@ -81,6 +81,11 @@ export class NavBarComponent {
     this.menuOpen = false;
   }
 
+  onRideReports(): void {
+  this.router.navigate(['/ride-reports']);
+  this.menuOpen = false;
+}
+
   onLogoClick(): void {
   if (this.authService.isLoggedIn()) {
     this.router.navigate(['/logedin-home/', this.authService.getUsername()]);

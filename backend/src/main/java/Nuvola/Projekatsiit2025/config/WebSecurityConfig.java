@@ -122,6 +122,8 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/rides/active-ride").permitAll()
                     .requestMatchers(HttpMethod.PUT, "/api/rides/*/start").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/favorites").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/reports/my").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/reports/admin").permitAll()
                     //Da nam lepsu poruku vrati
                     .requestMatchers("/error").permitAll()
                     //.requestMatchers(new AntPathRequestMatcher("/api/whoami")).hasRole("USER")

@@ -184,7 +184,7 @@ public class ProfileController {
         admin.setAddress("Test address");
         admin.setPhone("060000000");
         admin.setBlocked(false);
-        admin = adminRepository.save(admin);
+        admin = adminRepository.saveAndFlush(admin);
 
         notificationService.sendNotification(1L, "Test notification", "This is a test notification", NotificationType.RideReminder);
         return ResponseEntity.ok().build();

@@ -1,0 +1,128 @@
+<!-- ride-reports.component.html -->
+<div class="reports-page">
+  <div class="reports-container">
+
+    <!-- Header -->
+    <div class="reports-header">
+      <h1>Ride Reports</h1>
+      <p class="subtitle">
+        <span *ngIf="!isAdmin && !isDriver">View your spending and ride history</span>
+        <span *ngIf="isDriver">View your earnings and ride history</span>
+        <span *ngIf="isAdmin">View aggregated or individual ride statistics</span>
+      </p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+
+      <!-- Admin target selector -->
+      <div *ngIf="isAdmin" class="admin-targets">
+        <label class="form-label">Report Target</label>
+        <div class="target-grid">
+          <button
+            class="target-btn"
+            [class.active]="adminTarget === 'ALL_DRIVERS'"
+            (click)="adminTarget = 'ALL_DRIVERS'">
+            All Drivers
+          </button>
+          <button
+            class="target-btn"
+            [class.active]="adminTarget === 'ALL_CUSTOMERS'"
+            (click)="adminTarget = 'ALL_CUSTOMERS'">
+            All Customers
+          </button>
+          <button
+            class="target-btn"
+            [class.active]="adminTarget === 'ONE_DRIVER'"
+            (click)="adminTarget = 'ONE_DRIVER'">
+            One Driver
+          </button>
+          <button
+            class="target-btn"
+            [class.active]="adminTarget === 'ONE_CUSTOMER'"
+            (click)="adminTarget = 'ONE_CUSTOMER'">
+            One Customer
+          </button>
+        </div>
+
+        <!-- Email input for single person -->
+        <div *ngIf="needsEmail" class="email-field">
+          <label class="form-label">Email Address</label>
+          <input
+            type="email"
+            class="form-input"
+            [(ngModel)]="targetEmail"
+            placeholder="user@example.com"
+          />
+        </div>
+      </div>
+
+      <!-- Date range -->
+      <div class="date-row">
+        <div class="date-field">
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-input" [(ngModel)]="startDate" />
+        </div>
+        <div class="date-separator">→</div>
+        <div class="date-field">
+          <label class="form-label">End Date</label>
+          <input type="date" class="form-input" [(ngModel)]="endDate" />
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error" class="error-banner"> {{ error }}</div>
+
+      <!-- Generate button -->
+      <button class="generate-btn" (click)="generate()" [disabled]="loading">
+        <span *ngIf="!loading">Generate Report</span>
+        <span *ngIf="loading" class="spinner-row">
+          <span class="spinner"></span> Loading...
+        </span>
+      </button>
+    </div>
+
+    <!-- ─── Results ─── -->
+    <!-- Use [hidden] instead of *ngIf so canvas elements stay in the DOM for ViewChild -->
+    <div [hidden]="!reportData">
+
+      <!-- Summary Cards -->
+      <div class="summary-cards" *ngIf="reportData">
+        <div class="summary-card purple">
+          <div class="card-value">{{ reportData.totalRides }}</div>
+          <div class="card-label">Total Rides</div>
+          <div class="card-avg">Avg {{ reportData.avgRides }}/day</div>
+        </div>
+        <div class="summary-card green">
+          <div class="card-value">{{ reportData.totalKm | number:'1.1-1' }} km</div>
+          <div class="card-label">Total Distance</div>
+          <div class="card-avg">Avg {{ reportData.avgKm | number:'1.1-1' }} km/day</div>
+        </div>
+        <div class="summary-card amber">
+          <div class="card-value">{{ reportData.totalMoney | number:'1.0-0' }} RSD</div>
+          <div class="card-label">{{ moneyLabel }}</div>
+          <div class="card-avg">Avg {{ reportData.avgMoney | number:'1.0-0' }} RSD/day</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3 class="chart-title">Number of Rides per Day</h3>
+          <canvas #ridesCanvas></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Kilometers Traveled per Day</h3>
+          <canvas #kmCanvas></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">{{ moneyLabel }} per Day</h3>
+          <canvas #moneyCanvas></canvas>
+        </div>
+      </div>
+
+    </div>
+    <!-- end [hidden] -->
+
+  </div>
+</div>

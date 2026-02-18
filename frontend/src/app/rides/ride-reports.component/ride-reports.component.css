@@ -1,0 +1,276 @@
+/* ride-reports.component.css */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+.reports-page {
+  min-height: 100vh;
+  background: #eeeeee;
+  padding: 2rem 1rem 4rem;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.reports-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Header */
+.reports-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.header-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.reports-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e1b4b;
+  margin: 0 0 0.4rem;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Form card */
+.form-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 24px rgba(79, 70, 229, 0.08);
+  margin-bottom: 2rem;
+}
+
+/* Admin targets */
+.admin-targets {
+  margin-bottom: 1.5rem;
+}
+
+.target-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.target-btn {
+  background: #0A1128;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 0.65rem 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.target-btn:hover {
+  background: #eeeeee;
+  color: #0A1128;
+}
+
+.target-btn.active {
+  background: #eeeeee;
+  border-color: #0A1128;
+  color: #0A1128;
+  font-weight: 600;
+}
+
+/* Date row */
+.date-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.date-field {
+  flex: 1;
+}
+
+.date-separator {
+  font-size: 1.4rem;
+  color: #9ca3af;
+  padding-bottom: 0.4rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: 'DM Sans', sans-serif;
+  color: #111827;
+  background: #fafafa;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  background: #fff;
+}
+
+.email-field {
+  margin-top: 0.75rem;
+}
+
+/* Error */
+.error-banner {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+
+/* Generate button */
+.generate-btn {
+  width: 100%;
+  background: #0A1128;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.85rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.15s;
+}
+
+.generate-btn:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.generate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Summary cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-card {
+  border-radius: 14px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.summary-card.purple { background: linear-gradient(135deg, #ede9fe, #ddd6fe); }
+.summary-card.green  { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+.summary-card.amber  { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+
+.card-icon { font-size: 1.5rem; margin-bottom: 0.35rem; }
+
+.card-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1f2937;
+  font-family: 'DM Mono', monospace;
+}
+
+.card-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0.2rem 0;
+}
+
+.card-avg {
+  font-size: 0.78rem;
+  color: #6b7280;
+  font-family: 'DM Mono', monospace;
+}
+
+/* Charts */
+.charts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.chart-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 16px rgba(79, 70, 229, 0.07);
+}
+
+.chart-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 1rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .target-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .date-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .date-separator {
+    display: none;
+  }
+}
