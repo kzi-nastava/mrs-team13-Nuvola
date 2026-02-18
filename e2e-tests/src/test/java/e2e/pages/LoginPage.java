@@ -31,5 +31,8 @@ public class LoginPage {
             okBtn.click();
         } catch (Exception e) {
         }
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//button[contains(@class,'nav-link') and normalize-space()='Log out']")
+        ));
     }
 }

@@ -18,7 +18,10 @@ public class MainPage {
     }
 
     public void open() {
+
         driver.get(URL);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("nav.navbar")));
+
     }
 
     public LoginPage clickLogIn() {
@@ -28,6 +31,7 @@ public class MainPage {
                 )
         );
         loginBtn.click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("input[type='email']")));
         return new LoginPage(driver);
     }
 }
