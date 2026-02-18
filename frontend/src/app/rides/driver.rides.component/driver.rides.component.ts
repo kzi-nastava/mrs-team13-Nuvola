@@ -242,6 +242,7 @@ get hasActiveRide(): boolean {
       next: (resp) => {
         const rideId = resp.body;
         this.loadRides();
+        this.cdr.detectChanges();
 
         if (rideId) {
           this.router.navigate(['/scheduled-ride-start', rideId]);
@@ -249,6 +250,7 @@ get hasActiveRide(): boolean {
       },
       error: () => {
         this.errorMessage = 'Failed to end ride.';
+        this.cdr.detectChanges();
       }
     });
   }

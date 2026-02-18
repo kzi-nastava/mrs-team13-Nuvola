@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { UserModel } from '../model/user.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminUserService } from '../admin-user.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-drivers',
@@ -17,23 +18,45 @@ users: UserModel[] = [];
   selectedUser: UserModel | null = null;
   blockReason: string = '';
   showModal = false;
+  searchTerm = '';
 
-  constructor(private adminUserService: AdminUserService) {}
+  constructor(private adminUserService: AdminUserService, private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit() {
     this.loadDrivers();   
   }
 
-  loadDrivers() {     
-    this.adminUserService.getDrivers().subscribe(data => {
-      this.users = data;
-    });
+  loadDrivers(searchTerm?: string) {    
+    if (searchTerm) {
+      searchTerm = searchTerm.trim();
+      if (searchTerm === '') {
+        this.loadDrivers();
+        return;
+      }
+      this.adminUserService.getDrivers(searchTerm).subscribe(data => {
+        this.users = data;
+        this.cdr.detectChanges();
+      });
+
+    } else {
+      this.adminUserService.getDrivers().subscribe(data => {
+        this.users = data;
+        this.cdr.detectChanges();
+      });
+    }
+    
   }
 
   openBlockModal(user: UserModel) {
     this.selectedUser = user;
     this.blockReason = '';
     this.showModal = true;
+  }
+
+  openInfo(user: UserModel) {
+    console.log('Driver info:', user);
+    this.router.navigate(['/admin/drivers/info', user.id]);
+    
   }
 
   cancel() {

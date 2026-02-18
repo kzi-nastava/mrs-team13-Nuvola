@@ -100,6 +100,8 @@ public class WebSecurityConfig {
                     .requestMatchers("api/reviews").permitAll()
                     .requestMatchers("api/reviews/*").permitAll()
                     .requestMatchers("/api/support/**").permitAll()
+                    .requestMatchers("/api/admin/drivers/info/*").permitAll()
+                    .requestMatchers("/api/pricing/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/drivers").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/drivers/*/picture").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll()
@@ -121,6 +123,7 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.PUT, "/api/admin/profile-change-requests/*/reject").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/rides/active-ride").permitAll()
                     .requestMatchers(HttpMethod.PUT, "/api/rides/*/start").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/favorites").permitAll()
                     //Da nam lepsu poruku vrati
                     .requestMatchers("/error").permitAll()
                     //.requestMatchers(new AntPathRequestMatcher("/api/whoami")).hasRole("USER")

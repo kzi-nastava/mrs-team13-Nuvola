@@ -1,4 +1,7 @@
 package Nuvola.Projekatsiit2025.services.impl;
+import Nuvola.Projekatsiit2025.model.enums.NotificationType;
+import Nuvola.Projekatsiit2025.services.NotificationService;
+import Nuvola.Projekatsiit2025.services.PricingService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import Nuvola.Projekatsiit2025.dto.*;
@@ -22,12 +25,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class RideServiceImpl implements RideService {
     @Autowired
     private RideRepository rideRepository;
+
+    @Autowired
+    private PricingService pricingService;
 
     @Autowired
     EmailService emailService;
@@ -37,6 +44,9 @@ public class RideServiceImpl implements RideService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RatingRepository ratingRepository;
 
     @Autowired
     private RegisteredUserRepository registeredUserRepository;
@@ -49,6 +59,10 @@ public class RideServiceImpl implements RideService {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+
+    @Autowired
+    private NotificationService notificationService;
+
 
 
     @Override
@@ -63,12 +77,14 @@ public class RideServiceImpl implements RideService {
         // if pagination
         if ((page != null && size != null) && ((page >= 1) && (size >= 1))) {
             Pageable pageable = PageRequest.of(page, size, sort);
-            Page<Ride> ridesPage = rideRepository.findByDriverId(driverId, pageable);
+            // Page<Ride> ridesPage = rideRepository.findByDriverId(driverId, pageable);
+            Page<Ride> ridesPage = rideRepository.findByDriverIdAndStatus(driverId, RideStatus.FINISHED, pageable);
 
             return ridesPage.map(DriverRideHistoryItemDTO::new);
         }
 
-        List<Ride> rides = rideRepository.findByDriverId(driverId, sort);
+        // List<Ride> rides = rideRepository.findByDriverId(driverId, sort);
+        List<Ride> rides = rideRepository.findByDriverIdAndStatus(driverId, RideStatus.FINISHED, sort);
         List<DriverRideHistoryItemDTO> dtos = rides.stream()
                 .map(DriverRideHistoryItemDTO::new)
                 .collect(Collectors.toList());
@@ -87,7 +103,7 @@ public class RideServiceImpl implements RideService {
         driverRepository.save(driver);
         ride.setStatus(RideStatus.IN_PROGRESS);
         ride.setStartTime(java.time.LocalDateTime.now());
-        rideRepository.save(ride);
+        rideRepository.saveAndFlush(ride);
 
         // Send email notification to passengers
         EmailDetails emailDetails = new EmailDetails();
@@ -132,7 +148,7 @@ public class RideServiceImpl implements RideService {
                     return l;
                 }).toList();
         route.setStops(stopLocations);
-        route.setFavourite(false);
+        // route.setFavourite(false); nema vise ovog atributa
 
         return route;
     }
@@ -149,47 +165,100 @@ public class RideServiceImpl implements RideService {
                 .orElse(null);
     }
 
-    public Ride createRide(User loggedUser, CreateRideDTO dto) {
+public Ride createRide(User loggedUser, CreateRideDTO dto) {
 
-        if (loggedUser instanceof RegisteredUser registeredUser) {
-
-            if (registeredUser.isBlocked()) {
-                throw new ResponseStatusException(
-                        HttpStatus.FORBIDDEN,
-                        registeredUser.getBlockingReason() != null
-                                ? "ACCOUNT_BLOCKED: " + registeredUser.getBlockingReason()
-                                : "ACCOUNT_BLOCKED"
-                );
-            }
-        }
-        Route route = createRoute(dto);
-
-        Driver driver = findDriver(dto);
-        if (driver == null) {
+    if (loggedUser instanceof RegisteredUser registeredUser) {
+        if (registeredUser.isBlocked()) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "NO_AVAILABLE_DRIVER"
+                    HttpStatus.FORBIDDEN,
+                    registeredUser.getBlockingReason() != null
+                            ? "ACCOUNT_BLOCKED: " + registeredUser.getBlockingReason()
+                            : "ACCOUNT_BLOCKED"
             );
         }
-        route = routeRepository.save(route);
-
-        Ride ride = new Ride();
-        ride.setStatus(RideStatus.SCHEDULED);
-        ride.setCreationTime(LocalDateTime.now());
-        ride.setStartTime(dto.getScheduledTime());
-        ride.setRoute(route);
-        ride.setCreator((RegisteredUser) loggedUser);
-        ride.setDriver(driver);
-
-        double price = calculatePrice(10.0, dto.getVehicleType());
-        ride.setPrice(price);
-
-        List<RegisteredUser> passengers =
-                userRepository.findByEmailIn(dto.getPassengerEmails());
-        ride.setOtherPassengers(passengers);
-
-        return rideRepository.save(ride);
     }
+
+    Long userId = loggedUser.getId();
+
+    List<Driver> allNonInactiveDrivers = driverRepository.findActiveAndBusyDriversWithVehicle()
+            .stream()
+            .filter(d -> !d.isBlocked())
+            .toList();
+
+    if (allNonInactiveDrivers.isEmpty()) {
+        notificationService.sendNotification(
+                userId,
+                "No Active Drivers",
+                "There are currently no active drivers available. Please try again later.",
+                NotificationType.NoVehicleAvailable
+        );
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NO_ACTIVE_DRIVERS");
+    }
+
+    Route route = createRoute(dto);
+    Driver driver = findDriver(dto);
+
+    if (driver == null) {
+        notificationService.sendNotification(
+                userId,
+                "No Available Drivers",
+                "All drivers are currently busy. Please try again in a few minutes.",
+                NotificationType.NoVehicleAvailable
+        );
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NO_AVAILABLE_DRIVER");
+    }
+
+    route = routeRepository.save(route);
+
+    Ride ride = new Ride();
+    ride.setStatus(RideStatus.SCHEDULED);
+    ride.setCreationTime(LocalDateTime.now());
+    ride.setStartTime(dto.getScheduledTime());
+    ride.setRoute(route);
+    ride.setCreator((RegisteredUser) loggedUser);
+    ride.setDriver(driver);
+
+    double price = calculatePrice(10.0, dto.getVehicleType());
+    ride.setPrice(price);
+
+    List<RegisteredUser> passengers =
+            userRepository.findByEmailIn(dto.getPassengerEmails());
+    ride.setOtherPassengers(passengers);
+
+    Ride savedRide = rideRepository.save(ride);
+
+    LocalDateTime scheduledTime = dto.getScheduledTime();
+    String rideTimeInfo = scheduledTime != null
+            ? " Your ride is scheduled for " + scheduledTime + "."
+            : " Your driver is on the way.";
+
+    notificationService.sendNotification(
+            userId,
+            "Ride Approved",
+            "Your ride has been successfully booked." + rideTimeInfo,
+            NotificationType.RideApproved
+    );
+
+//    if (passengers != null && !passengers.isEmpty()) {
+//        for (RegisteredUser passenger : passengers) {
+//            notificationService.sendNotification(
+//                    passenger.getId(),
+//                    "You Have Been Added to a Ride",
+//                    "You have been added as a passenger to a ride." + rideTimeInfo,
+//                    NotificationType.LinkedPassanger
+//            );
+//        }
+//    }
+
+    notificationService.sendNotification(
+            driver.getId(),
+            "New Ride Assigned",
+            "You have been assigned a new ride. Please check the details and proceed to the pickup location.",
+            NotificationType.YouAreAssignedToRide
+    );
+
+    return savedRide;
+}
 
     @Override
     public Long endRide(String username) {
@@ -215,12 +284,11 @@ public class RideServiceImpl implements RideService {
         for (RegisteredUser u : ride.getOtherPassengers()) {
             emailDetails.setRecipient(u.getEmail());
             emailService.sendRideFinished(emailDetails);
+            notificationService.sendNotification(u.getId(), "Ride " + ride.getId() + " Ended", "Your ride has ended. Price: " + ride.getPrice() + " RSD", NotificationType.RideEnded);
         }
         emailDetails.setRecipient(ride.getCreator().getEmail());
         emailService.sendRideFinished(emailDetails);
-
-        //TODO: send notification to passengers
-
+        notificationService.sendNotification(ride.getCreator().getId(), "Ride " + ride.getId() + " Ended", "Your ride has ended. Price: " + ride.getPrice() + " RSD", NotificationType.RideEnded);
 
         Ride scheduledRide = getNearestScheduledRideForDriver(driver.getId());
         if  (scheduledRide == null) {
@@ -264,16 +332,19 @@ public class RideServiceImpl implements RideService {
 
 
     private double calculatePrice(double distanceKm, VehicleType type) {
-        double basePrice;
+//        double basePrice;
+//
+//        switch (type) {
+//            case STANDARD -> basePrice = 250;
+//            case LUXURY -> basePrice = 450;
+//            case VAN -> basePrice = 350;
+//            default -> basePrice = 250;
+//        }
 
-        switch (type) {
-            case STANDARD -> basePrice = 250;
-            case LUXURY -> basePrice = 450;
-            case VAN -> basePrice = 350;
-            default -> basePrice = 250;
-        }
+        Double base = pricingService.getOne(type).getBasePrice();
+        double vehiclePrice = base != null ? base : 0.0;
 
-        return basePrice + distanceKm * 120;
+        return vehiclePrice + distanceKm * 120;
     }
 
     public List<Ride> getAssignedRidesForDriver(String username) {
@@ -336,12 +407,29 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
+    @Transactional
     public RideHistoryDetailsDTO getRideHistoryDetailsForUser(Long rideId, Long userId) {
-        Ride ride = rideRepository.findRideDetailsForUser(rideId, userId)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found"));
+//        Ride ride = rideRepository.findRideDetailsForUser(rideId, userId)
+//                .orElseThrow(() ->
+//                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found"));
+//
+//        return new RideHistoryDetailsDTO(ride);
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found"));
 
-        return new RideHistoryDetailsDTO(ride);
+        boolean isCreator = ride.getCreator().getId().equals(userId);
+        boolean isPassenger = ride.getOtherPassengers().stream()
+                .anyMatch(p -> p.getId().equals(userId));
+
+        if (!isCreator && !isPassenger) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found");
+        }
+
+        RideHistoryDetailsDTO dto = new RideHistoryDetailsDTO(ride);
+        List<Rating> ratings = ratingRepository.findByRideId(rideId);
+        dto.setRatings(ratings.stream().map(RatingInfoDTO::new).toList());
+
+        return dto;
     }
     @Override
     public Page<RegisteredUserRideHistoryItemDTO> getUserRideHistory(
@@ -482,7 +570,6 @@ public class RideServiceImpl implements RideService {
         ride.setCreator((RegisteredUser) loggedUser);
         ride.setDriver(driver);
 
-        // ✅ Izračunaj cenu (sa dummy vrednosti za distancu)
         double price = calculatePrice(10.0, VehicleType.STANDARD);
         ride.setPrice(price);
 
@@ -503,9 +590,41 @@ public class RideServiceImpl implements RideService {
                 .orElse(null);
     }
 
+    @Override
+    public TrackingRideDTO getTrackingRideDTO(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UserNotFoundException(username);
+        }
+        List<Ride> rides = rideRepository.findActiveRidesByUser(user.getId());
+        if (rides.isEmpty()) {
+            throw new RideNotFoundException("No active ride found for user " + username);
+        }
+        if (rides.size() > 1) {
+            throw new InvalidRideStateException("Multiple active rides found for user " + username);
+        }
+        Ride ride = rides.get(0);
+        return new TrackingRideDTO(ride);
 
+    }
 
+    @Override
+    public TrackingRideDTO getTrackingRideDTOForAdmin(Long driverId) {
+        Optional<Driver> driver = driverRepository.findById(driverId);
+        if (driver.isEmpty()) {
+            throw new UserNotFoundException(driverId.toString());
+        }
+        List<Ride> rides = rideRepository.findByStatusAndDriver_Id(RideStatus.IN_PROGRESS, driverId);
+        if (rides.isEmpty()) {
+            throw new RideNotFoundException("No active ride found for user " + driverId);
+        }
+        if (rides.size() > 1) {
+            throw new InvalidRideStateException("Multiple active rides found for user " + driverId);
+        }
+        Ride ride = rides.get(0);
+        return new TrackingRideDTO(ride);
 
+    }
 
 
 }

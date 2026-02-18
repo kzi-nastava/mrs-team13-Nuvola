@@ -3,6 +3,7 @@ package Nuvola.Projekatsiit2025.model;
 import Nuvola.Projekatsiit2025.services.UserService;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Timestamp;
@@ -13,6 +14,7 @@ import java.util.List;
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Data
+@EqualsAndHashCode(exclude = {"chat", "notifications"})
 public abstract class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

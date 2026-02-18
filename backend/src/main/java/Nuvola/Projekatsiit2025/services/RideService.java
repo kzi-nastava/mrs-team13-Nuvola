@@ -24,4 +24,6 @@ public interface RideService {
     RideHistoryDetailsDTO getRideHistoryDetailsForUser(Long rideId, Long userId);
     boolean toggleFavoriteRouteForUser(Long rideId, Long id);
     Ride createRideFromHistory(User loggedUser, CreateRideFromHistoryDTO dto);
+    TrackingRideDTO getTrackingRideDTO(String username);
+    TrackingRideDTO getTrackingRideDTOForAdmin(Long driverId);
 }
