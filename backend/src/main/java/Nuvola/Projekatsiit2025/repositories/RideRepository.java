@@ -30,6 +30,7 @@ public interface RideRepository extends JpaRepository<Ride, Long>, JpaSpecificat
             "AND (r.creator.id = :userId " +
             "     OR EXISTS (SELECT p FROM r.otherPassengers p WHERE p.id = :userId))")
     List<Ride> findActiveRidesByUser(@Param("userId") Long userId);
+    List<Ride> findByStatusAndDriver_Id(RideStatus status, Long driverId);
 
     List<Ride> findByIsPanicTrue();
 

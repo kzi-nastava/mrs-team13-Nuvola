@@ -126,4 +126,9 @@ export class NavBarComponent {
 }
 
   onMyNotifications(): void {this.router.navigate(['/notifications']); this.menuOpen = false; }
+
+  onChangePrices(): void {
+    this.router.navigate(['/change-prices']);
+    this.menuOpen = false;
+  }
 }

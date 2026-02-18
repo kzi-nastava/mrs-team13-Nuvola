@@ -29,6 +29,8 @@ import { AdminChatPage } from './chat/admin.chat.page/admin.chat.page';
 import { UserChatPage } from './chat/user.chat.page/user.chat.page';
 import { AdminInboxComponent } from './chat/admin.inbox.component/admin.inbox.component';
 import { RideReportsComponent } from './rides/ride-reports.component/ride-reports.component';
+import { AdminDriverInfoComponent } from './users/admin.driver.info.component/admin.driver.info.component';
+import { ChangePriceComponent } from './pricing/change.price.component/change.price.component';
 
 
 export const routes: Routes = [
@@ -64,4 +66,6 @@ export const routes: Routes = [
     { path: 'support/chat', component: UserChatPage },
     { path: 'admin/support/inbox', component: AdminInboxComponent },
     { path: 'ride-reports', component: RideReportsComponent },
+    { path: 'admin/drivers/info/:driverId', component: AdminDriverInfoComponent },
+    { path: 'change-prices', component: ChangePriceComponent}
 ];

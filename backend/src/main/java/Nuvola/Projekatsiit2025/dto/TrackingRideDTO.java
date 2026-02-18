@@ -20,6 +20,7 @@ public class TrackingRideDTO {
     private String pickup;
     private LocalDateTime startingTime;
     private boolean isFavouriteRoute;
+    private boolean isPanic;
 
     public TrackingRideDTO(Long id, RouteDTO route, Long driverId, double price, String dropoff, String pickup, LocalDateTime startingTime, boolean isFavouriteRoute) {
         this.id = id;
@@ -30,6 +31,7 @@ public class TrackingRideDTO {
         this.pickup = pickup;
         this.startingTime = startingTime;
         this.isFavouriteRoute = isFavouriteRoute;
+        this.isPanic = false;
     }
 
     public TrackingRideDTO(Ride ride) {
@@ -41,6 +43,7 @@ public class TrackingRideDTO {
         this.pickup = ride.getRoute().getPickup().getAddress();
         this.startingTime = ride.getStartTime();
         this.isFavouriteRoute = false;
+        this.isPanic = ride.isPanic();
     }
 
 
