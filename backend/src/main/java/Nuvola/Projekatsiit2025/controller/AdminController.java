@@ -1,6 +1,7 @@
 package Nuvola.Projekatsiit2025.controller;
 
 import Nuvola.Projekatsiit2025.dto.*;
+import Nuvola.Projekatsiit2025.exceptions.ride.RideNotFoundException;
 import Nuvola.Projekatsiit2025.model.Driver;
 import Nuvola.Projekatsiit2025.model.ProfileChangeRequest;
 import Nuvola.Projekatsiit2025.model.RegisteredUser;
@@ -392,6 +393,26 @@ public class AdminController {
         dto.setCreatedAt(req.getCreatedAt().toString());
 
         return dto;
+    }
+
+    // 2.13
+    @GetMapping(value = "/drivers/info/{driverId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable Long driverId){
+        // find that ride
+//        RouteDTO route = new RouteDTO();
+//        route.appendStop(new CoordinateDTO(45.238796, 19.883819));
+//        route.appendStop(new CoordinateDTO(45.242685, 19.841950));
+//        route.appendStop(new CoordinateDTO(45.249336, 19.830732));
+//        route.appendStop(new CoordinateDTO(45.251135, 19.797931));
+//        LocalDateTime now = LocalDateTime.now();
+//        TrackingRideDTO ride = new TrackingRideDTO(3L, route, 2L, 1203, "A", "B", now, false);
+        TrackingRideDTO ride = null;
+        try {
+            ride = rideService.getTrackingRideDTOForAdmin(driverId);
+        } catch (RideNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        return new ResponseEntity<>(ride, HttpStatus.OK);
     }
 
 }

@@ -24,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,7 +99,7 @@ public class RideServiceImpl implements RideService {
         driverRepository.save(driver);
         ride.setStatus(RideStatus.IN_PROGRESS);
         ride.setStartTime(java.time.LocalDateTime.now());
-        rideRepository.save(ride);
+        rideRepository.saveAndFlush(ride);
 
         // Send email notification to passengers
         EmailDetails emailDetails = new EmailDetails();
@@ -600,6 +601,23 @@ public Ride createRide(User loggedUser, CreateRideDTO dto) {
 
     }
 
+    @Override
+    public TrackingRideDTO getTrackingRideDTOForAdmin(Long driverId) {
+        Optional<Driver> driver = driverRepository.findById(driverId);
+        if (driver.isEmpty()) {
+            throw new UserNotFoundException(driverId.toString());
+        }
+        List<Ride> rides = rideRepository.findByStatusAndDriver_Id(RideStatus.IN_PROGRESS, driverId);
+        if (rides.isEmpty()) {
+            throw new RideNotFoundException("No active ride found for user " + driverId);
+        }
+        if (rides.size() > 1) {
+            throw new InvalidRideStateException("Multiple active rides found for user " + driverId);
+        }
+        Ride ride = rides.get(0);
+        return new TrackingRideDTO(ride);
+
+    }
 
 
 }

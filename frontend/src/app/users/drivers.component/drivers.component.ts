@@ -3,6 +3,7 @@ import { UserModel } from '../model/user.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminUserService } from '../admin-user.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-drivers',
@@ -19,7 +20,7 @@ users: UserModel[] = [];
   showModal = false;
   searchTerm = '';
 
-  constructor(private adminUserService: AdminUserService, private cdr: ChangeDetectorRef) {}
+  constructor(private adminUserService: AdminUserService, private cdr: ChangeDetectorRef, private router: Router) {}
 
   ngOnInit() {
     this.loadDrivers();   
@@ -54,7 +55,7 @@ users: UserModel[] = [];
 
   openInfo(user: UserModel) {
     console.log('Driver info:', user);
-
+    this.router.navigate(['/admin/drivers/info', user.id]);
     
   }
 

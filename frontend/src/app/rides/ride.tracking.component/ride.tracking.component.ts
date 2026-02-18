@@ -42,6 +42,7 @@ interface TrackingRideDTO {
   pickup: string;
   startingTime: string;
   favouriteRoute: boolean;
+  panic: boolean;
 }
 
 interface ReportRequestDTO {
