@@ -7,6 +7,7 @@ import Nuvola.Projekatsiit2025.repositories.UserRepository;
 import Nuvola.Projekatsiit2025.services.EmailService;
 import Nuvola.Projekatsiit2025.services.PasswordResetService;
 import Nuvola.Projekatsiit2025.util.EmailDetails;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 
 @Service
 public class PasswordResetServiceImpl implements PasswordResetService {
@@ -42,45 +44,95 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         this.emailService = emailService;
     }
 
-    @Override
-    public void requestReset(String email) {
-        if (email == null || email.isBlank()) return;
+ //   @Override
+   // public void requestReset(String email) {
+     //   if (email == null || email.isBlank()) return;
 
-        var maybeUser = userRepository.findByEmailIgnoreCase(email.trim());
+       // var maybeUser = userRepository.findByEmailIgnoreCase(email.trim());
 
-        if (maybeUser.isEmpty()) {
+       // if (maybeUser.isEmpty()) {
             // security: ne otkrivamo da ne postoji
-            return;
-        }
+         //   return;
+        //}
 
-        User user = maybeUser.get();
+        //User user = maybeUser.get();
 
         // samo 1 aktivan token
-        tokenRepository.deleteAllByUser(user);
+//        tokenRepository.deleteAllByUser(user);
 
-        String token = UUID.randomUUID().toString();
+//        String token = UUID.randomUUID().toString();
 
-        PasswordResetToken prt = PasswordResetToken.builder()
-                .token(token)
-                .user(user)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(tokenMinutes))
-                .used(false)
-                .build();
+        //PasswordResetToken prt = PasswordResetToken.builder()
+           //     .token(token)
+                //.user(user)
+               // .createdAt(LocalDateTime.now())
+             //   .expiresAt(LocalDateTime.now().plusMinutes(tokenMinutes))
+           //     .used(false)
+         //       .build();
 
-        tokenRepository.save(prt);
+       // tokenRepository.save(prt);
 
-        String link = resetBaseUrl + token; // ide na /reset-password/open?token=...
-        EmailDetails details = new EmailDetails();
-        details.setRecipient(user.getEmail());
-        details.setSubject("Reset lozinke - Nuvola");
+      //  String link = resetBaseUrl + token; // ide na /reset-password/open?token=...
+    //    EmailDetails details = new EmailDetails();
+  //      details.setRecipient(user.getEmail());
+//        details.setSubject("Reset lozinke - Nuvola");
 
-        details.setMsgBody("http://localhost:4200/reset-password?token=" + token);
+        //details.setMsgBody("http://localhost:4200/reset-password?token=" + token);
 
-        emailService.sendPasswordReset(details);
+        //emailService.sendPasswordReset(details);
+      //  System.out.println("RESET LINK: http://localhost:4200/reset-password?token=" + token);
+    //}
+    @Transactional
+    @Override
+    public void requestReset(String email) {
+        try {
+            System.out.println("REQ-RESET A: start email=" + email);
+
+            if (email == null || email.isBlank()) return;
+
+            var maybeUser = userRepository.findByEmailIgnoreCase(email.trim());
+            System.out.println("REQ-RESET B: userFound=" + maybeUser.isPresent());
+
+            if (maybeUser.isEmpty()) return;
+
+            User user = maybeUser.get();
+            System.out.println("REQ-RESET C: userId=" + user.getId());
+
+            System.out.println("REQ-RESET D: deleting old tokens...");
+            tokenRepository.deleteAllByUserId(user.getId());
+            System.out.println("REQ-RESET E: deleted old tokens.");
+
+            String token = UUID.randomUUID().toString();
+
+            PasswordResetToken prt = PasswordResetToken.builder()
+                    .token(token)
+                    .user(user)
+                    .createdAt(LocalDateTime.now())
+                    .expiresAt(LocalDateTime.now().plusMinutes(tokenMinutes))
+                    .used(false)
+                    .build();
+
+            System.out.println("REQ-RESET F: saving token...");
+            tokenRepository.save(prt);
+            System.out.println("REQ-RESET G: saved token id=" + prt.getId());
+
+            EmailDetails details = new EmailDetails();
+            details.setRecipient(user.getEmail());
+            details.setSubject("Reset lozinke - Nuvola");
+            details.setMsgBody("http://localhost:4200/reset-password?token=" + token);
+
+            System.out.println("REQ-RESET H: sending email...");
+            emailService.sendPasswordReset(details);
+            System.out.println("REQ-RESET I: done.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e; // da vidimo pravi razlog u konzoli
+        }
 
     }
 
+
+    @Transactional
     @Override
     public void resetPassword(String token, String newPassword, String confirmNewPassword) {
         if (token == null || token.isBlank()) {
@@ -110,5 +162,6 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
         prt.setUsed(true);
         tokenRepository.save(prt);
+
     }
 }
