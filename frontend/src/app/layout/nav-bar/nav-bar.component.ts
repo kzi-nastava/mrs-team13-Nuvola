@@ -50,7 +50,10 @@ export class NavBarComponent {
   onRideHistory(): void {
     if (this.authService.getRole() === 'ROLE_DRIVER') {
       this.router.navigate(['/ride-history/', this.authService.getUsername()]);
-    } else {
+    } else if (this.authService.getRole() === 'ROLE_ADMIN') {
+      this.router.navigate(['/admin/rides/', this.authService.getUserId()]);
+    }
+     else {
       this.router.navigate(['/ride-history']);
     }
     

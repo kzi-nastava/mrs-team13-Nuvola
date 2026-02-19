@@ -100,7 +100,7 @@ public class ProfileController {
 
         user.setPicture(existingPicture);
 
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         return ResponseEntity.ok().build();
     }

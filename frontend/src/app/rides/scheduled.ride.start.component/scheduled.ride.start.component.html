@@ -63,7 +63,7 @@
     </div>
   </article>
   <div class="nearest-ride__actions" *ngIf="!loading && !errorMessage && nearestRide">
-    <button class="btn">
+    <button class="btn" (click)="startRide(nearestRide.id)">
       Start Ride
     </button>
   </div>

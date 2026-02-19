@@ -2,6 +2,9 @@ import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { EndRideService, ScheduledRide } from '../service/end.ride.service';
 import { ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../auth/services/auth.service';
+import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-scheduled-ride-start-component',
@@ -24,7 +27,12 @@ export class ScheduledRideStartComponent implements OnInit {
 
   errorMessage: string | null = null;
 
-  constructor(private route: ActivatedRoute, private endRideService: EndRideService, private cdr: ChangeDetectorRef) {}
+  constructor(private route: ActivatedRoute,
+     private endRideService: EndRideService,
+      private http: HttpClient,
+      private router: Router,
+      private cdr: ChangeDetectorRef, 
+      private authService: AuthService) {}
 
   ngOnInit(): void {
     const rideIdParam = this.route.snapshot.paramMap.get('rideId');
@@ -63,6 +71,22 @@ export class ScheduledRideStartComponent implements OnInit {
 
       },
     });
+  }
+
+  startRide(rideId: number): void {
+    this.http.put(`http://localhost:8080/api/rides/${rideId}/start`, {})
+      .subscribe({
+        next: () => {
+          console.log('Ride started successfully'); 
+          alert('Ride started successfully');
+          this.router.navigate(['/driver-rides', this.authService.getUsername()]);
+        },
+        error: (err) => {
+          console.error('Failed to start ride:', err);
+          this.errorMessage = 'Failed to start ride.';
+          this.cdr.detectChanges();
+        }
+      });
   }
   
 }
