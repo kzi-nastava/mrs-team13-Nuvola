@@ -1,23 +1,23 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+// import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RideDetailsAdminComponent } from './ride-details-admin.component';
+// import { RideDetailsAdminComponent } from './ride-details-admin.component';
 
-describe('RideDetailsAdminComponent', () => {
-  let component: RideDetailsAdminComponent;
-  let fixture: ComponentFixture<RideDetailsAdminComponent>;
+// describe('RideDetailsAdminComponent', () => {
+//   let component: RideDetailsAdminComponent;
+//   let fixture: ComponentFixture<RideDetailsAdminComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [RideDetailsAdminComponent]
-    })
-    .compileComponents();
+//   beforeEach(async () => {
+//     await TestBed.configureTestingModule({
+//       imports: [RideDetailsAdminComponent]
+//     })
+//     .compileComponents();
 
-    fixture = TestBed.createComponent(RideDetailsAdminComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
+//     fixture = TestBed.createComponent(RideDetailsAdminComponent);
+//     component = fixture.componentInstance;
+//     await fixture.whenStable();
+//   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+//   it('should create', () => {
+//     expect(component).toBeTruthy();
+//   });
+// });

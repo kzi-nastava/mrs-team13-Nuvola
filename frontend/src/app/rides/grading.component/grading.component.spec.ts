@@ -135,7 +135,7 @@ fdescribe('GradingComponent', () => {
     // reset form
     expect(component.form.value.vehicleRating).toBeNull();
     expect(component.form.value.driverRating).toBeNull();
-    expect(component.form.value.comment).toBeNull(); // reset() obično vrati null
+    expect(component.form.value.comment).toBeNull();
   });
 
   // it('should disable submit button when isSending=true', async () => {
