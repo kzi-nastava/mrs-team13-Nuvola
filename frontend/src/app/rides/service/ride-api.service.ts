@@ -30,7 +30,12 @@ private baseUrl = environment.apiHost + '/api/rides';
   
   stopRide(rideId: number, body: StopRideRequestDTO): Observable<CreatedRideDTO> {
   return this.http.patch<CreatedRideDTO>(`${this.baseUrl}/${rideId}/stop`, body);
+  }
+
+  cancelRide(rideId: number, reason?: string | null) {
+  return this.http.put<CreatedRideDTO>(`${this.baseUrl}/${rideId}/cancel`, { reason: reason ?? null });
 }
+
 
 
   // ride-api.service.ts

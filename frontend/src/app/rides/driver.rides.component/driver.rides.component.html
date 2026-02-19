@@ -110,13 +110,11 @@
             
 
             <button
-              class="btn gray"
-              [class.disabled]="r.allPassengersJoined"
-              [disabled]="r.allPassengersJoined"
-              (click)="openCancelModal(r)"
-            >
-              Cancel
-            </button>
+  class="btn gray"
+  (click)="openCancelModal(r)"
+  [disabled]="r.status !== 'SCHEDULED'">
+  Cancel
+</button>
           </div>
         </div>
 

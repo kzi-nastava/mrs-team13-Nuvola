@@ -22,7 +22,7 @@ export class StopRideButtonComponent {
 
   stopRide() {
 
-    const ok = confirm('Da li ste sigurni? Vožnja će biti završena na trenutnoj lokaciji.');
+    const ok = confirm('Are you sure? The ride will be stopped at this location.');
     if (!ok) return;
 
     this.loading.set(true);
@@ -32,7 +32,7 @@ export class StopRideButtonComponent {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
 
-        // Backend prima LocalDateTime, zato skidamo "Z"
+
         const stoppedAt = new Date().toISOString().slice(0, 19);
 
         const payload = {
@@ -54,13 +54,13 @@ export class StopRideButtonComponent {
           error: (err) => {
 
             if (err?.status === 403) {
-              this.error.set('Nemate dozvolu da zaustavite ovu vožnju.');
+              this.error.set('You cant stop the ride');
             } else if (err?.status === 409) {
-              this.error.set('Vožnja nije u toku.');
+              this.error.set('Ride is not in progress');
             } else if (err?.status === 401) {
-              this.error.set('Niste ulogovani.');
+              this.error.set('Youre not login');
             } else {
-              this.error.set('Greška pri zaustavljanju vožnje.');
+              this.error.set('Error for stopping ride');
             }
 
           },
@@ -72,9 +72,9 @@ export class StopRideButtonComponent {
         this.loading.set(false);
 
         if (geoError?.code === 1) {
-          this.error.set('GPS dozvola nije odobrena.');
+          this.error.set('GPS is not allowed');
         } else {
-          this.error.set('Ne mogu da dobijem lokaciju.');
+          this.error.set('I cant find the location');
         }
       },
       {

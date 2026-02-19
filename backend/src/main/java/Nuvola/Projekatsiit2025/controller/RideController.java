@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -118,7 +119,6 @@ public class RideController {
         return new ResponseEntity<>(ride, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/report", consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('REGISTERED_USER')")
     @PostMapping(value ="/report", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createReport(@RequestBody CreateReportDTO createReportDTO) {
@@ -158,18 +158,25 @@ public class RideController {
     }
 
 
+
     // 2.5 Cancel ride
-    @PutMapping(value = "/{rideId}/cancel", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CreatedRideDTO> cancelRide(@PathVariable Long rideId, @RequestBody CancelRideDTO dto) {
-
-        CreatedRideDTO response = new CreatedRideDTO();
-        response.setId(rideId);
-        response.setStatus(RideStatus.CANCELED);
-        response.setPrice(0.0);
-        response.setMessage("Ride canceled. Reason: " + dto.getReason());
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    @PutMapping(value="/{id}/cancel/driver", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RideCancelResponseDTO> cancelByDriver(
+            @PathVariable Long id,
+            @RequestBody CancelRideRequestDTO req,
+            Authentication auth
+    ) {
+        return ResponseEntity.ok(rideService.cancelByDriver(id, req.getReason(), auth));
     }
+
+    @PutMapping(value="/{id}/cancel/passenger", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<RideCancelResponseDTO> cancelByPassenger(
+            @PathVariable Long id,
+            Authentication auth
+    ) {
+        return ResponseEntity.ok(rideService.cancelByPassenger(id, auth));
+    }
+
 
 
     // 2.6.5 Stop ride while it's active

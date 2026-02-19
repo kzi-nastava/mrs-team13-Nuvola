@@ -2,6 +2,7 @@ package Nuvola.Projekatsiit2025.services.impl;
 import Nuvola.Projekatsiit2025.model.enums.NotificationType;
 import Nuvola.Projekatsiit2025.services.NotificationService;
 import Nuvola.Projekatsiit2025.services.PricingService;
+import org.apache.coyote.BadRequestException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import Nuvola.Projekatsiit2025.dto.*;
@@ -20,6 +21,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -748,6 +750,80 @@ public class RideServiceImpl implements RideService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     }
+
+
+    @Transactional
+    public RideCancelResponseDTO cancelByDriver(Long rideId, String reason, Authentication auth) {
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found"));
+
+        if (reason == null || reason.trim().length() < 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Reason is required (min 5 chars).");
+        }
+
+        if (ride.getStatus() == RideStatus.CANCELED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ride already canceled.");
+        }
+        if (ride.getStatus() != RideStatus.SCHEDULED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Driver can cancel only while ride is SCHEDULED.");
+        }
+
+        // auth.getName() kod vas je EMAIL (User.getUsername() vraća email)
+        String email = auth.getName();
+        Driver driver = driverRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Driver not found"));
+
+        if (ride.getDriver() == null || !ride.getDriver().getId().equals(driver.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your ride.");
+        }
+
+        // pre starta: kod vas je startTime stvarni start i pre starta je null
+        if (ride.getStartTime() != null && ride.getStatus() == RideStatus.IN_PROGRESS) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Driver can cancel only before ride start.");
+        }
+
+        ride.setStatus(RideStatus.CANCELED);
+        rideRepository.save(ride);
+
+        return new RideCancelResponseDTO(ride.getId(), ride.getStatus().name(), "Ride canceled by driver.");
+    }
+
+    @Transactional
+    public RideCancelResponseDTO cancelByPassenger(Long rideId, Authentication auth) {
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ride not found"));
+
+        if (ride.getStatus() == RideStatus.CANCELED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ride already canceled.");
+        }
+        if (ride.getStatus() != RideStatus.SCHEDULED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passenger can cancel only while ride is SCHEDULED.");
+        }
+
+        String email = auth.getName();
+        RegisteredUser passenger = registeredUserRepository.findByUsername(email);
+
+        if (passenger == null) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not found");
+        }
+
+        if (ride.getCreator() == null || !ride.getCreator().getId().equals(passenger.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your ride.");
+        }
+
+        // 10-min rule ne možemo 100% tačno bez scheduledTime u Ride entitetu
+        // pa za sada: dozvoli dok je SCHEDULED i dok nije startovana (startTime null)
+        if (ride.getStartTime() != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passenger can cancel only before ride start.");
+        }
+
+        ride.setStatus(RideStatus.CANCELED);
+        rideRepository.save(ride);
+
+        return new RideCancelResponseDTO(ride.getId(), ride.getStatus().name(), "Ride canceled by passenger.");
+    }
+
+
 
 }
 
