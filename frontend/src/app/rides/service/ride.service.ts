@@ -146,6 +146,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { RideModel, LocationModel } from '../model/ride.model';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { RideCancelResponseDTO } from '../model/ride-cancel-response.dto';
+
 
 interface RideDTO {
   id: number;
@@ -236,58 +238,32 @@ export class RideService {
     return this._rides().find(r => r.id === id);
   }
 
-  canPassengerCancel(rideId: number): boolean {
-    const ride = this.getRideById(rideId);
-    if (!ride) return false;
-    if ((ride.status ?? 'ASSIGNED') !== 'ASSIGNED') return false;
+  cancelByDriver(rideId: number, reason: string): Observable<RideCancelResponseDTO> {
+    return this.http.put<RideCancelResponseDTO>(
+      `http://localhost:8080/api/rides/${rideId}/cancel/driver`, 
+      { reason }
+    );
+  }
 
-    const startMs = ride.statingTime.getTime();
-    const nowMs = Date.now();
-    const tenMin = 10 * 60 * 1000;
-
-    return nowMs <= startMs - tenMin;
+  cancelByPassenger(rideId: number): Observable<RideCancelResponseDTO> {
+    return this.http.put<RideCancelResponseDTO>(
+      `http://localhost:8080/api/rides/${rideId}/cancel/passenger`,
+      {}
+    );
   }
 
   canDriverCancel(rideId: number): boolean {
-    const ride = this.getRideById(rideId);
-    if (!ride) return false;
-    return (ride.status ?? 'ASSIGNED') === 'ASSIGNED';
-  }
+  const r = this.getRideById(rideId);
+  if (!r?.statingTime) return false;
+  return new Date() < r.statingTime; // pre početka
+}
 
-  cancelByPassenger(rideId: number): { ok: boolean; message: string } {
-    if (!this.canPassengerCancel(rideId)) {
-      return { ok: false, message: 'Korisnik može otkazati najkasnije 10 minuta pre početka vožnje.' };
-    }
+canPassengerCancel(rideId: number): boolean {
+  const r = this.getRideById(rideId);
+  if (!r?.statingTime) return false;
+  const limit = new Date(r.statingTime.getTime() - 10 * 60 * 1000);
+  return new Date() < limit; // najkasnije 10 min pre početka
+}
 
-    this._rides.update(rides =>
-      rides.map(r =>
-        r.id === rideId
-          ? { ...r, status: 'CANCELED', canceledBy: 'PASSENGER' }
-          : r
-      )
-    );
-
-    return { ok: true, message: 'Vožnja je otkazana (putnik).' };
-  }
-
-  cancelByDriver(rideId: number, reason: string): { ok: boolean; message: string } {
-    if (!this.canDriverCancel(rideId)) {
-      return { ok: false, message: 'Vozač može otkazati vožnju samo pre početka.' };
-    }
-
-    const clean = (reason ?? '').trim();
-    if (clean.length < 5) {
-      return { ok: false, message: 'Razlog mora imati minimum 5 karaktera.' };
-    }
-
-    this._rides.update(rides =>
-      rides.map(r =>
-        r.id === rideId
-          ? { ...r, status: 'CANCELED', canceledBy: 'DRIVER', cancelReason: clean }
-          : r
-      )
-    );
-
-    return { ok: true, message: 'Vožnja je otkazana (vozač).' };
-  }
+  
 }

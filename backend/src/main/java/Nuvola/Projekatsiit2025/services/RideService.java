@@ -5,6 +5,7 @@ import Nuvola.Projekatsiit2025.model.Ride;
 import Nuvola.Projekatsiit2025.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,4 +28,6 @@ public interface RideService {
     TrackingRideDTO getTrackingRideDTO(String username);
     TrackingRideDTO getTrackingRideDTOForAdmin(Long driverId);
     Ride stopRide(Long rideId, User currentUser, StopRideRequestDTO req);
+    RideCancelResponseDTO cancelByDriver(Long rideId, String reason, Authentication auth);
+    RideCancelResponseDTO cancelByPassenger(Long rideId, Authentication auth);
 }

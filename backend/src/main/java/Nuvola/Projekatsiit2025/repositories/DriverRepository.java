@@ -29,4 +29,7 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
         )
         """)
     List<Driver> searchDriversByFullName(@Param("search") String search);
+
+    Optional<Driver> findByEmail(String email);
+
 }

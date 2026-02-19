@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RideService } from '../service/ride.service';
 import { RideModel } from '../model/ride.model';
+import { RideCancelResponseDTO } from '../model/ride-cancel-response.dto';
 
 type Role = 'DRIVER' | 'PASSENGER';
 
@@ -28,9 +29,10 @@ export class CancelRideComponent implements OnInit {
   });
 
   canDriverCancel = computed(() => {
-    const r = this.ride();
-    return r ? this.rideService.canDriverCancel(r.id) : false;
-  });
+  const r = this.ride();
+  if (!r?.statingTime) return true; // ako nema podataka, dozvoli pokušaj
+  return new Date() < new Date(r.statingTime);
+});
 
   canPassengerCancel = computed(() => {
     const r = this.ride();
@@ -53,23 +55,35 @@ export class CancelRideComponent implements OnInit {
     return this.driverForm.controls.reason;
   }
   cancelDriver() {
-    this.message.set(null);
+  this.message.set(null);
 
-    if (this.driverForm.invalid) {
-      this.driverForm.markAllAsTouched();
-      return;
-    }
-
-    const res = this.rideService.cancelByDriver(this.rideId, this.reason.value ?? '');
-    this.message.set(res.message);
-    this.ride.set(this.rideService.getRideById(this.rideId));
+  if (this.driverForm.invalid) {
+    this.driverForm.markAllAsTouched();
+    return;
   }
+
+  this.rideService.cancelByDriver(this.rideId, this.reason.value ?? '').subscribe({
+    next: (res) => {
+      this.message.set(res.message ?? 'Ride canceled.');
+      this.ride.set(this.rideService.getRideById(this.rideId));
+    },
+    error: (err) => {
+      this.message.set(err?.error?.message ?? 'Cancel failed.');
+    }
+  });
+}
 
   cancelPassenger() {
-    this.message.set(null);
+  this.message.set(null);
 
-    const res = this.rideService.cancelByPassenger(this.rideId);
-    this.message.set(res.message);
-    this.ride.set(this.rideService.getRideById(this.rideId));
-  }
+  this.rideService.cancelByPassenger(this.rideId).subscribe({
+    next: (res) => {
+      this.message.set(res.message ?? 'Ride canceled.');
+      this.ride.set(this.rideService.getRideById(this.rideId));
+    },
+    error: (err) => {
+      this.message.set(err?.error?.message ?? 'Cancel failed.');
+    }
+  });
+}
 }

@@ -5,6 +5,9 @@ import { HttpClient } from '@angular/common/http';
 import { EndRideService } from '../service/end.ride.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { RideApiService } from '../service/ride-api.service';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators} from '@angular/forms';
+import { CancelRideComponent } from '../cancel-ride.component/cancel-ride.component';
+import { StopRideComponent } from '../../stop-ride.component/stop-ride.component';
 
 
 type RideStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'FINISHED' | 'CANCELLED';
@@ -165,7 +168,7 @@ get hasActiveRide(): boolean {
 
   openCancelModal(ride: DriverRide) {
     console.log('OPEN MODAL FOR', ride.id);
-    if (ride.allPassengersJoined) return;
+    if (ride.status !== 'SCHEDULED') return;
     this.cancelRideTarget = ride;
     this.cancelForm.reset({ reason: '' });
     this.showCancelModal = true;
@@ -221,57 +224,6 @@ get hasActiveRide(): boolean {
   );
 }
 
-
-
-  //stopRide(ride: DriverRide) {
-  //const ok = confirm('Da li ste sigurni? Vožnja će biti završena na trenutnoj lokaciji.');
-  //if (!ok) return;
-
-  //navigator.geolocation.getCurrentPosition(
-    //(pos) => {
-      //const stoppedAt = new Date().toISOString().slice(0, 19);
-
-     // const payload = {
-       // lat: pos.coords.latitude,
-        //lng: pos.coords.longitude,
-        //stoppedAt,
-      //};
-
-      //this.rideApi.stopRide(ride.id, payload).subscribe({
-        //next: (res) => {
-  //ride.status = res.status as RideStatus;
-  //ride.price = res.price;
-
-  //this.stopResult = {
-    //rideId: ride.id,
-    //status: res.status,
-    //price: res.price,
-    //message: res.message,
-    //stoppedAt,
-    //lat: payload.lat,
-    //lng: payload.lng,
-  //};
-
-  //this.loadRides(); 
-//},
-        //error: (err) => {
-          //if (err?.status === 403) this.errorMessage = 'Forbidden: only driver can stop this ride.';
-          //else if (err?.status === 409) this.errorMessage = 'Ride is not IN_PROGRESS.';
-          //else if (err?.status === 401) this.errorMessage = 'Unauthorized.';
-          //else this.errorMessage = 'Failed to stop ride.';
-        //},
-      //});
-    //},
-    //(geoErr) => {
-      //if (geoErr?.code === 1) this.errorMessage = 'Location permission denied (allow GPS).';
-     // else this.errorMessage = 'Cannot get current location.';
-    //},
-    //{ enableHighAccuracy: true, timeout: 10000 }
-  //);
-//} 
-
-
-
   finishRide(ride: DriverRide) {
     const username = this.authService.getUsername();
     if (!username) return;
@@ -320,7 +272,7 @@ private async reverseGeocode(lat: number, lng: number): Promise<string> {
   const res = await fetch(url, {
     headers: {
       'Accept': 'application/json',
-      // bitno: Nominatim voli identifikaciju
+  
       'User-Agent': 'NuvolaApp/1.0 (local dev)'
     }
   });
@@ -328,5 +280,52 @@ private async reverseGeocode(lat: number, lng: number): Promise<string> {
   const data = await res.json();
   return data?.display_name ?? `${lat}, ${lng}`;
 }
+
+
+openStopModal(ride: DriverRide) {
+  this.stopRideTarget = ride;
+  this.showStopModal = true;
+}
+
+closeStopModal() {
+  this.showStopModal = false;
+  this.stopRideTarget = null;
+}
+
+onStopConfirmed(_event: any) {
+  
+  if (!this.stopRideTarget) return;
+
+  this.stopRide(this.stopRideTarget);
+
+  this.closeStopModal();
+}
+
+
+confirmCancel() {
+  if (!this.cancelRideTarget) return;
+
+  if (this.cancelForm.invalid) {
+    this.cancelForm.markAllAsTouched();
+    return;
+  }
+
+  const reason = (this.reason.value ?? '').trim();
+
+  this.http.put<any>(
+    `http://localhost:8080/api/rides/${this.cancelRideTarget.id}/cancel/driver`,
+    { reason }
+  ).subscribe({
+    next: () => {
+      this.closeCancelModal();
+      this.loadRides(); // refresh UI
+    },
+    error: (err) => {
+      console.error(err);
+      this.errorMessage = err?.error?.message ?? 'Failed to cancel ride.';
+    }
+  });
+}
+
 
 }
