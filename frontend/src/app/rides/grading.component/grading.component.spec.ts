@@ -138,20 +138,7 @@ fdescribe('GradingComponent', () => {
     expect(component.form.value.comment).toBeNull();
   });
 
-  // it('should disable submit button when isSending=true', async () => {
-  //   setupWithRideIdParam('5');
-
-  //   component.isSending = true;
-  //   await fixture.whenStable();
-  //   fixture.detectChanges();
-
-
-  //   const btn: HTMLButtonElement = fixture.nativeElement.querySelector(
-  //     'button[type="submit"]'
-  //   );
-  //   expect(btn.disabled).toBeTrue();
-  // });
-
+  
   it('should disable submit button while sending', () => {
     const { authSpy } = setupWithRideIdParam('10');
     authSpy.getUsername.and.returnValue('marko');
