@@ -52,14 +52,13 @@ export class ChangePriceComponent implements OnInit {
   successMessage = '';
 
   constructor(private fb: FormBuilder, private pricingService: PricingService, private cdr: ChangeDetectorRef) {
-    // <-- ovde inicijalizacija (kad fb već postoji)
     this.form = this.fb.group({
       rows: this.fb.array<RowForm>([]),
     });
   }
 
   get rows(): FormArray<RowForm> {
-    return this.form.controls.rows; // bolje nego get('rows') cast
+    return this.form.controls.rows;
   }
 
   ngOnInit(): void {
@@ -79,7 +78,6 @@ export class ChangePriceComponent implements OnInit {
         return mapPrices;
       }),
       switchMap(mapPrices => {
-        // za tipove koji fale -> odmah upsert 0 u bazu
         const missing = this.vehicleTypes.filter(t => !mapPrices.has(t));
         if (missing.length === 0) return of(mapPrices);
 
@@ -87,7 +85,6 @@ export class ChangePriceComponent implements OnInit {
           missing.map(t =>
             this.pricingService.upsertVehicleTypePrice(t, '0').pipe(
               map((saved) => ({ t, saved })),
-              // ako backend vrati grešku, ne ruši ceo ekran – samo preskoči
               catchError(() => of(null))
             )
           )
@@ -96,7 +93,6 @@ export class ChangePriceComponent implements OnInit {
             for (const r of results) {
               if (r) mapPrices.set(r.t, r.saved.basePrice);
             }
-            // i dalje, ako je nešto ostalo bez upisa (npr. greška), tretiraj kao 0 za prikaz
             for (const t of this.vehicleTypes) {
               if (!mapPrices.has(t)) mapPrices.set(t, '0');
             }
@@ -120,7 +116,7 @@ export class ChangePriceComponent implements OnInit {
         }
       }),
       catchError(err => {
-        this.errorMessage = 'Ne mogu da učitam cene.';
+        this.errorMessage = 'Cannot load prices.';
         return of(null);
       })
     ).subscribe({
@@ -150,12 +146,12 @@ export class ChangePriceComponent implements OnInit {
 
     this.pricingService.upsertVehicleTypePrice(type, String(price)).pipe(
       catchError(err => {
-        this.errorMessage = 'Greška pri čuvanju.';
+        this.errorMessage = 'Error saving price.';
         return of(null);
       })
     ).subscribe(res => {
       this.saving = false;
-      if (res) this.successMessage = 'Sačuvano.';
+      if (res) this.successMessage = 'Saved.';
       this.cdr.detectChanges();
     });
   }
@@ -181,7 +177,7 @@ export class ChangePriceComponent implements OnInit {
 
     forkJoin(calls).subscribe(() => {
       this.saving = false;
-      this.successMessage = 'Sve cene su sačuvane.';
+      this.successMessage = 'All prices are saved.';
       this.cdr.detectChanges();
     });
   }
