@@ -24,8 +24,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import Nuvola.Projekatsiit2025.util.EmailDetails;
-
-
+import Nuvola.Projekatsiit2025.model.enums.RideStatus;
+import Nuvola.Projekatsiit2025.repositories.RideRepository;
 
 @Service
 public class DriverServiceImpl implements DriverService {
@@ -33,16 +33,18 @@ public class DriverServiceImpl implements DriverService {
     private final DriverRepository driverRepository;
     private final VehicleRepository vehicleRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final RideRepository rideRepository;
     @Autowired
     public DriverServiceImpl(
             DriverRepository driverRepository,
             VehicleRepository vehicleRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            RideRepository rideRepository
     ) {
         this.driverRepository = driverRepository;
         this.vehicleRepository = vehicleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.rideRepository = rideRepository;
     }
 
     @Autowired
@@ -78,6 +80,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setPicture(dto.getPicture());
         driver.setBlocked(false);
         driver.setStatus(DriverStatus.INACTIVE);
+        driver.setInactiveAfterCurrentRide(false);
         driver.setPassword("TEMP");
 
         Vehicle vehicle = new Vehicle();
@@ -128,6 +131,11 @@ public class DriverServiceImpl implements DriverService {
         // TODO: add more logout logic (e.g. activity session, etc.)
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new UserNotFoundException("Driver " + driverId + " not found"));
+        if (hasActiveRide(driverId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "DRIVER_HAS_ACTIVE_RIDE");
+        }
+
+        driver.setInactiveAfterCurrentRide(false);
         driver.setStatus(DriverStatus.INACTIVE);
         driverRepository.save(driver);
 
@@ -144,10 +152,40 @@ public class DriverServiceImpl implements DriverService {
     public void loginDriver(Long driverId) {
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new UserNotFoundException("Driver " + driverId + " not found"));
+        driver.setInactiveAfterCurrentRide(false);
         driver.setStatus(DriverStatus.ACTIVE);
         driverRepository.save(driver);
 
         // TODO: add more login logic (e.g. activity session, etc.)
+    }
+
+    @Override
+    public DriverStatus changeStatus(Long driverId, DriverStatus status) {
+        if (status == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "STATUS_REQUIRED");
+        }
+
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new UserNotFoundException("Driver " + driverId + " not found"));
+
+        if (hasActiveRide(driverId)) {
+            if (status == DriverStatus.INACTIVE) {
+                driver.setInactiveAfterCurrentRide(true);
+            } else if (status == DriverStatus.ACTIVE) {
+                driver.setInactiveAfterCurrentRide(false);
+            }
+            driver.setStatus(DriverStatus.BUSY);
+        } else {
+            driver.setInactiveAfterCurrentRide(false);
+            driver.setStatus(status == DriverStatus.BUSY ? DriverStatus.ACTIVE : status);
+        }
+
+        driverRepository.save(driver);
+        return driver.getStatus();
+    }
+
+    private boolean hasActiveRide(Long driverId) {
+        return !rideRepository.findByStatusAndDriver_Id(RideStatus.IN_PROGRESS, driverId).isEmpty();
     }
 
 }

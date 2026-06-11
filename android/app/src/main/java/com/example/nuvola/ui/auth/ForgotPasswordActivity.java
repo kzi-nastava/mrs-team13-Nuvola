@@ -15,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.nuvola.R;
 import com.example.nuvola.network.AuthService;
+import com.example.nuvola.network.ApiClient;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -32,6 +33,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
+        ApiClient.init(this);
 
         DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
 
@@ -83,8 +85,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                                     Toast.makeText(ForgotPasswordActivity.this,
                                             "Reset email sent ✅", Toast.LENGTH_SHORT).show();
 
-                                    // Pošto je backend stub, nastavi na Reset ekran (token flow ćete kasnije)
-                                    startActivity(new Intent(ForgotPasswordActivity.this, ResetPasswordActivity.class));
+
+                                    //startActivity(new Intent(ForgotPasswordActivity.this, ResetPasswordActivity.class));
+                                    startActivity(new Intent(ForgotPasswordActivity.this, LoginActivity.class));
+                                    finish();
                                 } else {
                                     Toast.makeText(ForgotPasswordActivity.this,
                                             "Forgot password failed: " + response.code(),

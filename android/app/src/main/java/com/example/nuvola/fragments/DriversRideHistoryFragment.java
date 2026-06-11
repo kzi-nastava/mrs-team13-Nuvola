@@ -1,5 +1,7 @@
 package com.example.nuvola.fragments;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -78,7 +80,14 @@ public class DriversRideHistoryFragment extends ListFragment {
     }
 
     private void loadRidesFromBackend() {
-        String username = "testuser"; // TODO take from auth service
+        String username = requireActivity()
+                .getSharedPreferences("APP_PREFS", android.content.Context.MODE_PRIVATE)
+                .getString("USERNAME", "");
+
+        if (username == null || username.isEmpty()) {
+            Log.e("RideHistory", "USERNAME is empty. User email was not saved after login.");
+            return;
+        }
         String sortOrder = isDateAscending ? "asc" : "desc";
 
         api.getDriverRideHistory(username, "startingTime", sortOrder, 0, 20)

@@ -30,6 +30,9 @@ public class Driver extends User {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_DRIVER"));
     }
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean inactiveAfterCurrentRide = false;
+
 
     public Driver() {
         super();
@@ -72,5 +75,13 @@ public class Driver extends User {
 
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
+    }
+
+    public boolean isInactiveAfterCurrentRide() {
+        return inactiveAfterCurrentRide;
+    }
+
+    public void setInactiveAfterCurrentRide(boolean inactiveAfterCurrentRide) {
+        this.inactiveAfterCurrentRide = inactiveAfterCurrentRide;
     }
 }
