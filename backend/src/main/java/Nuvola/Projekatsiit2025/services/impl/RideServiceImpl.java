@@ -68,15 +68,16 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public Page<DriverRideHistoryItemDTO> getDriverRideHistory(String username, String sortBy, String sortOrder, Integer page, Integer size) {
+        String rideSortBy = "startingTime".equals(sortBy) ? "startTime" : sortBy;
         Sort sort = sortOrder.equalsIgnoreCase("asc")
-                ? Sort.by(sortBy).ascending()
-                : Sort.by(sortBy).descending();
+                ? Sort.by(rideSortBy).ascending()
+                : Sort.by(rideSortBy).descending();
 
         User driver = userRepository.findByUsername(username);
         Long driverId = driver.getId();
 
         // if pagination
-        if ((page != null && size != null) && ((page >= 1) && (size >= 1))) {
+        if ((page != null && size != null) && ((page >= 0) && (size >= 1))) {
             Pageable pageable = PageRequest.of(page, size, sort);
             // Page<Ride> ridesPage = rideRepository.findByDriverId(driverId, pageable);
             Page<Ride> ridesPage = rideRepository.findByDriverIdAndStatus(driverId, RideStatus.FINISHED, pageable);
@@ -91,7 +92,7 @@ public class RideServiceImpl implements RideService {
                 .collect(Collectors.toList());
 
         int pageSize = dtos.isEmpty() ? 1 : dtos.size();
-        return new PageImpl<>(dtos, PageRequest.of(1, pageSize, sort), dtos.size());
+        return new PageImpl<>(dtos, PageRequest.of(0, pageSize, sort), dtos.size());
     }
 
     @Override
@@ -279,7 +280,12 @@ public class RideServiceImpl implements RideService {
         ride.setEndTime(LocalDateTime.now());
 
         Driver driver = ride.getDriver();
-        driver.setStatus(DriverStatus.ACTIVE);
+        if (driver.isInactiveAfterCurrentRide()) {
+            driver.setStatus(DriverStatus.INACTIVE);
+            driver.setInactiveAfterCurrentRide(false);
+        } else {
+            driver.setStatus(DriverStatus.ACTIVE);
+        }
 
         rideRepository.save(ride);
         driverRepository.save(driver);

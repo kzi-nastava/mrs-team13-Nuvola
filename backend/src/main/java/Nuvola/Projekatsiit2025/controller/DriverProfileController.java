@@ -68,6 +68,8 @@ public class DriverProfileController {
         dto.setPicture(driver.getPicture());
         dto.setBlocked(driver.isBlocked());
         dto.setBlockingReason(driver.getBlockingReason());
+        dto.setStatus(driver.getStatus());
+        dto.setInactiveAfterCurrentRide(driver.isInactiveAfterCurrentRide());
 
         // vehicle
         dto.setModel(driver.getVehicle().getModel());

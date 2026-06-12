@@ -6,6 +6,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private TextInputLayout tilEmail, tilPassword;
     private TextInputEditText etEmail, etPassword;
+    private CheckBox cbRemember;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,8 @@ public class LoginActivity extends AppCompatActivity {
         // Initialize ApiClient with context
         ApiClient.init(this);
 
+
+        restoreRememberedLogin();
         // ===== Drawer =====
         setupDrawer();
 
@@ -86,6 +90,15 @@ public class LoginActivity extends AppCompatActivity {
         tilPassword = findViewById(R.id.tilPassword);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
+        cbRemember = findViewById(R.id.cbRemember);
+
+        if (cbRemember != null) {
+            boolean rememberMe = TokenStorage.isRememberMeEnabled(this);
+            cbRemember.setChecked(rememberMe);
+            if (rememberMe && etEmail != null) {
+                etEmail.setText(TokenStorage.getRememberedEmail(this));
+            }
+        }
 
         if (etEmail != null) {
             etEmail.addTextChangedListener(simpleWatcher(() -> {
@@ -114,6 +127,18 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void restoreRememberedLogin() {
+        if (TokenStorage.isRememberMeEnabled(this) && TokenStorage.getToken(this) != null) {
+            navigateAfterLogin();
+        }
+    }
+
+    private void navigateAfterLogin() {
+        Intent intent = new Intent(LoginActivity.this,
+                com.example.nuvola.activities.DriverRideHistory.class);
+        startActivity(intent);
+        finish();
+    }
     private void performLogin() {
         if (!validateLogin()) return;
 
@@ -131,7 +156,7 @@ public class LoginActivity extends AppCompatActivity {
                                            Response<UserTokenState> response) {
 
                         if (response.isSuccessful() && response.body() != null) {
-                            handleSuccessfulLogin(response.body());
+                            handleSuccessfulLogin(response.body(), email);
                         } else {
                             handleLoginError(response);
                         }
@@ -147,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    private void handleSuccessfulLogin(UserTokenState userTokenState) {
+    private void handleSuccessfulLogin(UserTokenState userTokenState, String email) {
         String token = userTokenState.getAccessToken();
 
         Log.d(TAG, "Login successful!");
@@ -159,17 +184,21 @@ public class LoginActivity extends AppCompatActivity {
         // Save token
         TokenStorage.saveToken(LoginActivity.this, token);
 
+        boolean rememberMe = cbRemember != null && cbRemember.isChecked();
+        TokenStorage.saveRememberMe(LoginActivity.this, rememberMe, email);
+        // Save logeged user email/username
+        getSharedPreferences("APP_PREFS", MODE_PRIVATE)
+                .edit()
+                .putString("USERNAME", email)
+                .apply();
+
         // Extract and save user role
         String userType = JwtRoleHelper.getUserType(token);
         Log.d(TAG, "Extracted user type: " + userType);
 
         TokenStorage.saveUserRole(LoginActivity.this, userType);
 
-        // Navigate to profile
-        Intent intent = new Intent(LoginActivity.this,
-                com.example.nuvola.activities.DriverRideHistory.class);
-        startActivity(intent);
-        finish();
+        navigateAfterLogin();
     }
 
     private void handleLoginError(Response<UserTokenState> response) {

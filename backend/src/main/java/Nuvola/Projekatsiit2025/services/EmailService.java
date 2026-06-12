@@ -13,6 +13,7 @@ public interface EmailService {
     String sendTrackingPage(EmailDetails details);
     String sendRideFinished(EmailDetails details);
     String sendPasswordReset(EmailDetails details);
+    String sendActivationEmail(EmailDetails details);
 
 }
 

@@ -174,14 +174,19 @@ public class AuthController {
     // 2.2.1 Driver change status active/inactive while user is on his profile
     // if he change into INACTIVE while he has a ride, he is gonna be INACTIVE after that ride
     @PutMapping("/driver/status")
-    public ResponseEntity<String> changeDriverStatus(
-            @RequestParam(defaultValue = "false") boolean hasActiveRide,
-            @RequestBody ChangeDriverStatusDTO dto
-    ) {
-        if (hasActiveRide && dto.getStatus() == DriverStatus.INACTIVE) {
-            return new ResponseEntity<>("Driver will become INACTIVE after current ride ends (stub).", HttpStatus.OK);
+    public ResponseEntity<String> changeDriverStatus(@RequestBody ChangeDriverStatusDTO dto) {
+        String username = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+        User user = userRepository.findByUsername(username);
+
+        if (user == null || !user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_DRIVER"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only drivers can change driver status.");
         }
-        return new ResponseEntity<>("Driver status changed to " + dto.getStatus() + " (stub).", HttpStatus.OK);
+
+        DriverStatus status = driverService.changeStatus(user.getId(), dto.getStatus());
+        return ResponseEntity.ok("Driver status changed to " + status + ".");
     }
       
     // 2.2.2 Registration user
@@ -307,6 +312,40 @@ public class AuthController {
 
         return ResponseEntity.ok(html);
     }
+
+    @GetMapping(value = "/activate/open", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> openActivationInApp(@RequestParam String token) {
+        String appLink = "nuvola://activate-account?token=" + token;
+
+        String html = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Open Nuvola App</title>
+                <script>
+                    window.location.href = "%s";
+                </script>
+            </head>
+            <body style="font-family: Arial, sans-serif; text-align: center; padding: 40px;">
+                <h2>Opening Nuvola app...</h2>
+                <p>If the app does not open automatically, click the button below:</p>
+                <a href="%s"
+                   style="display:inline-block;
+                          padding:12px 20px;
+                          background:#0A1128;
+                          color:white;
+                          text-decoration:none;
+                          border-radius:6px;">
+                    Open Nuvola App
+                </a>
+            </body>
+            </html>
+            """.formatted(appLink, appLink);
+
+        return ResponseEntity.ok(html);
+    }
+
 
     private String jsString(String s) {
         return "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'";
