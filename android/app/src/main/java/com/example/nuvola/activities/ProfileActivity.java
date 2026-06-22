@@ -168,14 +168,27 @@ public class ProfileActivity extends AppCompatActivity {
                 drawerLayout.openDrawer(GravityCompat.START));
 
         navView.setNavigationItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_logout) {
+            int id = item.getItemId();
+            if (id == R.id.nav_logout) {
                 TokenStorage.clear(this);
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
+            } else if (id == R.id.nav_users) {
+                String role = TokenStorage.getUserRole(this);
+                if ("ADMIN".equals(role)) {
+                    startActivity(new Intent(this, UsersActivity.class));
+                }
             }
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         });
+
+        // Sakrij "Users" ako korisnik nije admin
+        String role = TokenStorage.getUserRole(this);
+        android.view.MenuItem usersItem = navView.getMenu().findItem(R.id.nav_users);
+        if (usersItem != null) {
+            usersItem.setVisible("ADMIN".equals(role));
+        }
     }
 
     // ================= UI DISPLAY =================
@@ -266,6 +279,20 @@ public class ProfileActivity extends AppCompatActivity {
                     .into(ivProfile);
         }
         Log.d(TAG, "✓ Driver profile fields filled");
+        View blockedBanner = findViewById(R.id.blockedBanner);
+        TextView tvBlockingReason = findViewById(R.id.tvBlockingReason);
+
+        if (p.blocked) {
+            blockedBanner.setVisibility(View.VISIBLE);
+            if (p.blockingReason != null && !p.blockingReason.isEmpty()) {
+                tvBlockingReason.setText("Reason: " + p.blockingReason);
+                tvBlockingReason.setVisibility(View.VISIBLE);
+            } else {
+                tvBlockingReason.setVisibility(View.GONE);
+            }
+        } else {
+            blockedBanner.setVisibility(View.GONE);
+        }
     }
 
     private void loadUserProfile() {

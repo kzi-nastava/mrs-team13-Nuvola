@@ -18,6 +18,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.nuvola.R;
 import com.example.nuvola.fragments.DriversRideHistoryFragment;
 import com.example.nuvola.model.Ride;
+import com.example.nuvola.network.TokenStorage;
 import com.example.nuvola.ui.auth.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
 
@@ -59,6 +60,10 @@ public class DriverRideHistory extends AppCompatActivity
                 R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
+        String role = TokenStorage.getUserRole(this);
+        android.view.MenuItem usersItem = navigationView.getMenu().findItem(R.id.nav_users);
+        if (usersItem != null) usersItem.setVisible("ADMIN".equals(role));
 
         if (savedInstanceState == null) {
             // ArrayList<Ride> rides = createTestRides();
@@ -103,14 +108,16 @@ public class DriverRideHistory extends AppCompatActivity
         } else if (id == R.id.nav_history) {
             Toast.makeText(this, "Ride History", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_account) {
-            Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(DriverRideHistory.this, ProfileActivity.class));
+            startActivity(new Intent(this, ProfileActivity.class));
+        } else if (id == R.id.nav_users) {
+            String role = TokenStorage.getUserRole(this);
+            if ("ADMIN".equals(role)) {
+                startActivity(new Intent(this, UsersActivity.class));
+            }
         } else if (id == R.id.nav_logout) {
-            startActivity(new Intent(DriverRideHistory.this, LoginActivity.class));
+            startActivity(new Intent(this, LoginActivity.class));
         }
 
-
-        // close drawer after click
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }

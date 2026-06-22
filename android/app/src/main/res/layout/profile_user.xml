@@ -45,6 +45,49 @@
                         android:gravity="center"
                         android:layout_marginBottom="16dp" />
 
+                    <!-- BLOCKED BANNER -->
+                    <LinearLayout
+                        android:id="@+id/blockedBanner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_blocked_banner"
+                        android:padding="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="You are blocked"
+                            android:textColor="#DC2626"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_gravity="center"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="You won't be able to accept any rides."
+                            android:textColor="#991B1B"
+                            android:textSize="13sp"
+                            android:layout_gravity="center"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:id="@+id/tvBlockingReason"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#7F1D1D"
+                            android:textSize="13sp"
+                            android:background="@drawable/bg_reason_box"
+                            android:padding="10dp"
+                            android:layout_gravity="center"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+
                     <FrameLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
