@@ -121,6 +121,27 @@ public class RideServiceImpl implements RideService {
 
     }
 
+    @Override
+    public Ride stopRide(Long rideId) {
+        Ride ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new RideNotFoundException("Ride " + rideId + " not found"));
+
+        if (ride.getStatus() != RideStatus.IN_PROGRESS) {
+            throw new InvalidRideStateException("Ride " + rideId + " is not in progress");
+        }
+
+        ride.setStatus(RideStatus.FINISHED);
+        ride.setEndTime(LocalDateTime.now());
+
+        Driver driver = ride.getDriver();
+        if (driver != null) {
+            driver.setStatus(DriverStatus.ACTIVE);
+            driverRepository.save(driver);
+        }
+
+        return rideRepository.save(ride);
+    }
+
     private Route createRoute(CreateRideDTO dto) {
         Route route = new Route();
 

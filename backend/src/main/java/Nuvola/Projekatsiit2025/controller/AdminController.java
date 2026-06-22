@@ -628,6 +628,7 @@ public class AdminController {
         dto.setCanReorderLater(isCompleted || isCanceled);
 
         return dto;
+    }
     // 2.13
     @GetMapping(value = "/drivers/info/{driverId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TrackingRideDTO> getTrackingRide(@PathVariable Long driverId){

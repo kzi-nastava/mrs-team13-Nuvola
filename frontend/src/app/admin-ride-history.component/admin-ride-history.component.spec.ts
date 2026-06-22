@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AdminRideHistoryComponent } from './admin-ride-history.component';
+import { RideHistoryAdminComponent } from './admin-ride-history.component';
 
 describe('AdminRideHistoryComponent', () => {
-  let component: AdminRideHistoryComponent;
-  let fixture: ComponentFixture<AdminRideHistoryComponent>;
+  let component: RideHistoryAdminComponent;
+  let fixture: ComponentFixture<RideHistoryAdminComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AdminRideHistoryComponent]
+      imports: [RideHistoryAdminComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AdminRideHistoryComponent);
+    fixture = TestBed.createComponent(RideHistoryAdminComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
