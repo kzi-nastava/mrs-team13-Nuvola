@@ -88,6 +88,7 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(request -> {
             request.requestMatchers("/api/auth/login").permitAll()
                     .requestMatchers("/ws/**").permitAll()
+                    .requestMatchers("/ws-native/**").permitAll()
                     .requestMatchers("/api/auth/register").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/auth/activate-email").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/auth/activate/open").permitAll()

@@ -145,6 +145,20 @@ public class JwtRoleHelper {
         return "UNKNOWN";
     }
 
+    public static long getUserId(String token) {
+        try {
+            if (token == null || token.isEmpty()) return -1;
+            String[] parts = token.split("\\.");
+            if (parts.length < 2) return -1;
+            String payloadJson = new String(Base64.decode(parts[1], Base64.URL_SAFE | Base64.NO_WRAP));
+            JSONObject payload = new JSONObject(payloadJson);
+            return payload.optLong("userId", -1);
+        } catch (Exception e) {
+            Log.e(TAG, "Error extracting userId", e);
+            return -1;
+        }
+    }
+
     // Helper method to decode and log the entire JWT for debugging
     public static void debugToken(String token) {
         try {

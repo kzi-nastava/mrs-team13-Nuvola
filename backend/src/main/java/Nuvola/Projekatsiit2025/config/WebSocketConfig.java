@@ -20,5 +20,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("http://localhost:4200")
                 .withSockJS(); // Fallback for browsers which do not support WebSockets
+
+        // Plain WebSocket endpoint for native clients (Android)
+        registry.addEndpoint("/ws-native")
+                .setAllowedOriginPatterns("*");
     }
 }
