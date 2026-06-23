@@ -59,6 +59,10 @@
         </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activities.NotificationsActivity"
+            android:exported="false"/>
+
         <service
             android:name=".services.StompNotificationService"
             android:foregroundServiceType="dataSync"

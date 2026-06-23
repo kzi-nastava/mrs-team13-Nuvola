@@ -111,6 +111,8 @@ public class DriverRideHistory extends AppCompatActivity
             startActivity(new Intent(DriverRideHistory.this, ProfileActivity.class));
         } else if (id == R.id.nav_change_price) {
             startActivity(new Intent(DriverRideHistory.this, ChangePriceActivity.class));
+        } else if (id == R.id.nav_notifications) {
+            startActivity(new Intent(DriverRideHistory.this, NotificationsActivity.class));
         } else if (id == R.id.nav_logout) {
             stopService(new Intent(this, StompNotificationService.class));
             TokenStorage.clear(this);
