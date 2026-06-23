@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@+id/navbar"
+            layout="@layout/view_navbar" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="72dp"
+            android:background="@color/background_gray">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="@drawable/bg_profile_card">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Vehicle Pricing"
+                        android:textColor="@color/dark_blue"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginBottom="20dp" />
+
+                    <!-- STANDARD -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Standard"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <EditText
+                            android:id="@+id/etPriceStandard"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_input"
+                            android:padding="12dp"
+                            android:inputType="numberDecimal"
+                            android:hint="Base price" />
+
+                        <Button
+                            android:id="@+id/btnSaveStandard"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:text="Save"
+                            android:layout_marginStart="8dp"
+                            android:backgroundTint="@color/dark_blue"
+                            android:textColor="@android:color/white" />
+                    </LinearLayout>
+
+                    <!-- LUXURY -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Luxury"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <EditText
+                            android:id="@+id/etPriceLuxury"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_input"
+                            android:padding="12dp"
+                            android:inputType="numberDecimal"
+                            android:hint="Base price" />
+
+                        <Button
+                            android:id="@+id/btnSaveLuxury"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:text="Save"
+                            android:layout_marginStart="8dp"
+                            android:backgroundTint="@color/dark_blue"
+                            android:textColor="@android:color/white" />
+                    </LinearLayout>
+
+                    <!-- VAN -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Van"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="20dp">
+
+                        <EditText
+                            android:id="@+id/etPriceVan"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_input"
+                            android:padding="12dp"
+                            android:inputType="numberDecimal"
+                            android:hint="Base price" />
+
+                        <Button
+                            android:id="@+id/btnSaveVan"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:text="Save"
+                            android:layout_marginStart="8dp"
+                            android:backgroundTint="@color/dark_blue"
+                            android:textColor="@android:color/white" />
+                    </LinearLayout>
+
+                    <!-- Save All -->
+                    <Button
+                        android:id="@+id/btnSaveAll"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Save All"
+                        android:backgroundTint="@color/dark_blue"
+                        android:textColor="@android:color/white" />
+
+                    <TextView
+                        android:id="@+id/tvPricingSuccess"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textColor="#2E7D32"
+                        android:layout_marginTop="8dp"
+                        android:layout_gravity="center"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvPricingError"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textColor="#D32F2F"
+                        android:layout_marginTop="8dp"
+                        android:layout_gravity="center"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#0A0F2C"
+        app:menu="@menu/loged_drawer_menu"
+        app:itemTextColor="@android:color/white"
+        app:itemBackground="@android:color/transparent" />
+
+</androidx.drawerlayout.widget.DrawerLayout>
