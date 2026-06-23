@@ -18,6 +18,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.nuvola.R;
 import com.example.nuvola.fragments.DriversRideHistoryFragment;
 import com.example.nuvola.model.Ride;
+import com.example.nuvola.network.TokenStorage;
 import com.example.nuvola.ui.auth.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
 
@@ -59,6 +60,9 @@ public class DriverRideHistory extends AppCompatActivity
                 R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
+        boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
+        navigationView.getMenu().findItem(R.id.nav_change_price).setVisible(isAdmin);
 
         if (savedInstanceState == null) {
             // ArrayList<Ride> rides = createTestRides();
@@ -103,8 +107,9 @@ public class DriverRideHistory extends AppCompatActivity
         } else if (id == R.id.nav_history) {
             Toast.makeText(this, "Ride History", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_account) {
-            Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(DriverRideHistory.this, ProfileActivity.class));
+        } else if (id == R.id.nav_change_price) {
+            startActivity(new Intent(DriverRideHistory.this, ChangePriceActivity.class));
         } else if (id == R.id.nav_logout) {
             startActivity(new Intent(DriverRideHistory.this, LoginActivity.class));
         }

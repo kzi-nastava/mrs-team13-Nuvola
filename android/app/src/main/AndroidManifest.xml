@@ -31,6 +31,10 @@
         <activity android:name=".activities.ChangePasswordActivity"
             android:exported="false"/>
 
+        <activity
+            android:name=".activities.ChangePriceActivity"
+            android:exported="false"/>
+
 
         <activity
             android:name=".ui.auth.ForgotPasswordActivity"

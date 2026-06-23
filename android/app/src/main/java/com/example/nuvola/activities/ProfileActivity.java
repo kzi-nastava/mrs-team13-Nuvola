@@ -176,12 +176,16 @@ public class ProfileActivity extends AppCompatActivity {
         findViewById(R.id.ivMenu).setOnClickListener(v ->
                 drawerLayout.openDrawer(GravityCompat.START));
 
+        boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
+        navView.getMenu().findItem(R.id.nav_change_price).setVisible(isAdmin);
+
         navView.setNavigationItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_logout) {
-                //TokenStorage.clear(this);
-                //startActivity(new Intent(this, LoginActivity.class));
-                //finish();
+            int id = item.getItemId();
+            if (id == R.id.nav_logout) {
                 logout();
+            } else if (id == R.id.nav_change_price) {
+                startActivity(new Intent(ProfileActivity.this, ChangePriceActivity.class));
+                finish();
             }
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
