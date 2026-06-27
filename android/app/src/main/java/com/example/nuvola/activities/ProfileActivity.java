@@ -34,6 +34,7 @@ public class ProfileActivity extends AppCompatActivity {
     private static final int PICK_IMAGE = 1;
 
     private boolean isDriver = false;
+    private boolean updatingAvailabilityUi = false;
     private String userRole;
 
     ImageView ivProfile;
@@ -43,6 +44,9 @@ public class ProfileActivity extends AppCompatActivity {
     Spinner spinnerVehicleType;
 
     TextView tvSuccess;
+    TextView tvDriverStatus;
+    Switch switchDriverAvailability;
+    AuthApi authApi;
     ProfileApi profileApi;
     DriverProfileApi driverProfileApi;
     private View driverContainer;
@@ -85,6 +89,7 @@ public class ProfileActivity extends AppCompatActivity {
         if (isDriver) {
             Log.d(TAG, ">>> Setting up DRIVER UI <<<");
             showDriverUI();
+            setupDriverAvailabilityListener();
             loadDriverProfile();
         } else {
             Log.d(TAG, ">>> Setting up PASSENGER/ADMIN UI <<<");
@@ -133,6 +138,9 @@ public class ProfileActivity extends AppCompatActivity {
         spinnerVehicleType = findViewById(R.id.spinnerVehicleType);
         cbBabyFriendly = findViewById(R.id.cbBabyFriendly);
         cbPetFriendly = findViewById(R.id.cbPetFriendly);
+        switchDriverAvailability = findViewById(R.id.switchDriverAvailability);
+        tvDriverStatus = findViewById(R.id.tvDriverStatus);
+
 
         tvSuccess = findViewById(R.id.tvSuccess);
 
@@ -150,6 +158,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void initApis() {
         Log.d(TAG, "initApis() called");
+        authApi = ApiClient.getRetrofit().create(AuthApi.class);
         profileApi = ApiClient.getRetrofit().create(ProfileApi.class);
         driverProfileApi = ApiClient.getRetrofit().create(DriverProfileApi.class);
         Log.d(TAG, "APIs initialized");
@@ -167,11 +176,15 @@ public class ProfileActivity extends AppCompatActivity {
         findViewById(R.id.ivMenu).setOnClickListener(v ->
                 drawerLayout.openDrawer(GravityCompat.START));
 
+        boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
+        navView.getMenu().findItem(R.id.nav_change_price).setVisible(isAdmin);
+
         navView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_logout) {
-                TokenStorage.clear(this);
-                startActivity(new Intent(this, LoginActivity.class));
+                logout();
+            } else if (id == R.id.nav_change_price) {
+                startActivity(new Intent(ProfileActivity.this, ChangePriceActivity.class));
                 finish();
             } else if (id == R.id.nav_users) {
                 String role = TokenStorage.getUserRole(this);
@@ -200,9 +213,19 @@ public class ProfileActivity extends AppCompatActivity {
             driverContainer.setVisibility(View.VISIBLE);
             Log.d(TAG, "AFTER: driverContainer visibility = " + driverContainer.getVisibility());
             driverContainer.requestLayout();
-            Log.d(TAG, "✓ Driver container made VISIBLE");
+            Log.d(TAG, "âœ“ Driver container made VISIBLE");
         } else {
-            Log.e(TAG, "✗ ERROR: Cannot show driver UI - driverContainer is NULL!");
+            Log.e(TAG, "âœ— ERROR: Cannot show driver UI - driverContainer is NULL!");
+        }
+    }
+
+    private void setupDriverAvailabilityListener() {
+        if (switchDriverAvailability != null) {
+            switchDriverAvailability.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (!updatingAvailabilityUi) {
+                    changeDriverAvailability(isChecked);
+                }
+            });
         }
     }
 
@@ -212,9 +235,9 @@ public class ProfileActivity extends AppCompatActivity {
             Log.d(TAG, "BEFORE: driverContainer visibility = " + driverContainer.getVisibility());
             driverContainer.setVisibility(View.GONE);
             Log.d(TAG, "AFTER: driverContainer visibility = " + driverContainer.getVisibility());
-            Log.d(TAG, "✓ Driver container hidden");
+            Log.d(TAG, "âœ“ Driver container hidden");
         } else {
-            Log.e(TAG, "✗ driverContainer is NULL in showPassengerUI");
+            Log.e(TAG, "âœ— driverContainer is NULL in showPassengerUI");
         }
     }
 
@@ -229,11 +252,11 @@ public class ProfileActivity extends AppCompatActivity {
                 Log.d(TAG, "Driver profile API response code: " + response.code());
 
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "✓ Driver profile loaded successfully");
+                    Log.d(TAG, "âœ“ Driver profile loaded successfully");
                     Log.d(TAG, "Driver data: " + response.body().toString());
                     fillDriverProfile(response.body());
                 } else {
-                    Log.e(TAG, "✗ Failed to load driver profile: " + response.code());
+                    Log.e(TAG, "âœ— Failed to load driver profile: " + response.code());
                     try {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "no error body";
                         Log.e(TAG, "Error body: " + errorBody);
@@ -247,7 +270,7 @@ public class ProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<DriverProfileResponseDTO> call, Throwable t) {
-                Log.e(TAG, "✗ Driver profile load FAILED", t);
+                Log.e(TAG, "âœ— Driver profile load FAILED", t);
                 Toast.makeText(ProfileActivity.this,
                         "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
@@ -269,6 +292,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         cbBabyFriendly.setChecked(p.babyFriendly);
         cbPetFriendly.setChecked(p.petFriendly);
+        updateDriverAvailabilityUi(p.status, p.inactiveAfterCurrentRide);
 
         setVehicleTypeSpinner(p.type);
 
@@ -293,6 +317,7 @@ public class ProfileActivity extends AppCompatActivity {
         } else {
             blockedBanner.setVisibility(View.GONE);
         }
+        Log.d(TAG, "âœ“ Driver profile fields filled");
     }
 
     private void loadUserProfile() {
@@ -304,10 +329,10 @@ public class ProfileActivity extends AppCompatActivity {
                 Log.d(TAG, "User profile API response code: " + response.code());
 
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "✓ User profile loaded successfully");
+                    Log.d(TAG, "âœ“ User profile loaded successfully");
                     fillUserProfile(response.body());
                 } else {
-                    Log.e(TAG, "✗ Failed to load user profile: " + response.code());
+                    Log.e(TAG, "âœ— Failed to load user profile: " + response.code());
                     try {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "no error body";
                         Log.e(TAG, "Error body: " + errorBody);
@@ -321,7 +346,7 @@ public class ProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ProfileResponseDTO> call, Throwable t) {
-                Log.e(TAG, "✗ User profile load FAILED", t);
+                Log.e(TAG, "âœ— User profile load FAILED", t);
                 Toast.makeText(ProfileActivity.this,
                         "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
@@ -343,7 +368,7 @@ public class ProfileActivity extends AppCompatActivity {
                     .circleCrop()
                     .into(ivProfile);
         }
-        Log.d(TAG, "✓ User profile fields filled");
+        Log.d(TAG, "âœ“ User profile fields filled");
     }
 
     private void setVehicleTypeSpinner(String type) {
@@ -357,6 +382,101 @@ public class ProfileActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void updateDriverAvailabilityUi(String status, boolean inactiveAfterCurrentRide) {
+        String displayStatus = status == null ? "UNKNOWN" : status;
+        boolean checked = "ACTIVE".equalsIgnoreCase(displayStatus)
+                || ("BUSY".equalsIgnoreCase(displayStatus) && !inactiveAfterCurrentRide);
+
+        updatingAvailabilityUi = true;
+        if (switchDriverAvailability != null) {
+            switchDriverAvailability.setChecked(checked);
+            if ("BUSY".equalsIgnoreCase(displayStatus) && inactiveAfterCurrentRide) {
+                switchDriverAvailability.setText("Available after current ride: no");
+            } else {
+                switchDriverAvailability.setText(checked ? "Available for rides" : "Not available for rides");
+            }
+        }
+        updatingAvailabilityUi = false;
+
+        if (tvDriverStatus != null) {
+            String suffix = inactiveAfterCurrentRide ? " (inactive after current ride)" : "";
+            tvDriverStatus.setText("Status: " + displayStatus + suffix);
+        }
+    }
+
+    private void changeDriverAvailability(boolean available) {
+        if (authApi == null) return;
+
+        String nextStatus = available ? "ACTIVE" : "INACTIVE";
+        if (switchDriverAvailability != null) switchDriverAvailability.setEnabled(false);
+
+        authApi.changeDriverStatus(new ChangeDriverStatusDTO(nextStatus)).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (switchDriverAvailability != null) switchDriverAvailability.setEnabled(true);
+
+                if (response.isSuccessful()) {
+                    Toast.makeText(ProfileActivity.this,
+                            "Driver status changed",
+                            Toast.LENGTH_SHORT).show();
+                    loadDriverProfile();
+                } else {
+                    updateDriverAvailabilityUi(available ? "INACTIVE" : "ACTIVE", false);
+                    Toast.makeText(ProfileActivity.this,
+                            "Status change failed (" + response.code() + ")",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                if (switchDriverAvailability != null) switchDriverAvailability.setEnabled(true);
+                updateDriverAvailabilityUi(available ? "INACTIVE" : "ACTIVE", false);
+                Toast.makeText(ProfileActivity.this,
+                        "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void logout() {
+        if (authApi == null) {
+            finishLogoutLocally();
+            return;
+        }
+
+        authApi.logout().enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    finishLogoutLocally();
+                } else if (response.code() == 409) {
+                    Toast.makeText(ProfileActivity.this,
+                            "You cannot log out while you have an active ride.",
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(ProfileActivity.this,
+                            "Logout failed (" + response.code() + ")",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(ProfileActivity.this,
+                        "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void finishLogoutLocally() {
+        TokenStorage.clear(this);
+        ApiClient.clearInstance();
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
+    }
+
+
 
     // ================= SAVE =================
 
@@ -514,7 +634,7 @@ public class ProfileActivity extends AppCompatActivity {
             etAddress.setError("Address must have at least 3 characters");
             return false;
         }
-        if (!address.matches("^[A-ZČĆŠĐŽ][A-Za-zČĆŠĐŽčćšđž0-9\\s]+$")) {
+        if (!address.matches("^[A-ZÄŒÄ†Å ÄÅ½][A-Za-zÄŒÄ†Å ÄÅ½ÄÄ‡Å¡Ä‘Å¾0-9\\s]+$")) {
             etAddress.setError("Address must start with a capital letter and contain only letters, numbers and spaces");
             return false;
         }
@@ -527,7 +647,7 @@ public class ProfileActivity extends AppCompatActivity {
                 etVehicleModel.setError("Model must have at least 3 characters");
                 return false;
             }
-            if (!model.matches("^[A-ZČĆŠĐŽ][A-Za-zČĆŠĐŽčćšđž0-9\\s]+$")) {
+            if (!model.matches("^[A-ZÄŒÄ†Å ÄÅ½][A-Za-zÄŒÄ†Å ÄÅ½ÄÄ‡Å¡Ä‘Å¾0-9\\s]+$")) {
                 etVehicleModel.setError("Model must start with a capital letter");
                 return false;
             }
@@ -552,3 +672,4 @@ public class ProfileActivity extends AppCompatActivity {
         return true;
     }
 }
+

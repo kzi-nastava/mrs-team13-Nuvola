@@ -294,11 +294,82 @@ public class EmailServiceImpl implements EmailService {
             helper.setText(htmlContent, true);
             javaMailSender.send(mimeMessage);
             return "Mail Sent Successfully";
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return "Error while sending mail!!!";
         }
     }
+
+    @Override
+    public String sendActivationEmail(EmailDetails details) {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom(sender);
+            helper.setTo(details.getRecipient());
+            helper.setSubject(details.getSubject() != null ? details.getSubject() : "Activate your Nuvola account");
+
+            String activationLink = details.getMsgBody();
+
+            String htmlContent = "<!DOCTYPE html>" +
+                    "<html>" +
+                    "<head>" +
+                    "<meta charset='UTF-8'>" +
+                    "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+                    "</head>" +
+                    "<body style='margin:0;padding:0;font-family:Arial,sans-serif;background-color:#f4f4f4;'>" +
+                    "<table role='presentation' style='width:100%;border-collapse:collapse;'>" +
+                    "<tr><td style='padding:40px 0;text-align:center;'>" +
+                    "<table role='presentation' style='width:600px;border-collapse:collapse;background-color:#ffffff;box-shadow:0 4px 6px rgba(0,0,0,0.1);'>" +
+
+                    "<tr><td style='padding:40px 30px;background:#0A1128;text-align:center;'>" +
+                    "<h1 style='margin:0;color:#ffffff;font-size:28px;'>Nuvola Account Activation</h1>" +
+                    "</td></tr>" +
+
+                    "<tr><td style='padding:40px 30px;'>" +
+                    "<h2 style='margin:0 0 20px 0;color:#333333;font-size:24px;'>Hello!</h2>" +
+
+                    "<p style='margin:0 0 20px 0;color:#666666;font-size:16px;line-height:1.6;'>" +
+                    "Please activate your account by clicking the button below. This link is valid for 24 hours." +
+                    "</p>" +
+
+                    "<table role='presentation' style='margin:30px 0;'>" +
+                    "<tr><td style='border-radius:6px;background:#0A1128;'>" +
+                    "<a href='" + activationLink + "' style='display:inline-block;padding:14px 28px;font-size:16px;color:#ffffff;text-decoration:none;font-weight:bold;'>" +
+                    "Activate account" +
+                    "</a>" +
+                    "</td></tr>" +
+                    "</table>" +
+
+                    "<p style='margin:20px 0 8px 0;color:#999999;font-size:14px;line-height:1.6;'>" +
+                    "If the button does not work, copy this link:" +
+                    "</p>" +
+
+                    "<p style='margin:0;color:#667eea;font-size:14px;word-break:break-all;'>" +
+                    activationLink +
+                    "</p>" +
+
+                    "</td></tr>" +
+
+                    "<tr><td style='padding:30px;background-color:#f8f9fa;text-align:center;border-top:1px solid #e0e0e0;'>" +
+                    "<p style='margin:0;color:#999999;font-size:14px;'>© 2025 Nuvola. All rights reserved.</p>" +
+                    "</td></tr>" +
+
+                    "</table></td></tr></table>" +
+                    "</body></html>";
+
+            helper.setText(htmlContent, true);
+            javaMailSender.send(mimeMessage);
+
+            return "Mail Sent Successfully";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error while sending mail!!!";
+        }
+    }
+
+
 
     private String extractBridgeLinkFromWebLink(String webLink) {
         // webLink je tipa http://localhost:4200/reset-password?token=XYZ
@@ -318,7 +389,7 @@ public class EmailServiceImpl implements EmailService {
         // BACKEND bridge endpoint (dodajemo ga u AuthController ispod)
         // 10.0.2.2 je za emulator ako otvaraš iz emuliranog browsera. Ali mail otvaraš na PC-u:
         // zato ostavljamo localhost:8080 kao default.
-        return "http://localhost:8080/api/auth/reset-password/open?token=" + token;
+        return "http://10.0.2.2:8080/api/auth/reset-password/open?token=" + token;
     }
 
 }

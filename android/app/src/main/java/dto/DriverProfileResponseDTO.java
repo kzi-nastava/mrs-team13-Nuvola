@@ -8,6 +8,8 @@ public class DriverProfileResponseDTO {
     public String phone;
     public String address;
     public String picture;
+    public String status;
+    public boolean inactiveAfterCurrentRide;
 
     public String model;
     public String type;

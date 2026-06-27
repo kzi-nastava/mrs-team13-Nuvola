@@ -77,7 +77,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
   //      details.setRecipient(user.getEmail());
 //        details.setSubject("Reset lozinke - Nuvola");
 
-        //details.setMsgBody("http://localhost:4200/reset-password?token=" + token);
+        //details.setMsgBody("http://10.0.2.2:8080/api/auth/reset-password/open?token=" + token);
 
         //emailService.sendPasswordReset(details);
       //  System.out.println("RESET LINK: http://localhost:4200/reset-password?token=" + token);
@@ -119,8 +119,9 @@ public class PasswordResetServiceImpl implements PasswordResetService {
             EmailDetails details = new EmailDetails();
             details.setRecipient(user.getEmail());
             details.setSubject("Reset lozinke - Nuvola");
-            details.setMsgBody("http://localhost:4200/reset-password?token=" + token);
+            details.setMsgBody("http://10.0.2.2:8080/api/auth/reset-password/open?token=" + token);
 
+            System.out.println("RESET LINK: " + details.getMsgBody());
             System.out.println("REQ-RESET H: sending email...");
             emailService.sendPasswordReset(details);
             System.out.println("REQ-RESET I: done.");

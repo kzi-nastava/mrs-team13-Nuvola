@@ -64,6 +64,8 @@ public class DriverRideHistory extends AppCompatActivity
         String role = TokenStorage.getUserRole(this);
         android.view.MenuItem usersItem = navigationView.getMenu().findItem(R.id.nav_users);
         if (usersItem != null) usersItem.setVisible("ADMIN".equals(role));
+        boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
+        navigationView.getMenu().findItem(R.id.nav_change_price).setVisible(isAdmin);
 
         if (savedInstanceState == null) {
             // ArrayList<Ride> rides = createTestRides();
@@ -114,6 +116,9 @@ public class DriverRideHistory extends AppCompatActivity
             if ("ADMIN".equals(role)) {
                 startActivity(new Intent(this, UsersActivity.class));
             }
+            startActivity(new Intent(DriverRideHistory.this, ProfileActivity.class));
+        } else if (id == R.id.nav_change_price) {
+            startActivity(new Intent(DriverRideHistory.this, ChangePriceActivity.class));
         } else if (id == R.id.nav_logout) {
             startActivity(new Intent(this, LoginActivity.class));
         }

@@ -113,20 +113,19 @@ public class UserServiceImpl implements UserService {
         token.setUsed(false);
         activationTokenRepository.save(token);
 
-        //  pošalji mejl sa linkom
-        String link = "http://localhost:8080/api/auth/activate-email?token=" + tokenValue;
+        String tokenVal = token.getToken();
 
+        String activationLink = "http://10.0.2.2:8080/api/auth/activate/open?token=" + tokenVal;
+
+        System.out.println("Activation link for " + saved.getEmail() + ": " + activationLink);
 
         EmailDetails details = new EmailDetails(
                 saved.getEmail(),
-                "Hello " + saved.getFirstName() + ",\n\n" +
-                        "Please activate your account by clicking the link below (valid for 24h):\n" +
-                        link + "\n\n" +
-                        "Nuvola Team",
+                activationLink,
                 "Activate your Nuvola account"
         );
 
-        emailService.sendSimpleMail(details);
+        emailService.sendActivationEmail(details);
 
         return saved;
     }

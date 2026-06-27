@@ -18,6 +18,7 @@ import com.example.nuvola.network.AuthService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.example.nuvola.network.ApiClient;
 
 import dto.ResetPasswordRequestDTO;
 import retrofit2.Call;
@@ -38,7 +39,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
-
+        ApiClient.init(this);
         // =========================
         // 1) TOKEN (deep link ili extra)
         // =========================
@@ -111,11 +112,12 @@ public class ResetPasswordActivity extends AppCompatActivity {
                 if (!validateAll()) return;
 
                 String newPass = etNew.getText() == null ? "" : etNew.getText().toString();
+                String confirmPass = etConfirm.getText() == null ? "" : etConfirm.getText().toString();
 
                 btnReset.setEnabled(false);
 
                 AuthService.api()
-                        .resetPassword(resetToken, new ResetPasswordRequestDTO(newPass))
+                        .resetPassword(resetToken, new ResetPasswordRequestDTO(newPass, confirmPass))
                         .enqueue(new Callback<String>() {
                             @Override
                             public void onResponse(Call<String> call, Response<String> response) {

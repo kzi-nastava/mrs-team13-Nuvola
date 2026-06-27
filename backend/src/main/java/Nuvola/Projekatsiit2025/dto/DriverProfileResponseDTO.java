@@ -1,6 +1,7 @@
 package Nuvola.Projekatsiit2025.dto;
 
 import Nuvola.Projekatsiit2025.model.enums.VehicleType;
+import Nuvola.Projekatsiit2025.model.enums.DriverStatus;
 
 public class DriverProfileResponseDTO {
 
@@ -14,6 +15,8 @@ public class DriverProfileResponseDTO {
     private String picture;
     private boolean isBlocked;
     private String blockingReason;
+    private DriverStatus status;
+    private boolean inactiveAfterCurrentRide;
 
     // vehicle
     private String model;
@@ -143,5 +146,20 @@ public class DriverProfileResponseDTO {
 
     public void setBlockingReason(String blockingReason) {
         this.blockingReason = blockingReason;
+    }
+    public DriverStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(DriverStatus status) {
+        this.status = status;
+    }
+
+    public boolean isInactiveAfterCurrentRide() {
+        return inactiveAfterCurrentRide;
+    }
+
+    public void setInactiveAfterCurrentRide(boolean inactiveAfterCurrentRide) {
+        this.inactiveAfterCurrentRide = inactiveAfterCurrentRide;
     }
 }
