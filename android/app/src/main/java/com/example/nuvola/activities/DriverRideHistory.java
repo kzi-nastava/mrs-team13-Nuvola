@@ -19,6 +19,7 @@ import com.example.nuvola.R;
 import com.example.nuvola.fragments.DriversRideHistoryFragment;
 import com.example.nuvola.model.Ride;
 import com.example.nuvola.network.TokenStorage;
+import com.example.nuvola.services.StompNotificationService;
 import com.example.nuvola.ui.auth.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
 
@@ -110,8 +111,21 @@ public class DriverRideHistory extends AppCompatActivity
             startActivity(new Intent(DriverRideHistory.this, ProfileActivity.class));
         } else if (id == R.id.nav_change_price) {
             startActivity(new Intent(DriverRideHistory.this, ChangePriceActivity.class));
+        } else if (id == R.id.nav_notifications) {
+            startActivity(new Intent(DriverRideHistory.this, NotificationsActivity.class));
+        } else if (id == R.id.nav_support_chat) {
+            boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
+            if (isAdmin) {
+                startActivity(new Intent(DriverRideHistory.this, AdminInboxActivity.class));
+            } else {
+                startActivity(new Intent(DriverRideHistory.this, SupportChatActivity.class));
+            }
         } else if (id == R.id.nav_logout) {
-            startActivity(new Intent(DriverRideHistory.this, LoginActivity.class));
+            stopService(new Intent(this, StompNotificationService.class));
+            TokenStorage.clear(this);
+            Intent intent = new Intent(DriverRideHistory.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         }
 
 

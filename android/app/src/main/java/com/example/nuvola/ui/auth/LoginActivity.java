@@ -1,6 +1,9 @@
 package com.example.nuvola.ui.auth;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -22,6 +27,7 @@ import com.example.nuvola.network.JwtRoleHelper;
 import com.example.nuvola.network.LoginRequest;
 import com.example.nuvola.network.TokenStorage;
 import com.example.nuvola.network.UserTokenState;
+import com.example.nuvola.services.StompNotificationService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -47,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
         // Initialize ApiClient with context
         ApiClient.init(this);
 
-
+        requestNotificationPermission();
         restoreRememberedLogin();
         // ===== Drawer =====
         setupDrawer();
@@ -129,6 +135,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void restoreRememberedLogin() {
         if (TokenStorage.isRememberMeEnabled(this) && TokenStorage.getToken(this) != null) {
+            startNotificationService();
             navigateAfterLogin();
         }
     }
@@ -198,7 +205,23 @@ public class LoginActivity extends AppCompatActivity {
 
         TokenStorage.saveUserRole(LoginActivity.this, userType);
 
+        startNotificationService();
         navigateAfterLogin();
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS}, 100);
+            }
+        }
+    }
+
+    private void startNotificationService() {
+        Intent serviceIntent = new Intent(this, StompNotificationService.class);
+        startForegroundService(serviceIntent);
     }
 
     private void handleLoginError(Response<UserTokenState> response) {
