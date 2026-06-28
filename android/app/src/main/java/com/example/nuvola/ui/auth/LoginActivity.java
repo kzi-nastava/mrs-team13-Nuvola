@@ -58,6 +58,13 @@ public class LoginActivity extends AppCompatActivity {
         // ===== Drawer =====
         setupDrawer();
 
+        // ===== Logo → mapa vozila (neulogovani korisnik) =====
+        ImageView ivLogo = findViewById(R.id.ivLogo);
+        if (ivLogo != null) {
+            ivLogo.setOnClickListener(v ->
+                    startActivity(new Intent(this, com.example.nuvola.activities.VehicleMapActivity.class)));
+        }
+
         // ===== Inputs =====
         initInputs();
 

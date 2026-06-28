@@ -48,6 +48,10 @@
         <activity
             android:name=".activities.MainActivity"
             android:exported="true"/>
+
+        <activity
+            android:name=".activities.VehicleMapActivity"
+            android:exported="false" />
         <!-- LOGIN kao LAUNCHER -->
         <activity
             android:name=".ui.auth.LoginActivity"
