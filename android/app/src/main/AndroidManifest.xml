@@ -63,6 +63,14 @@
             android:name=".activities.NotificationsActivity"
             android:exported="false"/>
 
+        <activity
+            android:name=".activities.SupportChatActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".activities.AdminInboxActivity"
+            android:exported="false"/>
+
         <service
             android:name=".services.StompNotificationService"
             android:foregroundServiceType="dataSync"

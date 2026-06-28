@@ -113,6 +113,13 @@ public class DriverRideHistory extends AppCompatActivity
             startActivity(new Intent(DriverRideHistory.this, ChangePriceActivity.class));
         } else if (id == R.id.nav_notifications) {
             startActivity(new Intent(DriverRideHistory.this, NotificationsActivity.class));
+        } else if (id == R.id.nav_support_chat) {
+            boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
+            if (isAdmin) {
+                startActivity(new Intent(DriverRideHistory.this, AdminInboxActivity.class));
+            } else {
+                startActivity(new Intent(DriverRideHistory.this, SupportChatActivity.class));
+            }
         } else if (id == R.id.nav_logout) {
             stopService(new Intent(this, StompNotificationService.class));
             TokenStorage.clear(this);

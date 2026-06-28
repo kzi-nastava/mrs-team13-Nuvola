@@ -2,11 +2,9 @@ package com.example.nuvola.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -18,38 +16,38 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nuvola.R;
-import com.example.nuvola.adapters.NotificationsAdapter;
+import com.example.nuvola.adapters.AdminInboxAdapter;
+import com.example.nuvola.network.AdminInboxPageDTO;
 import com.example.nuvola.network.ApiClient;
+import com.example.nuvola.network.ChatApi;
+import com.example.nuvola.network.ChatStompClient;
 import com.example.nuvola.network.JwtRoleHelper;
-import com.example.nuvola.network.NotificationApi;
-import com.example.nuvola.network.NotificationDTO;
 import com.example.nuvola.network.TokenStorage;
 import com.example.nuvola.services.StompNotificationService;
 import com.example.nuvola.ui.auth.LoginActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NotificationsActivity extends AppCompatActivity
+public class AdminInboxActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String TAG = "NotificationsActivity";
-
     private DrawerLayout drawerLayout;
-    private RecyclerView rvNotifications;
+    private RecyclerView rvInbox;
     private TextView tvError, tvEmpty;
     private MaterialButton btnRefresh;
-    private long userId;
+
+    private AdminInboxAdapter adapter;
+    private ChatStompClient stompClient;
+    private long myId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notifications);
+        setContentView(R.layout.activity_admin_inbox);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -65,53 +63,82 @@ public class NotificationsActivity extends AppCompatActivity
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
-        navView.getMenu().findItem(R.id.nav_change_price).setVisible(isAdmin);
+        navView.getMenu().findItem(R.id.nav_change_price).setVisible(true);
 
-        rvNotifications = findViewById(R.id.rvNotifications);
-        rvNotifications.setLayoutManager(new LinearLayoutManager(this));
-        tvError = findViewById(R.id.tvError);
-        tvEmpty = findViewById(R.id.tvEmpty);
+        tvError = findViewById(R.id.tvInboxError);
+        tvEmpty = findViewById(R.id.tvInboxEmpty);
         btnRefresh = findViewById(R.id.btnRefresh);
+        rvInbox = findViewById(R.id.rvInbox);
 
         String token = TokenStorage.getToken(this);
-        userId = JwtRoleHelper.getUserId(token);
+        myId = JwtRoleHelper.getUserId(token);
 
-        btnRefresh.setOnClickListener(v -> loadNotifications());
-        loadNotifications();
+        adapter = new AdminInboxAdapter();
+        rvInbox.setLayoutManager(new LinearLayoutManager(this));
+        rvInbox.setAdapter(adapter);
+
+        adapter.setOnItemClickListener(item -> {
+            Intent intent = new Intent(this, SupportChatActivity.class);
+            intent.putExtra(SupportChatActivity.EXTRA_IS_ADMIN, true);
+            intent.putExtra(SupportChatActivity.EXTRA_RECEIVER_USER_ID, item.userId);
+            intent.putExtra(SupportChatActivity.EXTRA_RECEIVER_NAME, item.ownerName);
+            startActivity(intent);
+        });
+
+        btnRefresh.setOnClickListener(v -> loadAll());
+
+        loadAll();
+        connectInboxWs(token);
     }
 
-    private void loadNotifications() {
+    private void connectInboxWs(String token) {
+        stompClient = new ChatStompClient();
+        stompClient.connect(token, "/topic/chats/users/all", msg -> {
+            boolean found = adapter.updateLastMessage(msg);
+            if (!found) {
+                loadAll();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (stompClient != null) stompClient.disconnect();
+    }
+
+    private void loadAll() {
         tvError.setVisibility(View.GONE);
         tvEmpty.setVisibility(View.GONE);
         btnRefresh.setEnabled(false);
         btnRefresh.setText("Loading...");
 
-        NotificationApi api = ApiClient.getRetrofit().create(NotificationApi.class);
-        api.getNotifications(userId).enqueue(new Callback<List<NotificationDTO>>() {
+        ChatApi api = ApiClient.getRetrofit().create(ChatApi.class);
+        api.getAdminInbox(myId, 0, 500).enqueue(new Callback<AdminInboxPageDTO>() {
             @Override
-            public void onResponse(@NonNull Call<List<NotificationDTO>> call,
-                                   @NonNull Response<List<NotificationDTO>> response) {
+            public void onResponse(@NonNull Call<AdminInboxPageDTO> call,
+                                   @NonNull Response<AdminInboxPageDTO> response) {
                 btnRefresh.setEnabled(true);
                 btnRefresh.setText("Refresh");
+
                 if (response.isSuccessful() && response.body() != null) {
-                    List<NotificationDTO> list = response.body();
-                    if (list.isEmpty()) {
+                    AdminInboxPageDTO page = response.body();
+                    if (page.content == null || page.content.isEmpty()) {
                         tvEmpty.setVisibility(View.VISIBLE);
+                        adapter.setItems(java.util.Collections.emptyList());
                     } else {
-                        rvNotifications.setAdapter(new NotificationsAdapter(list));
+                        adapter.setItems(page.content);
                     }
                 } else {
-                    showError("Failed to load notifications (" + response.code() + ")");
+                    showError("Failed to load inbox (" + response.code() + ")");
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<NotificationDTO>> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<AdminInboxPageDTO> call, @NonNull Throwable t) {
                 btnRefresh.setEnabled(true);
                 btnRefresh.setText("Refresh");
                 showError("Network error: " + t.getMessage());
-                Log.e(TAG, "Load failed", t);
             }
         });
     }
@@ -124,21 +151,14 @@ public class NotificationsActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.nav_history) {
+        if (id == R.id.nav_ridehistory) {
             startActivity(new Intent(this, DriverRideHistory.class));
         } else if (id == R.id.nav_account) {
             startActivity(new Intent(this, ProfileActivity.class));
         } else if (id == R.id.nav_change_price) {
             startActivity(new Intent(this, ChangePriceActivity.class));
         } else if (id == R.id.nav_notifications) {
-            // already here
-        } else if (id == R.id.nav_support_chat) {
-            boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
-            if (isAdmin) {
-                startActivity(new Intent(this, AdminInboxActivity.class));
-            } else {
-                startActivity(new Intent(this, SupportChatActivity.class));
-            }
+            startActivity(new Intent(this, NotificationsActivity.class));
         } else if (id == R.id.nav_logout) {
             stopService(new Intent(this, StompNotificationService.class));
             TokenStorage.clear(this);
