@@ -1,10 +1,12 @@
 package com.example.nuvola.activities;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.Menu;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,6 +21,7 @@ import com.example.nuvola.R;
 import com.example.nuvola.fragments.DriversRideHistoryFragment;
 import com.example.nuvola.model.Ride;
 import com.example.nuvola.network.TokenStorage;
+import com.example.nuvola.services.StompNotificationService;
 import com.example.nuvola.ui.auth.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
 
@@ -66,6 +69,7 @@ public class DriverRideHistory extends AppCompatActivity
         if (usersItem != null) usersItem.setVisible("ADMIN".equals(role));
         boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
         navigationView.getMenu().findItem(R.id.nav_change_price).setVisible(isAdmin);
+        navigationView.getMenu().findItem(R.id.nav_driver_ride_details).setVisible(isAdmin);
 
         if (savedInstanceState == null) {
             // ArrayList<Ride> rides = createTestRides();
@@ -119,14 +123,56 @@ public class DriverRideHistory extends AppCompatActivity
             startActivity(new Intent(DriverRideHistory.this, ProfileActivity.class));
         } else if (id == R.id.nav_change_price) {
             startActivity(new Intent(DriverRideHistory.this, ChangePriceActivity.class));
+        } else if (id == R.id.nav_notifications) {
+            startActivity(new Intent(DriverRideHistory.this, NotificationsActivity.class));
+        } else if (id == R.id.nav_driver_ride_details) {
+            showDriverIdDialog();
+        } else if (id == R.id.nav_track_ride) {
+            startActivity(new Intent(DriverRideHistory.this, RideTrackingActivity.class));
+        } else if (id == R.id.nav_support_chat) {
+            boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
+            if (isAdmin) {
+                startActivity(new Intent(DriverRideHistory.this, AdminInboxActivity.class));
+            } else {
+                startActivity(new Intent(DriverRideHistory.this, SupportChatActivity.class));
+            }
         } else if (id == R.id.nav_logout) {
-            startActivity(new Intent(this, LoginActivity.class));
+            stopService(new Intent(this, StompNotificationService.class));
+            TokenStorage.clear(this);
+            Intent intent = new Intent(DriverRideHistory.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
+
+    private void showDriverIdDialog() {
+        EditText etDriverId = new EditText(this);
+        etDriverId.setHint("Driver ID");
+        etDriverId.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        etDriverId.setPadding(40, 20, 40, 20);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Track Driver")
+                .setView(etDriverId)
+                .setPositiveButton("Open", (dialog, which) -> {
+                    String input = etDriverId.getText().toString().trim();
+                    if (input.isEmpty()) return;
+                    try {
+                        long driverId = Long.parseLong(input);
+                        Intent intent = new Intent(this, AdminRideDetailsActivity.class);
+                        intent.putExtra("driverId", driverId);
+                        startActivity(intent);
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(this, "Invalid ID.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
 
     private ArrayList<Ride> createTestRides() {
         ArrayList<Ride> rides = new ArrayList<>();
