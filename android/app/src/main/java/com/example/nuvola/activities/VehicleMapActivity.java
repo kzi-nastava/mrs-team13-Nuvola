@@ -1,5 +1,7 @@
 package com.example.nuvola.activities;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -9,10 +11,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nuvola.R;
+import com.example.nuvola.network.RideService;
+import com.google.android.material.button.MaterialButton;
 import com.google.gson.Gson;
 
 import org.osmdroid.config.Configuration;
@@ -55,6 +62,59 @@ public class VehicleMapActivity extends AppCompatActivity {
 
         setupMap();
         connectWebSocket();
+        setupEndRideButton();
+    }
+
+    private void setupEndRideButton() {
+        MaterialButton btnEndRide = findViewById(R.id.btnEndRide);
+        btnEndRide.setVisibility(View.VISIBLE);
+        btnEndRide.setOnClickListener(v -> showEndRideDialog());
+    }
+
+    private void showEndRideDialog() {
+        EditText etUsername = new EditText(this);
+        etUsername.setHint("Driver username");
+        etUsername.setPadding(40, 20, 40, 20);
+
+        new AlertDialog.Builder(this)
+                .setTitle("End Ride")
+                .setView(etUsername)
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    String username = etUsername.getText().toString().trim();
+                    if (username.isEmpty()) {
+                        Toast.makeText(this, "Please enter a username.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    endRide(username);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void endRide(String username) {
+        RideService.endRide(username, new RideService.EndRideCallback() {
+            @Override
+            public void onRideEnded(long scheduledRideId) {
+                runOnUiThread(() -> {
+                    Intent intent = new Intent(VehicleMapActivity.this, ScheduledRideActivity.class);
+                    intent.putExtra(ScheduledRideActivity.EXTRA_RIDE_ID, scheduledRideId);
+                    startActivity(intent);
+                });
+            }
+
+            @Override
+            public void onRideEndedNoNext() {
+                runOnUiThread(() ->
+                        Toast.makeText(VehicleMapActivity.this,
+                                "Ride ended. No upcoming scheduled ride.", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onError(String message) {
+                runOnUiThread(() ->
+                        Toast.makeText(VehicleMapActivity.this, message, Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 
     private void setupMap() {

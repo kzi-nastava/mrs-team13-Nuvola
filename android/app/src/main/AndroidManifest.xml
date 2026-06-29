@@ -63,6 +63,10 @@
         <activity
             android:name=".activities.AdminRideDetailsActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".activities.ScheduledRideActivity"
+            android:exported="false" />
         <!-- LOGIN kao LAUNCHER -->
         <activity
             android:name=".ui.auth.LoginActivity"
