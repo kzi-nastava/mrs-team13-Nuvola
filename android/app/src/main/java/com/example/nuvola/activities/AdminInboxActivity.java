@@ -64,6 +64,7 @@ public class AdminInboxActivity extends AppCompatActivity
         toggle.syncState();
 
         navView.getMenu().findItem(R.id.nav_change_price).setVisible(true);
+        navView.getMenu().findItem(R.id.nav_grade_ride).setVisible(false);
 
         tvError = findViewById(R.id.tvInboxError);
         tvEmpty = findViewById(R.id.tvInboxEmpty);
