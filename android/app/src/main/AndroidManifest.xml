@@ -52,6 +52,14 @@
         <activity
             android:name=".activities.VehicleMapActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".activities.RideTrackingActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.AdminRideDetailsActivity"
+            android:exported="false" />
         <!-- LOGIN kao LAUNCHER -->
         <activity
             android:name=".ui.auth.LoginActivity"
