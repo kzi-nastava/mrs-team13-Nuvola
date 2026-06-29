@@ -27,6 +27,7 @@ import com.example.nuvola.network.JwtRoleHelper;
 import com.example.nuvola.network.LoginRequest;
 import com.example.nuvola.network.TokenStorage;
 import com.example.nuvola.network.UserTokenState;
+import com.example.nuvola.services.DriverLocationPublisherService;
 import com.example.nuvola.services.StompNotificationService;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
@@ -54,9 +55,17 @@ public class LoginActivity extends AppCompatActivity {
         ApiClient.init(this);
 
         requestNotificationPermission();
+        requestLocationPermission();
         restoreRememberedLogin();
         // ===== Drawer =====
         setupDrawer();
+
+        // ===== Logo → mapa vozila (neulogovani korisnik) =====
+        ImageView ivLogo = findViewById(R.id.ivLogo);
+        if (ivLogo != null) {
+            ivLogo.setOnClickListener(v ->
+                    startActivity(new Intent(this, com.example.nuvola.activities.VehicleMapActivity.class)));
+        }
 
         // ===== Inputs =====
         initInputs();
@@ -136,6 +145,9 @@ public class LoginActivity extends AppCompatActivity {
     private void restoreRememberedLogin() {
         if (TokenStorage.isRememberMeEnabled(this) && TokenStorage.getToken(this) != null) {
             startNotificationService();
+            if ("DRIVER".equals(TokenStorage.getUserRole(this))) {
+                startLocationService();
+            }
             navigateAfterLogin();
         }
     }
@@ -206,6 +218,9 @@ public class LoginActivity extends AppCompatActivity {
         TokenStorage.saveUserRole(LoginActivity.this, userType);
 
         startNotificationService();
+        if ("DRIVER".equals(userType)) {
+            startLocationService();
+        }
         navigateAfterLogin();
     }
 
@@ -222,6 +237,19 @@ public class LoginActivity extends AppCompatActivity {
     private void startNotificationService() {
         Intent serviceIntent = new Intent(this, StompNotificationService.class);
         startForegroundService(serviceIntent);
+    }
+
+    private void startLocationService() {
+        Intent serviceIntent = new Intent(this, DriverLocationPublisherService.class);
+        startForegroundService(serviceIntent);
+    }
+
+    private void requestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+        }
     }
 
     private void handleLoginError(Response<UserTokenState> response) {

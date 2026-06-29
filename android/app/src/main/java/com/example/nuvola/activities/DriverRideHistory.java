@@ -1,10 +1,12 @@
 package com.example.nuvola.activities;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.Menu;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -64,6 +66,7 @@ public class DriverRideHistory extends AppCompatActivity
 
         boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
         navigationView.getMenu().findItem(R.id.nav_change_price).setVisible(isAdmin);
+        navigationView.getMenu().findItem(R.id.nav_driver_ride_details).setVisible(isAdmin);
 
         if (savedInstanceState == null) {
             // ArrayList<Ride> rides = createTestRides();
@@ -113,6 +116,10 @@ public class DriverRideHistory extends AppCompatActivity
             startActivity(new Intent(DriverRideHistory.this, ChangePriceActivity.class));
         } else if (id == R.id.nav_notifications) {
             startActivity(new Intent(DriverRideHistory.this, NotificationsActivity.class));
+        } else if (id == R.id.nav_driver_ride_details) {
+            showDriverIdDialog();
+        } else if (id == R.id.nav_track_ride) {
+            startActivity(new Intent(DriverRideHistory.this, RideTrackingActivity.class));
         } else if (id == R.id.nav_support_chat) {
             boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
             if (isAdmin) {
@@ -134,6 +141,31 @@ public class DriverRideHistory extends AppCompatActivity
         return true;
     }
 
+
+    private void showDriverIdDialog() {
+        EditText etDriverId = new EditText(this);
+        etDriverId.setHint("Driver ID");
+        etDriverId.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        etDriverId.setPadding(40, 20, 40, 20);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Track Driver")
+                .setView(etDriverId)
+                .setPositiveButton("Open", (dialog, which) -> {
+                    String input = etDriverId.getText().toString().trim();
+                    if (input.isEmpty()) return;
+                    try {
+                        long driverId = Long.parseLong(input);
+                        Intent intent = new Intent(this, AdminRideDetailsActivity.class);
+                        intent.putExtra("driverId", driverId);
+                        startActivity(intent);
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(this, "Invalid ID.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
 
     private ArrayList<Ride> createTestRides() {
         ArrayList<Ride> rides = new ArrayList<>();
