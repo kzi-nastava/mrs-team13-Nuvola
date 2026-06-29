@@ -90,6 +90,10 @@
             android:name=".activities.AdminInboxActivity"
             android:exported="false"/>
 
+        <activity
+            android:name=".activities.GradeRideActivity"
+            android:exported="false"/>
+
         <service
             android:name=".services.StompNotificationService"
             android:foregroundServiceType="dataSync"
