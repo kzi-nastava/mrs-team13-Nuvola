@@ -15,6 +15,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.bumptech.glide.Glide;
 import com.example.nuvola.R;
 import com.example.nuvola.network.*;
+import com.example.nuvola.services.DriverLocationPublisherService;
+import com.example.nuvola.services.StompNotificationService;
 import dto.*;
 import com.example.nuvola.ui.auth.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
@@ -470,6 +472,8 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void finishLogoutLocally() {
+        stopService(new Intent(this, DriverLocationPublisherService.class));
+        stopService(new Intent(this, StompNotificationService.class));
         TokenStorage.clear(this);
         ApiClient.clearInstance();
         startActivity(new Intent(this, LoginActivity.class));

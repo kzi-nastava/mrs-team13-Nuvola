@@ -20,7 +20,10 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.nuvola.R;
 import com.example.nuvola.fragments.DriversRideHistoryFragment;
 import com.example.nuvola.model.Ride;
+import com.example.nuvola.network.ApiClient;
+import com.example.nuvola.network.AuthApi;
 import com.example.nuvola.network.TokenStorage;
+import com.example.nuvola.services.DriverLocationPublisherService;
 import com.example.nuvola.services.StompNotificationService;
 import com.example.nuvola.ui.auth.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
@@ -137,17 +140,38 @@ public class DriverRideHistory extends AppCompatActivity
                 startActivity(new Intent(DriverRideHistory.this, SupportChatActivity.class));
             }
         } else if (id == R.id.nav_logout) {
-            stopService(new Intent(this, StompNotificationService.class));
-            TokenStorage.clear(this);
-            Intent intent = new Intent(DriverRideHistory.this, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+            performLogout();
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
+
+    private void performLogout() {
+        AuthApi authApi = ApiClient.getRetrofit().create(AuthApi.class);
+        authApi.logout().enqueue(new retrofit2.Callback<Void>() {
+            @Override
+            public void onResponse(retrofit2.Call<Void> call, retrofit2.Response<Void> response) {
+                finishLogoutLocally();
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<Void> call, Throwable t) {
+                finishLogoutLocally();
+            }
+        });
+    }
+
+    private void finishLogoutLocally() {
+        stopService(new Intent(this, DriverLocationPublisherService.class));
+        stopService(new Intent(this, StompNotificationService.class));
+        TokenStorage.clear(this);
+        ApiClient.clearInstance();
+        Intent intent = new Intent(DriverRideHistory.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
 
     private void showDriverIdDialog() {
         EditText etDriverId = new EditText(this);
