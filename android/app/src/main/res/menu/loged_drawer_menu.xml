@@ -44,7 +44,6 @@
         <item
             android:id="@+id/nav_ridehistory"
             android:icon="@android:drawable/ic_menu_recent_history"
-
             android:title="Driver ride history"
             android:visible="false" />
 
@@ -52,6 +51,18 @@
             android:id="@+id/nav_track_ride"
             android:icon="@android:drawable/ic_menu_compass"
             android:title="Track ride"
+            android:visible="false" />
+
+        <item
+            android:id="@+id/nav_grade_ride"
+            android:icon="@android:drawable/btn_star_big_off"
+            android:title="Grade ride"
+            android:visible="false" />
+
+        <item
+            android:id="@+id/nav_end_ride"
+            android:icon="@android:drawable/ic_media_pause"
+            android:title="End ride"
             android:visible="false" />
 
     </group>

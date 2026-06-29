@@ -65,8 +65,11 @@ public class NotificationsActivity extends AppCompatActivity
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
+        String role = TokenStorage.getUserRole(this);
+        boolean isAdmin = "ADMIN".equals(role);
+        boolean isPassenger = "PASSENGER".equals(role);
         navView.getMenu().findItem(R.id.nav_change_price).setVisible(isAdmin);
+        navView.getMenu().findItem(R.id.nav_grade_ride).setVisible(isPassenger);
 
         rvNotifications = findViewById(R.id.rvNotifications);
         rvNotifications.setLayoutManager(new LinearLayoutManager(this));
@@ -139,6 +142,8 @@ public class NotificationsActivity extends AppCompatActivity
             } else {
                 startActivity(new Intent(this, SupportChatActivity.class));
             }
+        } else if (id == R.id.nav_grade_ride) {
+            showGradeRideDialog();
         } else if (id == R.id.nav_logout) {
             stopService(new Intent(this, StompNotificationService.class));
             TokenStorage.clear(this);
@@ -148,5 +153,30 @@ public class NotificationsActivity extends AppCompatActivity
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void showGradeRideDialog() {
+        android.widget.EditText etRideId = new android.widget.EditText(this);
+        etRideId.setHint("Ride ID");
+        etRideId.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        etRideId.setPadding(40, 20, 40, 20);
+
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Grade Ride")
+                .setView(etRideId)
+                .setPositiveButton("Open", (dialog, which) -> {
+                    String input = etRideId.getText().toString().trim();
+                    if (input.isEmpty()) return;
+                    try {
+                        long rideId = Long.parseLong(input);
+                        Intent intent = new Intent(this, GradeRideActivity.class);
+                        intent.putExtra(GradeRideActivity.EXTRA_RIDE_ID, rideId);
+                        startActivity(intent);
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(this, "Invalid ID.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }

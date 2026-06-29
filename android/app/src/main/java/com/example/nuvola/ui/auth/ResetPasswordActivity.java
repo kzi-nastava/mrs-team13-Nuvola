@@ -129,7 +129,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
                                     startActivity(new Intent(ResetPasswordActivity.this, LoginActivity.class));
                                     finish();
                                 } else {
-                                    // Ako backend vraća body sa porukom, možeš da pročitaš response.errorBody() (ali ne mora sad)
+                                    // If the backend returns a body with a message, you can read response.errorBody()
                                     Toast.makeText(ResetPasswordActivity.this,
                                             "Reset failed: " + response.code(),
                                             Toast.LENGTH_SHORT).show();
