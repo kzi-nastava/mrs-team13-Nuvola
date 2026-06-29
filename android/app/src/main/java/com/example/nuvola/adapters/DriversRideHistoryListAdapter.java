@@ -80,7 +80,7 @@ public class DriversRideHistoryListAdapter extends ArrayAdapter<Ride> {
 
     private void updateFavoriteIcon(ImageView icon, boolean isFavorite) {
         if (isFavorite) {
-            // Puna žuta zvezdica
+            // Full yellow star
             icon.setImageResource(android.R.drawable.btn_star_big_on);
             icon.setColorFilter(0xFFFFD700, PorterDuff.Mode.SRC_IN); // Zlatna boja
         } else {

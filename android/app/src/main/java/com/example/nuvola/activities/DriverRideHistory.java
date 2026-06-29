@@ -22,6 +22,7 @@ import com.example.nuvola.fragments.DriversRideHistoryFragment;
 import com.example.nuvola.model.Ride;
 import com.example.nuvola.network.ApiClient;
 import com.example.nuvola.network.AuthApi;
+import com.example.nuvola.network.RideService;
 import com.example.nuvola.network.TokenStorage;
 import com.example.nuvola.services.DriverLocationPublisherService;
 import com.example.nuvola.services.StompNotificationService;
@@ -68,8 +69,10 @@ public class DriverRideHistory extends AppCompatActivity
         toggle.syncState();
 
         boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
+        boolean isDriver = "DRIVER".equals(TokenStorage.getUserRole(this));
         navigationView.getMenu().findItem(R.id.nav_change_price).setVisible(isAdmin);
         navigationView.getMenu().findItem(R.id.nav_driver_ride_details).setVisible(isAdmin);
+        navigationView.getMenu().findItem(R.id.nav_end_ride).setVisible(isDriver);
 
         if (savedInstanceState == null) {
             // ArrayList<Ride> rides = createTestRides();
@@ -130,6 +133,8 @@ public class DriverRideHistory extends AppCompatActivity
             } else {
                 startActivity(new Intent(DriverRideHistory.this, SupportChatActivity.class));
             }
+        } else if (id == R.id.nav_end_ride) {
+            showEndRideDialog();
         } else if (id == R.id.nav_logout) {
             performLogout();
         }
@@ -164,6 +169,48 @@ public class DriverRideHistory extends AppCompatActivity
         Intent intent = new Intent(DriverRideHistory.this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+    }
+
+    private void showEndRideDialog() {
+        EditText etUsername = new EditText(this);
+        etUsername.setHint("Driver username");
+        etUsername.setPadding(40, 20, 40, 20);
+
+        new AlertDialog.Builder(this)
+                .setTitle("End Ride")
+                .setView(etUsername)
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    String username = etUsername.getText().toString().trim();
+                    if (username.isEmpty()) {
+                        Toast.makeText(this, "Please enter a username.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    RideService.endRide(username, new RideService.EndRideCallback() {
+                        @Override
+                        public void onRideEnded(long scheduledRideId) {
+                            runOnUiThread(() -> {
+                                Intent intent = new Intent(DriverRideHistory.this, ScheduledRideActivity.class);
+                                intent.putExtra(ScheduledRideActivity.EXTRA_RIDE_ID, scheduledRideId);
+                                startActivity(intent);
+                            });
+                        }
+
+                        @Override
+                        public void onRideEndedNoNext() {
+                            runOnUiThread(() ->
+                                    Toast.makeText(DriverRideHistory.this,
+                                            "Ride ended. No upcoming scheduled ride.", Toast.LENGTH_SHORT).show());
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            runOnUiThread(() ->
+                                    Toast.makeText(DriverRideHistory.this, message, Toast.LENGTH_SHORT).show());
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void showDriverIdDialog() {

@@ -34,4 +34,18 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <!-- Right: End Ride button (driver only, hidden by default) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEndRide"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:text="End Ride"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:backgroundTint="#E53935"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
