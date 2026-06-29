@@ -1,0 +1,658 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#EEEEEE"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/navbar"
+            layout="@layout/view_navbar" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="14dp"
+                android:paddingTop="14dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="34dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="9dp"
+                    android:text="Tap the map to select From, then To"
+                    android:textColor="#6B7280"
+                    android:textSize="13sp" />
+
+                <org.osmdroid.views.MapView
+                    android:id="@+id/mapView"
+                    android:layout_width="match_parent"
+                    android:layout_height="260dp"
+                    android:background="#DDE3E8" />
+
+                <LinearLayout
+                    android:id="@+id/blockedOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="360dp"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_blocked_overlay"
+                    android:elevation="4dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="26dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvBlockedIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🚫"
+                        android:textSize="54sp" />
+
+                    <TextView
+                        android:id="@+id/tvBlockedTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:gravity="center"
+                        android:text="ACCOUNT BLOCKED"
+                        android:textColor="#DC2626"
+                        android:textSize="23sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvBlockedMessage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:background="@drawable/bg_blocked_reason"
+                        android:gravity="center"
+                        android:lineSpacingExtra="3dp"
+                        android:padding="16dp"
+                        android:text="You cannot order rides at this time."
+                        android:textColor="#991B1B"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/formContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:background="@drawable/bg_ride_card"
+                    android:elevation="4dp"
+                    android:orientation="vertical"
+                    android:paddingStart="22dp"
+                    android:paddingTop="22dp"
+                    android:paddingEnd="22dp"
+                    android:paddingBottom="24dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Pick a ride"
+                                android:textColor="#111827"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:lineSpacingExtra="2dp"
+                                android:text="Choose your route and ride preferences"
+                                android:textColor="#6B7280"
+                                android:textSize="14sp" />
+
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFavoriteRoutes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="50dp"
+                            android:layout_marginStart="10dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:maxLines="1"
+                            android:minWidth="130dp"
+                            android:paddingStart="14dp"
+                            android:paddingEnd="14dp"
+                            android:text="Favorite routes"
+                            android:textAllCaps="false"
+                            android:textColor="@android:color/white"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@color/dark_blue"
+                            app:cornerRadius="11dp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="From *"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutFrom"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:boxBackgroundColor="#FFFFFF"
+                        app:boxCornerRadiusBottomEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp"
+                        app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusTopStart="10dp"
+                        app:boxStrokeColor="@color/dark_blue"
+                        app:hintEnabled="false">
+
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            android:id="@+id/etFrom"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:completionThreshold="3"
+                            android:dropDownHeight="wrap_content"
+                            android:dropDownVerticalOffset="6dp"
+                            android:gravity="center_vertical"
+                            android:hint="e.g. Bulevar oslobođenja 1"
+                            android:imeOptions="actionNext"
+                            android:inputType="textPostalAddress"
+                            android:maxLines="1"
+                            android:paddingStart="15dp"
+                            android:paddingEnd="15dp"
+                            android:popupElevation="8dp"
+                            android:textColor="#111827"
+                            android:textColorHint="#9CA3AF"
+                            android:textSize="16sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="To *"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutTo"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:boxBackgroundColor="#FFFFFF"
+                        app:boxCornerRadiusBottomEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp"
+                        app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusTopStart="10dp"
+                        app:boxStrokeColor="@color/dark_blue"
+                        app:hintEnabled="false">
+
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            android:id="@+id/etTo"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:completionThreshold="3"
+                            android:dropDownHeight="wrap_content"
+                            android:dropDownVerticalOffset="6dp"
+                            android:gravity="center_vertical"
+                            android:hint="e.g. Trg slobode"
+                            android:imeOptions="actionNext"
+                            android:inputType="textPostalAddress"
+                            android:maxLines="1"
+                            android:paddingStart="15dp"
+                            android:paddingEnd="15dp"
+                            android:popupElevation="8dp"
+                            android:textColor="#111827"
+                            android:textColorHint="#9CA3AF"
+                            android:textSize="16sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="22dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="Additional stops"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layoutStop"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:boxBackgroundColor="#FFFFFF"
+                            app:boxCornerRadiusBottomEnd="10dp"
+                            app:boxCornerRadiusBottomStart="10dp"
+                            app:boxCornerRadiusTopEnd="10dp"
+                            app:boxCornerRadiusTopStart="10dp"
+                            app:boxStrokeColor="@color/dark_blue"
+                            app:hintEnabled="false">
+
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                android:id="@+id/etStop"
+                                android:layout_width="match_parent"
+                                android:layout_height="56dp"
+                                android:completionThreshold="3"
+                                android:dropDownHeight="wrap_content"
+                                android:dropDownVerticalOffset="6dp"
+                                android:gravity="center_vertical"
+                                android:hint="Add stop and press +"
+                                android:imeOptions="actionDone"
+                                android:inputType="textPostalAddress"
+                                android:maxLines="1"
+                                android:paddingStart="15dp"
+                                android:paddingEnd="15dp"
+                                android:popupElevation="8dp"
+                                android:textColor="#111827"
+                                android:textColorHint="#9CA3AF"
+                                android:textSize="16sp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAddStop"
+                            android:layout_width="60dp"
+                            android:layout_height="56dp"
+                            android:layout_marginStart="8dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:maxLines="1"
+                            android:minWidth="0dp"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="0dp"
+                            android:text="+"
+                            android:textAllCaps="false"
+                            android:textColor="#333333"
+                            android:textSize="23sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="#E9E9E9"
+                            app:cornerRadius="10dp"
+                            app:strokeColor="#DEDEDE"
+                            app:strokeWidth="1dp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/stopsContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="23dp"
+                        android:layout_marginBottom="9dp"
+                        android:text="Vehicle type"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/vehicleTypeGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rbStandard"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:buttonTint="@color/dark_blue"
+                            android:checked="true"
+                            android:minHeight="48dp"
+                            android:text="Standard"
+                            android:textColor="#1F2937"
+                            android:textSize="15sp" />
+
+                        <RadioButton
+                            android:id="@+id/rbLuxury"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:buttonTint="@color/dark_blue"
+                            android:minHeight="48dp"
+                            android:text="Luxury"
+                            android:textColor="#1F2937"
+                            android:textSize="15sp" />
+
+                        <RadioButton
+                            android:id="@+id/rbVan"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:buttonTint="@color/dark_blue"
+                            android:minHeight="48dp"
+                            android:text="Van"
+                            android:textColor="#1F2937"
+                            android:textSize="15sp" />
+
+                    </RadioGroup>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCalculateRoute"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="20dp"
+                        android:maxLines="1"
+                        android:text="Calculate route"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/dark_blue"
+                        app:cornerRadius="11dp" />
+
+                    <LinearLayout
+                        android:id="@+id/estimateContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:background="@drawable/bg_secondary_button"
+                        android:orientation="vertical"
+                        android:padding="15dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/tvEstimatedDistance"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Estimated distance"
+                            android:textColor="#333333"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvEstimatedPrice"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="7dp"
+                            android:text="Estimated price"
+                            android:textColor="#555555"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="23dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="Passengers"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layoutPassenger"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:boxBackgroundColor="#FFFFFF"
+                            app:boxCornerRadiusBottomEnd="10dp"
+                            app:boxCornerRadiusBottomStart="10dp"
+                            app:boxCornerRadiusTopEnd="10dp"
+                            app:boxCornerRadiusTopStart="10dp"
+                            app:boxStrokeColor="@color/dark_blue"
+                            app:hintEnabled="false">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etPassenger"
+                                android:layout_width="match_parent"
+                                android:layout_height="56dp"
+                                android:gravity="center_vertical"
+                                android:hint="Add passenger email"
+                                android:imeOptions="actionDone"
+                                android:inputType="textEmailAddress"
+                                android:maxLines="1"
+                                android:paddingStart="15dp"
+                                android:paddingEnd="15dp"
+                                android:textColor="#111827"
+                                android:textColorHint="#9CA3AF"
+                                android:textSize="16sp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAddPassenger"
+                            android:layout_width="60dp"
+                            android:layout_height="56dp"
+                            android:layout_marginStart="8dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            android:maxLines="1"
+                            android:minWidth="0dp"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="0dp"
+                            android:text="+"
+                            android:textAllCaps="false"
+                            android:textColor="#333333"
+                            android:textSize="23sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="#E9E9E9"
+                            app:cornerRadius="10dp"
+                            app:strokeColor="#DEDEDE"
+                            app:strokeWidth="1dp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/passengersContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="23dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="Options"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <CheckBox
+                        android:id="@+id/cbBabyTransport"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="@color/dark_blue"
+                        android:minHeight="48dp"
+                        android:text="Baby seat"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp" />
+
+                    <CheckBox
+                        android:id="@+id/cbPetTransport"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="@color/dark_blue"
+                        android:minHeight="48dp"
+                        android:text="Pet friendly"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="22dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="Ride time"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/rideTimeGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/rbNow"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:buttonTint="@color/dark_blue"
+                            android:checked="true"
+                            android:minHeight="48dp"
+                            android:text="Now"
+                            android:textColor="#1F2937"
+                            android:textSize="15sp" />
+
+                        <RadioButton
+                            android:id="@+id/rbScheduled"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:buttonTint="@color/dark_blue"
+                            android:minHeight="48dp"
+                            android:text="Scheduled"
+                            android:textColor="#1F2937"
+                            android:textSize="15sp" />
+
+                    </RadioGroup>
+
+                    <TextView
+                        android:id="@+id/tvScheduledLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="13dp"
+                        android:text="Pick time (next 5 hours)"
+                        android:textColor="#1F2937"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <Spinner
+                        android:id="@+id/spinnerScheduledTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:layout_marginTop="9dp"
+                        android:background="@drawable/bg_spinner"
+                        android:popupBackground="#FFFFFF"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvScheduleHint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="7dp"
+                        android:lineSpacingExtra="2dp"
+                        android:text="You can schedule only within the next 5 hours (5 minute steps)."
+                        android:textColor="#777777"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnOrderRide"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="25dp"
+                        android:maxLines="1"
+                        android:text="Order ride"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/dark_blue"
+                        app:cornerRadius="11dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnClear"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:layout_marginTop="10dp"
+                        android:maxLines="1"
+                        android:text="Clear"
+                        android:textAllCaps="false"
+                        android:textColor="#1F2937"
+                        android:textSize="16sp"
+                        app:backgroundTint="#E9E9E9"
+                        app:cornerRadius="11dp" />
+
+                    <ProgressBar
+                        android:id="@+id/progressRideOrder"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="15dp"
+                        android:indeterminateTint="@color/dark_blue"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#0A0F2C"
+        app:itemBackground="@android:color/transparent"
+        app:itemTextColor="@android:color/white"
+        app:menu="@menu/loged_drawer_menu" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

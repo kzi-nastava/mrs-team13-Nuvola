@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF"
+    android:gravity="center_vertical"
+    android:minHeight="58dp"
+    android:orientation="horizontal"
+    android:paddingStart="14dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="14dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:layout_width="22dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="●"
+        android:textColor="#0A0F2C"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/tvSuggestedAddress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:lineSpacingExtra="2dp"
+        android:maxLines="3"
+        android:text="Bulevar oslobođenja 1, Novi Sad"
+        android:textColor="#111827"
+        android:textSize="14sp" />
+
+</LinearLayout>

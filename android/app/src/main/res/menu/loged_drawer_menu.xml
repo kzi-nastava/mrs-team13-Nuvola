@@ -1,45 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
-    <item android:id="@+id/nav_home" android:title="Home"/>
-    <item android:id="@+id/nav_ridehistory" android:title="Ride History"/>
-    <item android:id="@+id/nav_account" android:title="Account"/>
-    <item android:id="@+id/nav_notifications" android:title="Notifications"/>
-    <item android:id="@+id/nav_change_price" android:title="Change Prices" android:visible="false"/>
-    <item android:id="@+id/nav_driver_ride_details" android:title="Track Driver" android:visible="false"/>
-    <item android:id="@+id/nav_track_ride" android:title="Track Ride"/>
-    <item android:id="@+id/nav_support_chat" android:title="Support Chat"/>
-    <item android:id="@+id/nav_logout" android:title="Log out"/>
+
+    <group
+        android:id="@+id/group_main"
+        android:checkableBehavior="single">
 
         <item
             android:id="@+id/nav_home"
-            android:icon="@android:drawable/ic_menu_compass"
+            android:icon="@android:drawable/ic_menu_view"
             android:title="Home" />
+
+        <item
+            android:id="@+id/nav_users"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:title="Users"
+            android:visible="false" />
 
         <item
             android:id="@+id/nav_history"
             android:icon="@android:drawable/ic_menu_recent_history"
-            android:title="Ride History" />
-
-        <!-- Visible only for ADMIN — hide/show in code if needed -->
-        <item
-            android:id="@+id/nav_users"
-            android:icon="@android:drawable/ic_menu_manage"
-            android:title="Users" />
+            android:title="Ride history"
+            android:visible="false" />
 
         <item
-            android:id="@+id/nav_account"
-            android:icon="@android:drawable/ic_menu_preferences"
-            android:title="Account" />
+            android:id="@+id/nav_order_ride"
+            android:icon="@android:drawable/ic_menu_mylocation"
+            android:title="Order ride"
+            android:visible="false" />
 
     </group>
 
-    <item android:title="Other">
-        <menu>
-            <item
-                android:id="@+id/nav_logout"
-                android:icon="@android:drawable/ic_menu_close_clear_cancel"
-                android:title="Logout" />
-        </menu>
-    </item>
+    <group
+        android:id="@+id/group_driver"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_start_ride"
+            android:icon="@android:drawable/ic_media_play"
+            android:title="Assigned rides"
+            android:visible="false" />
+
+        <item
+            android:id="@+id/nav_ridehistory"
+            android:icon="@android:drawable/ic_menu_recent_history"
+
+            android:title="Driver ride history"
+            android:visible="false" />
+
+        <item
+            android:id="@+id/nav_track_ride"
+            android:icon="@android:drawable/ic_menu_compass"
+            android:title="Track ride"
+            android:visible="false" />
+
+    </group>
+
+    <group
+        android:id="@+id/group_admin"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_change_price"
+            android:icon="@android:drawable/ic_menu_edit"
+            android:title="Change ride price"
+            android:visible="false" />
+
+        <item
+            android:id="@+id/nav_driver_ride_details"
+            android:icon="@android:drawable/ic_menu_search"
+            android:title="Track ride details"
+            android:visible="false" />
+
+        <item
+            android:id="@+id/nav_admin_inbox"
+            android:icon="@android:drawable/ic_dialog_email"
+            android:title="Admin inbox"
+            android:visible="false" />
+
+    </group>
+
+    <group
+        android:id="@+id/group_common"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_reports"
+            android:icon="@android:drawable/ic_menu_sort_by_size"
+            android:title="Reports" />
+
+        <item
+            android:id="@+id/nav_notifications"
+            android:icon="@android:drawable/ic_dialog_info"
+            android:title="Notifications" />
+
+        <item
+            android:id="@+id/nav_support_chat"
+            android:icon="@android:drawable/ic_menu_send"
+            android:title="Support chat" />
+
+        <item
+            android:id="@+id/nav_account"
+            android:icon="@android:drawable/ic_menu_myplaces"
+            android:title="My account" />
+
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@android:drawable/ic_lock_power_off"
+            android:title="Logout" />
+
+    </group>
+
 </menu>
