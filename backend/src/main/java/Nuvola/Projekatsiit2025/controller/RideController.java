@@ -1,6 +1,7 @@
 package Nuvola.Projekatsiit2025.controller;
 import Nuvola.Projekatsiit2025.dto.*;
 
+import Nuvola.Projekatsiit2025.exceptions.ride.InvalidRideStateException;
 import Nuvola.Projekatsiit2025.exceptions.ride.RideNotFoundException;
 import Nuvola.Projekatsiit2025.model.RegisteredUser;
 import Nuvola.Projekatsiit2025.model.Ride;
@@ -180,20 +181,22 @@ public class RideController {
 
 
     // 2.6.5 Stop ride while it's active
-    @PatchMapping("/{rideId}/stop")
-    public ResponseEntity<CreatedRideDTO> stopRide(
-            @PathVariable Long rideId,
-            @RequestBody StopRideRequestDTO req,
-            Principal principal
-    ) {
-        User currentUser = userRepository.findByUsername(principal.getName());
-        Ride ride = rideService.stopRide(rideId, currentUser, req);
+    @PutMapping(value = "/{rideId}/stop", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CreatedRideDTO> stopRide(@PathVariable Long rideId) {
+        Ride ride;
+        try {
+            ride = rideService.stopRide(rideId);
+        } catch (RideNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (InvalidRideStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
 
         CreatedRideDTO response = new CreatedRideDTO();
         response.setId(ride.getId());
         response.setStatus(ride.getStatus());
         response.setPrice(ride.getPrice());
-        response.setMessage("Ride successfully stopped");
+        response.setMessage("Ride stopped successfully");
 
         return ResponseEntity.ok(response);
     }

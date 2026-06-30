@@ -13,6 +13,7 @@ import java.util.List;
 public interface RideService {
     public Page<DriverRideHistoryItemDTO> getDriverRideHistory(String username, String sortBy, String sortOrder, Integer page, Integer size);
     public void startRide(Long rideId);
+    Ride stopRide(Long rideId);
     Ride createRide(User loggedUser, CreateRideDTO dto);
     Long endRide(String username);
     void createReport(CreateReportDTO createReportDTO);
@@ -27,7 +28,6 @@ public interface RideService {
     Ride createRideFromHistory(User loggedUser, CreateRideFromHistoryDTO dto);
     TrackingRideDTO getTrackingRideDTO(String username);
     TrackingRideDTO getTrackingRideDTOForAdmin(Long driverId);
-    Ride stopRide(Long rideId, User currentUser, StopRideRequestDTO req);
-    RideCancelResponseDTO cancelByDriver(Long rideId, String reason, Authentication auth);
-    RideCancelResponseDTO cancelByPassenger(Long rideId, Authentication auth);
+
 }
+
