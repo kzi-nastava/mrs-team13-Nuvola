@@ -333,51 +333,6 @@
                         android:layout_marginTop="12dp"
                         android:background="@drawable/bg_report_card"
                         android:orientation="vertical"
-                        android:padding="15dp">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Daily averages"
-                            android:textColor="#1F2937"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvAverageRides"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:text="Average rides: 0"
-                            android:textColor="#4B5563"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:id="@+id/tvAverageKm"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="Average distance: 0 km"
-                            android:textColor="#4B5563"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:id="@+id/tvAverageMoney"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="Average money: 0 RSD"
-                            android:textColor="#4B5563"
-                            android:textSize="13sp" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:background="@drawable/bg_report_card"
-                        android:orientation="vertical"
                         android:padding="10dp">
 
                         <com.example.nuvola.views.ReportChartView

@@ -29,6 +29,12 @@
             android:title="Order ride"
             android:visible="false" />
 
+        <item
+            android:id="@+id/nav_grade_ride"
+            android:icon="@android:drawable/btn_star_big_off"
+            android:title="Grade ride"
+            android:visible="false" />
+
     </group>
 
     <group
@@ -51,12 +57,6 @@
             android:id="@+id/nav_track_ride"
             android:icon="@android:drawable/ic_menu_compass"
             android:title="Track ride"
-            android:visible="false" />
-
-        <item
-            android:id="@+id/nav_grade_ride"
-            android:icon="@android:drawable/btn_star_big_off"
-            android:title="Grade ride"
             android:visible="false" />
 
         <item

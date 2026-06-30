@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
+import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -16,7 +16,19 @@ import java.util.Locale;
 
 public class ReportChartView extends View {
 
-    private final Paint paint =
+    private final Paint gridPaint =
+            new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    private final Paint axisPaint =
+            new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    private final Paint linePaint =
+            new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    private final Paint fillPaint =
+            new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    private final Paint pointPaint =
             new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private final Paint textPaint =
@@ -30,7 +42,7 @@ public class ReportChartView extends View {
 
     private String title = "";
 
-    private int barColor =
+    private int chartColor =
             Color.rgb(33, 76, 120);
 
     public ReportChartView(Context context) {
@@ -56,8 +68,46 @@ public class ReportChartView extends View {
     }
 
     private void initialize() {
-        setMinimumHeight((int) dp(250));
-        setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        setMinimumHeight(
+                (int) dp(250)
+        );
+
+        setLayerType(
+                View.LAYER_TYPE_SOFTWARE,
+                null
+        );
+
+        gridPaint.setStyle(
+                Paint.Style.STROKE
+        );
+
+        axisPaint.setStyle(
+                Paint.Style.STROKE
+        );
+
+        linePaint.setStyle(
+                Paint.Style.STROKE
+        );
+
+        linePaint.setStrokeWidth(
+                dp(2.6f)
+        );
+
+        linePaint.setStrokeCap(
+                Paint.Cap.ROUND
+        );
+
+        linePaint.setStrokeJoin(
+                Paint.Join.ROUND
+        );
+
+        fillPaint.setStyle(
+                Paint.Style.FILL
+        );
+
+        pointPaint.setStyle(
+                Paint.Style.FILL
+        );
     }
 
     public void setData(
@@ -66,7 +116,9 @@ public class ReportChartView extends View {
             List<Double> values
     ) {
         this.title =
-                title == null ? "" : title;
+                title == null
+                        ? ""
+                        : title;
 
         this.labels.clear();
         this.values.clear();
@@ -82,24 +134,48 @@ public class ReportChartView extends View {
         invalidate();
     }
 
-    public void setBarColor(int barColor) {
-        this.barColor = barColor;
+    public void setBarColor(
+            int color
+    ) {
+        this.chartColor = color;
+        invalidate();
+    }
+
+    public void setChartColor(
+            int color
+    ) {
+        this.chartColor = color;
         invalidate();
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(
+            Canvas canvas
+    ) {
         super.onDraw(canvas);
 
-        float width = getWidth();
-        float height = getHeight();
+        float width =
+                getWidth();
 
-        drawTitle(canvas, width);
+        float height =
+                getHeight();
 
-        float left = dp(46);
-        float right = width - dp(14);
-        float top = dp(48);
-        float bottom = height - dp(48);
+        drawTitle(
+                canvas,
+                width
+        );
+
+        float left =
+                dp(48);
+
+        float right =
+                width - dp(16);
+
+        float top =
+                dp(48);
+
+        float bottom =
+                height - dp(48);
 
         drawGrid(
                 canvas,
@@ -110,11 +186,17 @@ public class ReportChartView extends View {
         );
 
         if (values.isEmpty()) {
-            drawEmptyState(canvas, width, height);
+            drawEmptyState(
+                    canvas,
+                    width,
+                    height
+            );
+
             return;
         }
 
-        double maximum = findMaximum();
+        double maximum =
+                findMaximum();
 
         drawYAxis(
                 canvas,
@@ -124,11 +206,18 @@ public class ReportChartView extends View {
                 bottom
         );
 
-        drawBars(
+        drawLineChart(
                 canvas,
                 maximum,
                 left,
                 top,
+                right,
+                bottom
+        );
+
+        drawXAxisLabels(
+                canvas,
+                left,
                 right,
                 bottom
         );
@@ -139,11 +228,21 @@ public class ReportChartView extends View {
             float width
     ) {
         textPaint.setColor(
-                Color.rgb(31, 41, 55)
+                Color.rgb(
+                        31,
+                        41,
+                        55
+                )
         );
 
-        textPaint.setTextSize(sp(15));
-        textPaint.setFakeBoldText(true);
+        textPaint.setTextSize(
+                sp(15)
+        );
+
+        textPaint.setFakeBoldText(
+                true
+        );
+
         textPaint.setTextAlign(
                 Paint.Align.CENTER
         );
@@ -155,7 +254,9 @@ public class ReportChartView extends View {
                 textPaint
         );
 
-        textPaint.setFakeBoldText(false);
+        textPaint.setFakeBoldText(
+                false
+        );
     }
 
     private void drawGrid(
@@ -165,35 +266,49 @@ public class ReportChartView extends View {
             float right,
             float bottom
     ) {
-        paint.setColor(
-                Color.rgb(229, 231, 235)
+        gridPaint.setColor(
+                Color.rgb(
+                        229,
+                        231,
+                        235
+                )
         );
 
-        paint.setStrokeWidth(dp(1));
+        gridPaint.setStrokeWidth(
+                dp(1)
+        );
 
-        int lines = 4;
+        int horizontalLines = 4;
 
         for (int index = 0;
-             index <= lines;
+             index <= horizontalLines;
              index++) {
 
             float y =
                     top
                             + (bottom - top)
                             * index
-                            / lines;
+                            / horizontalLines;
 
             canvas.drawLine(
                     left,
                     y,
                     right,
                     y,
-                    paint
+                    gridPaint
             );
         }
 
-        paint.setColor(
-                Color.rgb(156, 163, 175)
+        axisPaint.setColor(
+                Color.rgb(
+                        156,
+                        163,
+                        175
+                )
+        );
+
+        axisPaint.setStrokeWidth(
+                dp(1)
         );
 
         canvas.drawLine(
@@ -201,7 +316,7 @@ public class ReportChartView extends View {
                 top,
                 left,
                 bottom,
-                paint
+                axisPaint
         );
 
         canvas.drawLine(
@@ -209,7 +324,7 @@ public class ReportChartView extends View {
                 bottom,
                 right,
                 bottom,
-                paint
+                axisPaint
         );
     }
 
@@ -221,10 +336,17 @@ public class ReportChartView extends View {
             float bottom
     ) {
         textPaint.setColor(
-                Color.rgb(107, 114, 128)
+                Color.rgb(
+                        107,
+                        114,
+                        128
+                )
         );
 
-        textPaint.setTextSize(sp(9));
+        textPaint.setTextSize(
+                sp(9)
+        );
+
         textPaint.setTextAlign(
                 Paint.Align.RIGHT
         );
@@ -249,14 +371,14 @@ public class ReportChartView extends View {
 
             canvas.drawText(
                     formatNumber(value),
-                    left - dp(6),
+                    left - dp(7),
                     y + dp(3),
                     textPaint
             );
         }
     }
 
-    private void drawBars(
+    private void drawLineChart(
             Canvas canvas,
             double maximum,
             float left,
@@ -264,80 +386,216 @@ public class ReportChartView extends View {
             float right,
             float bottom
     ) {
-        int count = values.size();
+        int count =
+                values.size();
+
+        if (count == 0) {
+            return;
+        }
+
+        List<Float> xPoints =
+                new ArrayList<>();
+
+        List<Float> yPoints =
+                new ArrayList<>();
 
         float availableWidth =
                 right - left;
 
-        float groupWidth =
-                availableWidth / count;
-
-        float barWidth =
-                Math.min(
-                        groupWidth * 0.58f,
-                        dp(38)
-                );
-
-        paint.setColor(barColor);
+        float stepX =
+                count <= 1
+                        ? 0
+                        : availableWidth
+                        / (count - 1);
 
         for (int index = 0;
              index < count;
              index++) {
 
             double value =
-                    values.get(index) == null
-                            ? 0
-                            : values.get(index);
+                    safeValue(
+                            values.get(index)
+                    );
 
-            float barHeight =
-                    (float) (
+            float x =
+                    count == 1
+                            ? left
+                            + availableWidth / 2f
+                            : left
+                            + stepX * index;
+
+            float y =
+                    bottom
+                            - (float) (
                             value
                                     / maximum
                                     * (bottom - top)
                     );
 
-            float centerX =
-                    left
-                            + groupWidth * index
-                            + groupWidth / 2f;
+            xPoints.add(x);
+            yPoints.add(y);
+        }
 
-            RectF rectangle =
-                    new RectF(
-                            centerX - barWidth / 2f,
-                            bottom - barHeight,
-                            centerX + barWidth / 2f,
-                            bottom
+        Path linePath =
+                buildSmoothPath(
+                        xPoints,
+                        yPoints
+                );
+
+        Path fillPath =
+                new Path(linePath);
+
+        fillPath.lineTo(
+                xPoints.get(
+                        xPoints.size() - 1
+                ),
+                bottom
+        );
+
+        fillPath.lineTo(
+                xPoints.get(0),
+                bottom
+        );
+
+        fillPath.close();
+
+        linePaint.setColor(
+                chartColor
+        );
+
+        fillPaint.setColor(
+                withAlpha(
+                        chartColor,
+                        42
+                )
+        );
+
+        canvas.drawPath(
+                fillPath,
+                fillPaint
+        );
+
+        canvas.drawPath(
+                linePath,
+                linePaint
+        );
+
+        drawPointsAndValues(
+                canvas,
+                xPoints,
+                yPoints
+        );
+    }
+
+    private Path buildSmoothPath(
+            List<Float> xPoints,
+            List<Float> yPoints
+    ) {
+        Path path =
+                new Path();
+
+        if (xPoints.isEmpty()) {
+            return path;
+        }
+
+        path.moveTo(
+                xPoints.get(0),
+                yPoints.get(0)
+        );
+
+        if (xPoints.size() == 1) {
+            return path;
+        }
+
+        for (int index = 1;
+             index < xPoints.size();
+             index++) {
+
+            float previousX =
+                    xPoints.get(
+                            index - 1
                     );
 
-            canvas.drawRoundRect(
-                    rectangle,
-                    dp(5),
-                    dp(5),
-                    paint
+            float previousY =
+                    yPoints.get(
+                            index - 1
+                    );
+
+            float currentX =
+                    xPoints.get(index);
+
+            float currentY =
+                    yPoints.get(index);
+
+            float middleX =
+                    (previousX + currentX)
+                            / 2f;
+
+            path.cubicTo(
+                    middleX,
+                    previousY,
+                    middleX,
+                    currentY,
+                    currentX,
+                    currentY
+            );
+        }
+
+        return path;
+    }
+
+    private void drawPointsAndValues(
+            Canvas canvas,
+            List<Float> xPoints,
+            List<Float> yPoints
+    ) {
+        pointPaint.setColor(
+                Color.WHITE
+        );
+
+        for (int index = 0;
+             index < values.size();
+             index++) {
+
+            double value =
+                    safeValue(
+                            values.get(index)
+                    );
+
+            float x =
+                    xPoints.get(index);
+
+            float y =
+                    yPoints.get(index);
+
+            canvas.drawCircle(
+                    x,
+                    y,
+                    dp(4),
+                    pointPaint
+            );
+
+            pointPaint.setColor(
+                    chartColor
+            );
+
+            canvas.drawCircle(
+                    x,
+                    y,
+                    dp(2.5f),
+                    pointPaint
+            );
+
+            pointPaint.setColor(
+                    Color.WHITE
             );
 
             if (value > 0) {
                 drawValue(
                         canvas,
                         value,
-                        centerX,
-                        bottom - barHeight
-                );
-            }
-
-            int labelStep = Math.max(
-                    1,
-                    (int) Math.ceil(count / 6.0)
-            );
-
-            if (index % labelStep == 0
-                    || index == count - 1) {
-
-                drawLabel(
-                        canvas,
-                        labelAt(index),
-                        centerX,
-                        bottom
+                        x,
+                        y
                 );
             }
         }
@@ -346,53 +604,108 @@ public class ReportChartView extends View {
     private void drawValue(
             Canvas canvas,
             double value,
-            float centerX,
-            float barTop
+            float x,
+            float y
     ) {
         textPaint.setColor(
-                Color.rgb(55, 65, 81)
+                Color.rgb(
+                        55,
+                        65,
+                        81
+                )
         );
 
-        textPaint.setTextSize(sp(8));
+        textPaint.setTextSize(
+                sp(8)
+        );
+
         textPaint.setTextAlign(
                 Paint.Align.CENTER
         );
 
         canvas.drawText(
                 formatNumber(value),
-                centerX,
+                x,
                 Math.max(
                         dp(42),
-                        barTop - dp(5)
+                        y - dp(8)
                 ),
                 textPaint
         );
     }
 
-    private void drawLabel(
+    private void drawXAxisLabels(
             Canvas canvas,
-            String label,
-            float centerX,
+            float left,
+            float right,
             float bottom
     ) {
+        int count =
+                labels.size();
+
+        if (count == 0) {
+            return;
+        }
+
         textPaint.setColor(
-                Color.rgb(107, 114, 128)
+                Color.rgb(
+                        107,
+                        114,
+                        128
+                )
         );
 
-        textPaint.setTextSize(sp(8));
+        textPaint.setTextSize(
+                sp(8)
+        );
+
         textPaint.setTextAlign(
                 Paint.Align.CENTER
         );
 
-        String displayed =
-                shortenDate(label);
+        float availableWidth =
+                right - left;
 
-        canvas.drawText(
-                displayed,
-                centerX,
-                bottom + dp(18),
-                textPaint
-        );
+        float stepX =
+                count <= 1
+                        ? 0
+                        : availableWidth
+                        / (count - 1);
+
+        int labelStep =
+                Math.max(
+                        1,
+                        (int) Math.ceil(
+                                count / 6.0
+                        )
+                );
+
+        for (int index = 0;
+             index < count;
+             index++) {
+
+            if (index % labelStep != 0
+                    && index != count - 1) {
+
+                continue;
+            }
+
+            float x =
+                    count == 1
+                            ? left
+                            + availableWidth / 2f
+                            : left
+                            + stepX * index;
+
+            canvas.drawText(
+                    shortenDate(
+                            labels.get(index)
+                    ),
+                    x,
+                    bottom + dp(18),
+                    textPaint
+            );
+        }
     }
 
     private void drawEmptyState(
@@ -401,10 +714,17 @@ public class ReportChartView extends View {
             float height
     ) {
         textPaint.setColor(
-                Color.rgb(107, 114, 128)
+                Color.rgb(
+                        107,
+                        114,
+                        128
+                )
         );
 
-        textPaint.setTextSize(sp(13));
+        textPaint.setTextSize(
+                sp(13)
+        );
+
         textPaint.setTextAlign(
                 Paint.Align.CENTER
         );
@@ -418,7 +738,7 @@ public class ReportChartView extends View {
     }
 
     private double findMaximum() {
-        double maximum = 1;
+        double maximum = 0;
 
         for (Double value : values) {
             if (value != null
@@ -428,20 +748,40 @@ public class ReportChartView extends View {
             }
         }
 
-        return maximum;
-    }
-
-    private String labelAt(int index) {
-        if (index < 0
-                || index >= labels.size()) {
-
-            return "";
+        if (maximum <= 0) {
+            return 1;
         }
 
-        return labels.get(index);
+        return maximum * 1.15;
     }
 
-    private String shortenDate(String value) {
+    private double safeValue(
+            Double value
+    ) {
+        if (value == null
+                || value < 0) {
+
+            return 0;
+        }
+
+        return value;
+    }
+
+    private int withAlpha(
+            int color,
+            int alpha
+    ) {
+        return Color.argb(
+                alpha,
+                Color.red(color),
+                Color.green(color),
+                Color.blue(color)
+        );
+    }
+
+    private String shortenDate(
+            String value
+    ) {
         if (value == null) {
             return "";
         }
@@ -459,7 +799,9 @@ public class ReportChartView extends View {
         return value;
     }
 
-    private String formatNumber(double value) {
+    private String formatNumber(
+            double value
+    ) {
         if (Math.abs(
                 value - Math.round(value)
         ) < 0.001) {
@@ -476,14 +818,18 @@ public class ReportChartView extends View {
         );
     }
 
-    private float dp(float value) {
+    private float dp(
+            float value
+    ) {
         return value
                 * getResources()
                 .getDisplayMetrics()
                 .density;
     }
 
-    private float sp(float value) {
+    private float sp(
+            float value
+    ) {
         return value
                 * getResources()
                 .getDisplayMetrics()

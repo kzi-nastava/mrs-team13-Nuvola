@@ -6,7 +6,6 @@ import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.IdRes;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +17,7 @@ import com.example.nuvola.activities.AdminInboxActivity;
 import com.example.nuvola.activities.AdminRideDetailsActivity;
 import com.example.nuvola.activities.ChangePriceActivity;
 import com.example.nuvola.activities.DriverRideHistory;
+import com.example.nuvola.activities.GradeRideActivity;
 import com.example.nuvola.activities.NotificationsActivity;
 import com.example.nuvola.activities.ProfileActivity;
 import com.example.nuvola.activities.ReportsActivity;
@@ -42,7 +42,7 @@ import retrofit2.Response;
 public final class NavigationMenuManager {
 
     private NavigationMenuManager() {
-        // Utility klasa se ne instancira.
+        // Utility class.
     }
 
     public static void setup(
@@ -135,62 +135,153 @@ public final class NavigationMenuManager {
     private static void hideAllRoleSpecificItems(
             Menu menu
     ) {
-        showItem(menu, R.id.nav_users, false);
-        showItem(menu, R.id.nav_history, false);
-        showItem(menu, R.id.nav_order_ride, false);
+        showItem(
+                menu,
+                R.id.nav_users,
+                false
+        );
 
-        showItem(menu, R.id.nav_start_ride, false);
-        showItem(menu, R.id.nav_ridehistory, false);
-        showItem(menu, R.id.nav_track_ride, false);
+        showItem(
+                menu,
+                R.id.nav_history,
+                false
+        );
 
-        showItem(menu, R.id.nav_change_price, false);
-        showItem(menu, R.id.nav_driver_ride_details, false);
-        showItem(menu, R.id.nav_admin_inbox, false);
+        showItem(
+                menu,
+                R.id.nav_order_ride,
+                false
+        );
+
+        showItem(
+                menu,
+                R.id.nav_grade_ride,
+                false
+        );
+
+        showItem(
+                menu,
+                R.id.nav_start_ride,
+                false
+        );
+
+        showItem(
+                menu,
+                R.id.nav_ridehistory,
+                false
+        );
+
+        showItem(
+                menu,
+                R.id.nav_track_ride,
+                false
+        );
+
+        showItem(
+                menu,
+                R.id.nav_end_ride,
+                false
+        );
+
+        showItem(
+                menu,
+                R.id.nav_change_price,
+                false
+        );
+
+        showItem(
+                menu,
+                R.id.nav_driver_ride_details,
+                false
+        );
+
+        showItem(
+                menu,
+                R.id.nav_admin_inbox,
+                false
+        );
     }
 
     private static void configureAdminMenu(
             Menu menu
     ) {
-        showItem(menu, R.id.nav_users, true);
-        showItem(menu, R.id.nav_change_price, true);
-        showItem(menu, R.id.nav_ridehistory, true);
-        showItem(menu, R.id.nav_driver_ride_details, true);
-        showItem(menu, R.id.nav_admin_inbox, true);
+        showItem(
+                menu,
+                R.id.nav_users,
+                true
+        );
 
-        showItem(menu, R.id.nav_history, false);
-        showItem(menu, R.id.nav_order_ride, false);
-        showItem(menu, R.id.nav_start_ride, false);
-        showItem(menu, R.id.nav_track_ride, false);
+        showItem(
+                menu,
+                R.id.nav_change_price,
+                true
+        );
+
+        showItem(
+                menu,
+                R.id.nav_ridehistory,
+                true
+        );
+
+        showItem(
+                menu,
+                R.id.nav_driver_ride_details,
+                true
+        );
+
+        showItem(
+                menu,
+                R.id.nav_admin_inbox,
+                true
+        );
     }
 
     private static void configureDriverMenu(
             Menu menu
     ) {
-        showItem(menu, R.id.nav_start_ride, true);
-        showItem(menu, R.id.nav_ridehistory, true);
+        showItem(
+                menu,
+                R.id.nav_start_ride,
+                true
+        );
 
-        showItem(menu, R.id.nav_users, false);
-        showItem(menu, R.id.nav_history, false);
-        showItem(menu, R.id.nav_order_ride, false);
-        showItem(menu, R.id.nav_track_ride, false);
-        showItem(menu, R.id.nav_change_price, false);
-        showItem(menu, R.id.nav_driver_ride_details, false);
-        showItem(menu, R.id.nav_admin_inbox, false);
+        showItem(
+                menu,
+                R.id.nav_ridehistory,
+                true
+        );
+
+        /*
+         * Ukoliko vozač treba da ima Track ride,
+         * promeni false u true.
+         */
+        showItem(
+                menu,
+                R.id.nav_track_ride,
+                false
+        );
     }
 
     private static void configureCustomerMenu(
             Menu menu
     ) {
-        showItem(menu, R.id.nav_history, true);
-        showItem(menu, R.id.nav_order_ride, true);
-        showItem(menu, R.id.nav_track_ride, true);
+        showItem(
+                menu,
+                R.id.nav_history,
+                true
+        );
 
-        showItem(menu, R.id.nav_users, false);
-        showItem(menu, R.id.nav_start_ride, false);
-        showItem(menu, R.id.nav_ridehistory, false);
-        showItem(menu, R.id.nav_change_price, false);
-        showItem(menu, R.id.nav_driver_ride_details, false);
-        showItem(menu, R.id.nav_admin_inbox, false);
+        showItem(
+                menu,
+                R.id.nav_order_ride,
+                true
+        );
+
+        showItem(
+                menu,
+                R.id.nav_grade_ride,
+                true
+        );
     }
 
     private static boolean handleNavigationItem(
@@ -198,7 +289,7 @@ public final class NavigationMenuManager {
             DrawerLayout drawerLayout,
             MenuItem item
     ) {
-        int id =
+        int itemId =
                 item.getItemId();
 
         String role =
@@ -206,88 +297,93 @@ public final class NavigationMenuManager {
                         TokenStorage.getUserRole(activity)
                 );
 
-        if (id == R.id.nav_home) {
+        if (itemId == R.id.nav_home) {
             openHome(
                     activity,
                     role
             );
 
-        } else if (id == R.id.nav_users) {
+        } else if (itemId == R.id.nav_users) {
             openActivity(
                     activity,
                     UsersActivity.class
             );
 
-        } else if (id == R.id.nav_history) {
+        } else if (itemId == R.id.nav_history) {
             openActivity(
                     activity,
                     DriverRideHistory.class
             );
 
-        } else if (id == R.id.nav_order_ride) {
+        } else if (itemId == R.id.nav_order_ride) {
             openActivity(
                     activity,
                     RideOrderActivity.class
             );
 
-        } else if (id == R.id.nav_start_ride) {
+        } else if (itemId == R.id.nav_grade_ride) {
+            showGradeRideDialog(activity);
+
+        } else if (itemId == R.id.nav_start_ride) {
             openActivity(
                     activity,
                     StartRideActivity.class
             );
 
-        } else if (id == R.id.nav_ridehistory) {
+        } else if (itemId == R.id.nav_ridehistory) {
             openActivity(
                     activity,
                     DriverRideHistory.class
             );
 
-        } else if (id == R.id.nav_track_ride) {
+        } else if (itemId == R.id.nav_track_ride) {
             openActivity(
                     activity,
                     RideTrackingActivity.class
             );
 
-        } else if (id == R.id.nav_change_price) {
+        } else if (itemId == R.id.nav_change_price) {
             openActivity(
                     activity,
                     ChangePriceActivity.class
             );
 
-        } else if (id == R.id.nav_driver_ride_details) {
+        } else if (itemId
+                == R.id.nav_driver_ride_details) {
+
             showDriverIdDialog(activity);
 
-        } else if (id == R.id.nav_admin_inbox) {
+        } else if (itemId == R.id.nav_admin_inbox) {
             openActivity(
                     activity,
                     AdminInboxActivity.class
             );
 
-        } else if (id == R.id.nav_reports) {
+        } else if (itemId == R.id.nav_reports) {
             openActivity(
                     activity,
                     ReportsActivity.class
             );
 
-        } else if (id == R.id.nav_notifications) {
+        } else if (itemId == R.id.nav_notifications) {
             openActivity(
                     activity,
                     NotificationsActivity.class
             );
 
-        } else if (id == R.id.nav_support_chat) {
+        } else if (itemId == R.id.nav_support_chat) {
             openSupportChat(
                     activity,
                     role
             );
 
-        } else if (id == R.id.nav_account) {
+        } else if (itemId == R.id.nav_account) {
             openActivity(
                     activity,
                     ProfileActivity.class
             );
 
-        } else if (id == R.id.nav_logout) {
+        } else if (itemId == R.id.nav_logout) {
             performLogout(activity);
         }
 
@@ -334,6 +430,111 @@ public final class NavigationMenuManager {
         }
     }
 
+    private static void showGradeRideDialog(
+            AppCompatActivity activity
+    ) {
+        EditText rideIdInput =
+                new EditText(activity);
+
+        rideIdInput.setHint(
+                "Ride ID"
+        );
+
+        rideIdInput.setInputType(
+                InputType.TYPE_CLASS_NUMBER
+        );
+
+        int horizontalPadding =
+                dpToPx(
+                        activity,
+                        22
+                );
+
+        int verticalPadding =
+                dpToPx(
+                        activity,
+                        12
+                );
+
+        rideIdInput.setPadding(
+                horizontalPadding,
+                verticalPadding,
+                horizontalPadding,
+                verticalPadding
+        );
+
+        AlertDialog dialog =
+                new AlertDialog.Builder(activity)
+                        .setTitle("Grade ride")
+                        .setMessage(
+                                "Enter the ID of the ride you want to grade."
+                        )
+                        .setView(rideIdInput)
+                        .setPositiveButton(
+                                "Open",
+                                null
+                        )
+                        .setNegativeButton(
+                                "Cancel",
+                                null
+                        )
+                        .create();
+
+        dialog.setOnShowListener(
+                listener -> dialog.getButton(
+                        AlertDialog.BUTTON_POSITIVE
+                ).setOnClickListener(
+                        view -> {
+                            String value =
+                                    rideIdInput.getText()
+                                            .toString()
+                                            .trim();
+
+                            if (value.isEmpty()) {
+                                rideIdInput.setError(
+                                        "Ride ID is required"
+                                );
+
+                                return;
+                            }
+
+                            try {
+                                long rideId =
+                                        Long.parseLong(
+                                                value
+                                        );
+
+                                Intent intent =
+                                        new Intent(
+                                                activity,
+                                                GradeRideActivity.class
+                                        );
+
+                                intent.putExtra(
+                                        GradeRideActivity.EXTRA_RIDE_ID,
+                                        rideId
+                                );
+
+                                activity.startActivity(
+                                        intent
+                                );
+
+                                dialog.dismiss();
+
+                            } catch (
+                                    NumberFormatException exception
+                            ) {
+                                rideIdInput.setError(
+                                        "Invalid ride ID"
+                                );
+                            }
+                        }
+                )
+        );
+
+        dialog.show();
+    }
+
     private static void showDriverIdDialog(
             AppCompatActivity activity
     ) {
@@ -349,10 +550,16 @@ public final class NavigationMenuManager {
         );
 
         int horizontalPadding =
-                dpToPx(activity, 22);
+                dpToPx(
+                        activity,
+                        22
+                );
 
         int verticalPadding =
-                dpToPx(activity, 12);
+                dpToPx(
+                        activity,
+                        12
+                );
 
         driverIdInput.setPadding(
                 horizontalPadding,
@@ -398,7 +605,9 @@ public final class NavigationMenuManager {
 
                             try {
                                 long driverId =
-                                        Long.parseLong(value);
+                                        Long.parseLong(
+                                                value
+                                        );
 
                                 Intent intent =
                                         new Intent(
@@ -411,10 +620,15 @@ public final class NavigationMenuManager {
                                         driverId
                                 );
 
-                                activity.startActivity(intent);
+                                activity.startActivity(
+                                        intent
+                                );
+
                                 dialog.dismiss();
 
-                            } catch (NumberFormatException exception) {
+                            } catch (
+                                    NumberFormatException exception
+                            ) {
                                 driverIdInput.setError(
                                         "Invalid driver ID"
                                 );
@@ -442,7 +656,9 @@ public final class NavigationMenuManager {
                                     Call<Void> call,
                                     Response<Void> response
                             ) {
-                                finishLogout(activity);
+                                finishLogout(
+                                        activity
+                                );
                             }
 
                             @Override
@@ -450,7 +666,9 @@ public final class NavigationMenuManager {
                                     Call<Void> call,
                                     Throwable throwable
                             ) {
-                                finishLogout(activity);
+                                finishLogout(
+                                        activity
+                                );
                             }
                         }
                 );
@@ -495,7 +713,9 @@ public final class NavigationMenuManager {
             AppCompatActivity currentActivity,
             Class<?> destination
     ) {
-        if (destination.isInstance(currentActivity)) {
+        if (destination.isInstance(
+                currentActivity
+        )) {
             return;
         }
 
@@ -505,7 +725,9 @@ public final class NavigationMenuManager {
                         destination
                 );
 
-        currentActivity.startActivity(intent);
+        currentActivity.startActivity(
+                intent
+        );
     }
 
     private static void showItem(
@@ -552,7 +774,8 @@ public final class NavigationMenuManager {
     ) {
         return Math.round(
                 dp
-                        * activity.getResources()
+                        * activity
+                        .getResources()
                         .getDisplayMetrics()
                         .density
         );

@@ -1,182 +1,314 @@
 package com.example.nuvola.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nuvola.R;
 import com.example.nuvola.adapters.NotificationsAdapter;
+import com.example.nuvola.navigation.NavigationMenuManager;
 import com.example.nuvola.network.ApiClient;
 import com.example.nuvola.network.JwtRoleHelper;
 import com.example.nuvola.network.NotificationApi;
 import com.example.nuvola.network.NotificationDTO;
 import com.example.nuvola.network.TokenStorage;
-import com.example.nuvola.services.StompNotificationService;
-import com.example.nuvola.ui.auth.LoginActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NotificationsActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class NotificationsActivity extends AppCompatActivity {
 
-    private static final String TAG = "NotificationsActivity";
+    private static final String TAG =
+            "NotificationsActivity";
 
     private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+
     private RecyclerView rvNotifications;
-    private TextView tvError, tvEmpty;
+
+    private TextView tvError;
+    private TextView tvEmpty;
+
     private MaterialButton btnRefresh;
+
     private long userId;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(
+            Bundle savedInstanceState
+    ) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notifications);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) getSupportActionBar().setDisplayShowTitleEnabled(false);
+        setContentView(
+                R.layout.activity_notifications
+        );
 
-        drawerLayout = findViewById(R.id.drawer_layout);
-        NavigationView navView = findViewById(R.id.navView);
-        navView.setNavigationItemSelectedListener(this);
+        setupToolbarAndDrawer();
+        bindViews();
+        setupNotificationsList();
+        loadCurrentUser();
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
+        btnRefresh.setOnClickListener(
+                view -> loadNotifications()
+        );
 
-        String role = TokenStorage.getUserRole(this);
-        boolean isAdmin = "ADMIN".equals(role);
-        boolean isPassenger = "PASSENGER".equals(role);
-        navView.getMenu().findItem(R.id.nav_change_price).setVisible(isAdmin);
-        navView.getMenu().findItem(R.id.nav_grade_ride).setVisible(isPassenger);
-
-        rvNotifications = findViewById(R.id.rvNotifications);
-        rvNotifications.setLayoutManager(new LinearLayoutManager(this));
-        tvError = findViewById(R.id.tvError);
-        tvEmpty = findViewById(R.id.tvEmpty);
-        btnRefresh = findViewById(R.id.btnRefresh);
-
-        String token = TokenStorage.getToken(this);
-        userId = JwtRoleHelper.getUserId(token);
-
-        btnRefresh.setOnClickListener(v -> loadNotifications());
         loadNotifications();
     }
 
-    private void loadNotifications() {
-        tvError.setVisibility(View.GONE);
-        tvEmpty.setVisibility(View.GONE);
-        btnRefresh.setEnabled(false);
-        btnRefresh.setText("Loading...");
+    private void setupToolbarAndDrawer() {
+        Toolbar toolbar =
+                findViewById(R.id.toolbar);
 
-        NotificationApi api = ApiClient.getRetrofit().create(NotificationApi.class);
-        api.getNotifications(userId).enqueue(new Callback<List<NotificationDTO>>() {
-            @Override
-            public void onResponse(@NonNull Call<List<NotificationDTO>> call,
-                                   @NonNull Response<List<NotificationDTO>> response) {
-                btnRefresh.setEnabled(true);
-                btnRefresh.setText("Refresh");
-                if (response.isSuccessful() && response.body() != null) {
-                    List<NotificationDTO> list = response.body();
-                    if (list.isEmpty()) {
-                        tvEmpty.setVisibility(View.VISIBLE);
-                    } else {
-                        rvNotifications.setAdapter(new NotificationsAdapter(list));
-                    }
-                } else {
-                    showError("Failed to load notifications (" + response.code() + ")");
-                }
-            }
+        setSupportActionBar(toolbar);
 
-            @Override
-            public void onFailure(@NonNull Call<List<NotificationDTO>> call, @NonNull Throwable t) {
-                btnRefresh.setEnabled(true);
-                btnRefresh.setText("Refresh");
-                showError("Network error: " + t.getMessage());
-                Log.e(TAG, "Load failed", t);
-            }
-        });
-    }
-
-    private void showError(String msg) {
-        tvError.setText(msg);
-        tvError.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.nav_history) {
-            startActivity(new Intent(this, DriverRideHistory.class));
-        } else if (id == R.id.nav_account) {
-            startActivity(new Intent(this, ProfileActivity.class));
-        } else if (id == R.id.nav_change_price) {
-            startActivity(new Intent(this, ChangePriceActivity.class));
-        } else if (id == R.id.nav_notifications) {
-            // already here
-        } else if (id == R.id.nav_support_chat) {
-            boolean isAdmin = "ADMIN".equals(TokenStorage.getUserRole(this));
-            if (isAdmin) {
-                startActivity(new Intent(this, AdminInboxActivity.class));
-            } else {
-                startActivity(new Intent(this, SupportChatActivity.class));
-            }
-        } else if (id == R.id.nav_grade_ride) {
-            showGradeRideDialog();
-        } else if (id == R.id.nav_logout) {
-            stopService(new Intent(this, StompNotificationService.class));
-            TokenStorage.clear(this);
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar()
+                    .setDisplayShowTitleEnabled(false);
         }
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
+
+        drawerLayout =
+                findViewById(
+                        R.id.drawer_layout
+                );
+
+        navigationView =
+                findViewById(
+                        R.id.navView
+                );
+
+        ActionBarDrawerToggle toggle =
+                new ActionBarDrawerToggle(
+                        this,
+                        drawerLayout,
+                        toolbar,
+                        R.string.navigation_drawer_open,
+                        R.string.navigation_drawer_close
+                );
+
+        drawerLayout.addDrawerListener(
+                toggle
+        );
+
+        toggle.syncState();
+
+        NavigationMenuManager.setup(
+                this,
+                drawerLayout,
+                navigationView
+        );
+
+        navigationView.setCheckedItem(
+                R.id.nav_notifications
+        );
     }
 
-    private void showGradeRideDialog() {
-        android.widget.EditText etRideId = new android.widget.EditText(this);
-        etRideId.setHint("Ride ID");
-        etRideId.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        etRideId.setPadding(40, 20, 40, 20);
+    private void bindViews() {
+        rvNotifications =
+                findViewById(
+                        R.id.rvNotifications
+                );
 
-        new android.app.AlertDialog.Builder(this)
-                .setTitle("Grade Ride")
-                .setView(etRideId)
-                .setPositiveButton("Open", (dialog, which) -> {
-                    String input = etRideId.getText().toString().trim();
-                    if (input.isEmpty()) return;
-                    try {
-                        long rideId = Long.parseLong(input);
-                        Intent intent = new Intent(this, GradeRideActivity.class);
-                        intent.putExtra(GradeRideActivity.EXTRA_RIDE_ID, rideId);
-                        startActivity(intent);
-                    } catch (NumberFormatException e) {
-                        Toast.makeText(this, "Invalid ID.", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        tvError =
+                findViewById(
+                        R.id.tvError
+                );
+
+        tvEmpty =
+                findViewById(
+                        R.id.tvEmpty
+                );
+
+        btnRefresh =
+                findViewById(
+                        R.id.btnRefresh
+                );
+    }
+
+    private void setupNotificationsList() {
+        rvNotifications.setLayoutManager(
+                new LinearLayoutManager(this)
+        );
+
+        rvNotifications.setAdapter(
+                new NotificationsAdapter(
+                        Collections.emptyList()
+                )
+        );
+    }
+
+    private void loadCurrentUser() {
+        String token =
+                TokenStorage.getToken(this);
+
+        userId =
+                JwtRoleHelper.getUserId(token);
+
+        if (userId < 0) {
+            showError(
+                    "Invalid user session. Please log in again."
+            );
+        }
+    }
+
+    private void loadNotifications() {
+        if (userId < 0) {
+            showError(
+                    "Invalid user session. Please log in again."
+            );
+
+            return;
+        }
+
+        hideMessages();
+        setLoading(true);
+
+        NotificationApi api =
+                ApiClient.getRetrofit()
+                        .create(
+                                NotificationApi.class
+                        );
+
+        api.getNotifications(userId)
+                .enqueue(
+                        new Callback<List<NotificationDTO>>() {
+
+                            @Override
+                            public void onResponse(
+                                    @NonNull
+                                    Call<List<NotificationDTO>> call,
+
+                                    @NonNull
+                                    Response<List<NotificationDTO>> response
+                            ) {
+                                setLoading(false);
+
+                                if (!response.isSuccessful()) {
+                                    clearNotifications();
+
+                                    showError(
+                                            "Failed to load notifications ("
+                                                    + response.code()
+                                                    + ")"
+                                    );
+
+                                    return;
+                                }
+
+                                List<NotificationDTO> notifications =
+                                        response.body();
+
+                                if (notifications == null
+                                        || notifications.isEmpty()) {
+
+                                    clearNotifications();
+
+                                    tvEmpty.setVisibility(
+                                            View.VISIBLE
+                                    );
+
+                                    return;
+                                }
+
+                                rvNotifications.setAdapter(
+                                        new NotificationsAdapter(
+                                                notifications
+                                        )
+                                );
+                            }
+
+                            @Override
+                            public void onFailure(
+                                    @NonNull
+                                    Call<List<NotificationDTO>> call,
+
+                                    @NonNull
+                                    Throwable throwable
+                            ) {
+                                setLoading(false);
+                                clearNotifications();
+
+                                String message =
+                                        throwable == null
+                                                || throwable.getMessage() == null
+                                                || throwable.getMessage()
+                                                .trim()
+                                                .isEmpty()
+                                                ? "Unknown network error"
+                                                : throwable.getMessage();
+
+                                showError(
+                                        "Network error: "
+                                                + message
+                                );
+
+                                Log.e(
+                                        TAG,
+                                        "Load notifications failed",
+                                        throwable
+                                );
+                            }
+                        }
+                );
+    }
+
+    private void clearNotifications() {
+        rvNotifications.setAdapter(
+                new NotificationsAdapter(
+                        Collections.emptyList()
+                )
+        );
+    }
+
+    private void setLoading(
+            boolean loading
+    ) {
+        btnRefresh.setEnabled(
+                !loading
+        );
+
+        btnRefresh.setText(
+                loading
+                        ? "Loading..."
+                        : "Refresh"
+        );
+    }
+
+    private void hideMessages() {
+        tvError.setVisibility(
+                View.GONE
+        );
+
+        tvEmpty.setVisibility(
+                View.GONE
+        );
+    }
+
+    private void showError(
+            String message
+    ) {
+        tvError.setText(message);
+
+        tvError.setVisibility(
+                View.VISIBLE
+        );
+
+        tvEmpty.setVisibility(
+                View.GONE
+        );
     }
 }

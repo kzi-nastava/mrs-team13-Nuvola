@@ -77,10 +77,6 @@ public class ReportsActivity extends AppCompatActivity {
     private TextView totalKmText;
     private TextView totalMoneyText;
 
-    private TextView averageRidesText;
-    private TextView averageKmText;
-    private TextView averageMoneyText;
-
     private ReportChartView ridesChart;
     private ReportChartView kmChart;
     private ReportChartView moneyChart;
@@ -167,14 +163,6 @@ public class ReportsActivity extends AppCompatActivity {
         totalMoneyText =
                 findViewById(R.id.tvTotalMoney);
 
-        averageRidesText =
-                findViewById(R.id.tvAverageRides);
-
-        averageKmText =
-                findViewById(R.id.tvAverageKm);
-
-        averageMoneyText =
-                findViewById(R.id.tvAverageMoney);
 
         ridesChart =
                 findViewById(R.id.chartRides);
@@ -569,30 +557,7 @@ public class ReportsActivity extends AppCompatActivity {
                         "%.2f RSD",
                         report.getTotalMoney()
                 )
-        );
 
-        averageRidesText.setText(
-                String.format(
-                        Locale.US,
-                        "Average rides: %.2f",
-                        report.getAvgRides()
-                )
-        );
-
-        averageKmText.setText(
-                String.format(
-                        Locale.US,
-                        "Average distance: %.2f km",
-                        report.getAvgKm()
-                )
-        );
-
-        averageMoneyText.setText(
-                String.format(
-                        Locale.US,
-                        "Average money: %.2f RSD",
-                        report.getAvgMoney()
-                )
         );
 
         List<String> labels =
