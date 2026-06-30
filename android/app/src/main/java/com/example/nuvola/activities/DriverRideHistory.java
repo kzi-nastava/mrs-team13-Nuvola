@@ -120,6 +120,12 @@ public class DriverRideHistory extends AppCompatActivity
         } else if (id == R.id.nav_history) {
             Toast.makeText(this, "Ride History", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_account) {
+            startActivity(new Intent(this, ProfileActivity.class));
+        } else if (id == R.id.nav_users) {
+            String role = TokenStorage.getUserRole(this);
+            if ("ADMIN".equals(role)) {
+                startActivity(new Intent(this, UsersActivity.class));
+            }
             startActivity(new Intent(DriverRideHistory.this, ProfileActivity.class));
         } else if (id == R.id.nav_change_price) {
             startActivity(new Intent(DriverRideHistory.this, ChangePriceActivity.class));
@@ -144,8 +150,6 @@ public class DriverRideHistory extends AppCompatActivity
             performLogout();
         }
 
-
-        // close drawer after click
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }

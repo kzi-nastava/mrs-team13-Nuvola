@@ -17,4 +17,7 @@ public class DriverProfileResponseDTO {
     public int numOfSeats;
     public boolean babyFriendly;
     public boolean petFriendly;
+
+    public boolean blocked;
+    public String blockingReason;
 }

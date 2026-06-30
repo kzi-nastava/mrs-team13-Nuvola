@@ -2,8 +2,24 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="background_gray">#D9D9D9</color>
+
+    <color name="background_gray">#EEEEEE</color>
+
     <color name="dark_blue">#0A1128</color>
-    <color name="input_border">#CFCFCF</color>
+    <color name="navbar_blue">#0A0F2C</color>
+
+    <color name="input_border">#DEDEDE</color>
+    <color name="input_background">#FAFAFA</color>
+
+    <color name="text_primary">#1F2937</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_label">#374151</color>
+
+    <color name="danger_text">#DC2626</color>
+    <color name="success_text">#2E7D32</color>
+
+    <color name="chart_purple">#4F46E5</color>
+    <color name="chart_green">#10B981</color>
+    <color name="chart_amber">#F59E0B</color>
 
 </resources>
