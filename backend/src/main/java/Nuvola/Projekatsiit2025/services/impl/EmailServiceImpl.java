@@ -228,7 +228,7 @@ public class EmailServiceImpl implements EmailService {
             javaMailSender.send(mimeMessage);
 
             return "Mail sent Successfully";
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             return "Error while sending mail!!!";
         }
     }

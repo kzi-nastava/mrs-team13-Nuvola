@@ -168,11 +168,11 @@ public final class NavigationMenuManager {
     ) {
         showItem(menu, R.id.nav_start_ride, true);
         showItem(menu, R.id.nav_ridehistory, true);
-        showItem(menu, R.id.nav_track_ride, true);
 
         showItem(menu, R.id.nav_users, false);
         showItem(menu, R.id.nav_history, false);
         showItem(menu, R.id.nav_order_ride, false);
+        showItem(menu, R.id.nav_track_ride, false);
         showItem(menu, R.id.nav_change_price, false);
         showItem(menu, R.id.nav_driver_ride_details, false);
         showItem(menu, R.id.nav_admin_inbox, false);
@@ -183,11 +183,11 @@ public final class NavigationMenuManager {
     ) {
         showItem(menu, R.id.nav_history, true);
         showItem(menu, R.id.nav_order_ride, true);
+        showItem(menu, R.id.nav_track_ride, true);
 
         showItem(menu, R.id.nav_users, false);
         showItem(menu, R.id.nav_start_ride, false);
         showItem(menu, R.id.nav_ridehistory, false);
-        showItem(menu, R.id.nav_track_ride, false);
         showItem(menu, R.id.nav_change_price, false);
         showItem(menu, R.id.nav_driver_ride_details, false);
         showItem(menu, R.id.nav_admin_inbox, false);

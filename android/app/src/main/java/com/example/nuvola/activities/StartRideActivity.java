@@ -1,6 +1,7 @@
 package com.example.nuvola.activities;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -1174,6 +1175,20 @@ public class StartRideActivity extends AppCompatActivity {
                                             Toast.LENGTH_LONG
                                     ).show();
 
+                                    Long nextRideId = response.body();
+
+                                    if (nextRideId != null) {
+                                        Intent intent = new Intent(
+                                                StartRideActivity.this,
+                                                ScheduledRideActivity.class
+                                        );
+                                        intent.putExtra(
+                                                ScheduledRideActivity.EXTRA_RIDE_ID,
+                                                nextRideId
+                                        );
+                                        startActivity(intent);
+                                    }
+
                                     loadAssignedRides();
 
                                 } else {
@@ -1181,6 +1196,8 @@ public class StartRideActivity extends AppCompatActivity {
                                             "Ride could not be ended",
                                             response.code()
                                     );
+
+                                    loadAssignedRides();
                                 }
                             }
 
@@ -1194,6 +1211,7 @@ public class StartRideActivity extends AppCompatActivity {
                             ) {
                                 setLoading(false);
                                 showNetworkError(throwable);
+                                loadAssignedRides();
                             }
                         }
                 );

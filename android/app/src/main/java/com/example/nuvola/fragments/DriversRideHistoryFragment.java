@@ -21,6 +21,7 @@ import com.example.nuvola.databinding.FragmentDriversRideHistoryBinding;
 import com.example.nuvola.model.Ride;
 import com.example.nuvola.network.AuthApi;
 import com.example.nuvola.network.DriverApi;
+import com.example.nuvola.network.TokenStorage;
 import com.example.nuvola.ui.auth.LoginActivity;
 
 import java.util.ArrayList;
@@ -80,12 +81,10 @@ public class DriversRideHistoryFragment extends ListFragment {
     }
 
     private void loadRidesFromBackend() {
-        String username = requireActivity()
-                .getSharedPreferences("APP_PREFS", android.content.Context.MODE_PRIVATE)
-                .getString("USERNAME", "");
+        String username = TokenStorage.getUserEmail(requireActivity());
 
         if (username == null || username.isEmpty()) {
-            Log.e("RideHistory", "USERNAME is empty. User email was not saved after login.");
+            Log.e("RideHistory", "Username is empty — user not logged in.");
             return;
         }
         String sortOrder = isDateAscending ? "asc" : "desc";

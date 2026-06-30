@@ -211,15 +211,12 @@ public class UsersActivity extends AppCompatActivity {
                             public void onInfo(
                                     AdminUserDTO user
                             ) {
-                                Toast.makeText(
+                                Intent intent = new Intent(
                                         UsersActivity.this,
-                                        "Info for "
-                                                + safeValue(
-                                                user.firstName,
-                                                "user"
-                                        ),
-                                        Toast.LENGTH_SHORT
-                                ).show();
+                                        AdminRideDetailsActivity.class
+                                );
+                                intent.putExtra("driverId", user.id);
+                                startActivity(intent);
                             }
                         }
                 );
