@@ -13,6 +13,7 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nuvola.R;
+import com.example.nuvola.network.ServerConfig;
 import com.google.gson.Gson;
 
 import org.osmdroid.config.Configuration;
@@ -35,7 +36,7 @@ public class VehicleMapActivity extends AppCompatActivity {
 
     private static final String TAG = "VehicleMapActivity";
     private static final GeoPoint NOVI_SAD = new GeoPoint(45.2671, 19.8335);
-    private static final String WS_URL = "ws://10.0.2.2:8080/ws-native";
+    private static final String WS_URL = ServerConfig.WS_URL;
     private static final long RECONNECT_DELAY_MS = 5000;
 
     private MapView mapView;
@@ -75,7 +76,7 @@ public class VehicleMapActivity extends AppCompatActivity {
             @Override
             public void onOpen(WebSocket ws, Response response) {
                 Log.d(TAG, "WebSocket opened, sending CONNECT");
-                ws.send("CONNECT\naccept-version:1.0,1.1,1.2\nhost:10.0.2.2\n\n\0");
+                ws.send("CONNECT\naccept-version:1.0,1.1,1.2\nhost:" + ServerConfig.HOST + "\n\n\0");
             }
 
             @Override

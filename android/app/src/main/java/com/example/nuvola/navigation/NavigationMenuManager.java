@@ -282,6 +282,12 @@ public final class NavigationMenuManager {
                 R.id.nav_grade_ride,
                 true
         );
+
+        showItem(
+                menu,
+                R.id.nav_track_ride,
+                true
+        );
     }
 
     private static boolean handleNavigationItem(

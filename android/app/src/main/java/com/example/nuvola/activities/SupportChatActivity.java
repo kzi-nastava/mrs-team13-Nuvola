@@ -79,13 +79,14 @@ public class SupportChatActivity extends AppCompatActivity {
         setupToolbarAndDrawer();
         bindViews();
         readIntentData();
-        setupChat();
 
         String token =
                 TokenStorage.getToken(this);
 
         myId =
                 JwtRoleHelper.getUserId(token);
+
+        setupChat();
 
         long targetUserId =
                 isAdmin

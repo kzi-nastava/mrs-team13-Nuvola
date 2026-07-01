@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.nuvola.R;
 import com.example.nuvola.network.AdminRideApi;
 import com.example.nuvola.network.ApiClient;
+import com.example.nuvola.network.ServerConfig;
 import com.google.gson.Gson;
 
 import org.osmdroid.config.Configuration;
@@ -46,7 +47,7 @@ import retrofit2.Callback;
 public class AdminRideDetailsActivity extends AppCompatActivity {
 
     private static final String TAG = "AdminRideDetails";
-    private static final String WS_URL = "ws://10.0.2.2:8080/ws-native";
+    private static final String WS_URL = ServerConfig.WS_URL;
 
     private MapView mapView;
     private TextView tvTitle, tvNoRide, tvPickup, tvDropoff, tvStartTime, tvPrice, tvPanic;
@@ -185,7 +186,7 @@ public class AdminRideDetailsActivity extends AppCompatActivity {
         webSocket = wsClient.newWebSocket(request, new WebSocketListener() {
             @Override
             public void onOpen(WebSocket ws, Response response) {
-                ws.send("CONNECT\naccept-version:1.0,1.1,1.2\nhost:10.0.2.2\n\n\0");
+                ws.send("CONNECT\naccept-version:1.0,1.1,1.2\nhost:" + ServerConfig.HOST + "\n\n\0");
             }
 
             @Override

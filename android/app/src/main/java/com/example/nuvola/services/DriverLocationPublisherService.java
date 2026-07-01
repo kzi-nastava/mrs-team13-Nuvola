@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.nuvola.R;
 import com.example.nuvola.network.JwtRoleHelper;
+import com.example.nuvola.network.ServerConfig;
 import com.example.nuvola.network.TokenStorage;
 import com.google.gson.Gson;
 
@@ -36,7 +37,7 @@ import okhttp3.WebSocketListener;
 public class DriverLocationPublisherService extends Service {
 
     private static final String TAG = "DriverLocService";
-    private static final String WS_URL = "ws://10.0.2.2:8080/ws-native";
+    private static final String WS_URL = ServerConfig.WS_URL;
     private static final String CHANNEL_ID = "nuvola_driver_loc";
     private static final int FOREGROUND_ID = 2;
     private static final long LOCATION_MIN_TIME_MS = 2000;
@@ -113,7 +114,7 @@ public class DriverLocationPublisherService extends Service {
             public void onOpen(WebSocket ws, Response response) {
                 String frame = "CONNECT\n" +
                         "accept-version:1.2\n" +
-                        "host:10.0.2.2\n" +
+                        "host:" + ServerConfig.HOST + "\n" +
                         "Authorization:Bearer " + token + "\n" +
                         "\n" + NUL;
                 ws.send(frame);

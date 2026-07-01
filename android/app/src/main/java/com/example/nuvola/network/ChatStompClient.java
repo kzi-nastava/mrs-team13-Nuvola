@@ -17,7 +17,7 @@ import okhttp3.WebSocketListener;
 public class ChatStompClient {
 
     private static final String TAG = "ChatStompClient";
-    private static final String WS_URL = "ws://10.0.2.2:8080/ws-native";
+    private static final String WS_URL = ServerConfig.WS_URL;
 
     // STOMP frames must be terminated with a NULL byte (\0).
     // Without it Spring's BufferingStompDecoder keeps the frame in its buffer
@@ -59,7 +59,7 @@ public class ChatStompClient {
             public void onOpen(WebSocket ws, Response response) {
                 String frame = "CONNECT\n" +
                         "accept-version:1.2\n" +
-                        "host:10.0.2.2\n" +
+                        "host:" + ServerConfig.HOST + "\n" +
                         "Authorization:Bearer " + token + "\n" +
                         "\n" + NUL;
                 ws.send(frame);

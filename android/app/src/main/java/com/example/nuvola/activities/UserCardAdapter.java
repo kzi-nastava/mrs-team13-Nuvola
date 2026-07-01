@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.nuvola.R;
+import com.example.nuvola.network.ServerConfig;
 
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class UserCardAdapter extends RecyclerView.Adapter<UserCardAdapter.VH> {
 
         // ── Profile picture ──
         String picUrl = (u.picture != null && !u.picture.isEmpty())
-                ? "http://10.0.2.2:8080/api/profile/picture/" + u.picture
+                ? ServerConfig.BASE_URL + "api/profile/picture/" + u.picture
                 : null;
 
         if (picUrl != null) {

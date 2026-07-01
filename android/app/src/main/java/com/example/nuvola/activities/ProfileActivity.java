@@ -27,6 +27,7 @@ import com.example.nuvola.network.AuthApi;
 import com.example.nuvola.network.DriverProfileApi;
 import com.example.nuvola.network.JwtRoleHelper;
 import com.example.nuvola.network.ProfileApi;
+import com.example.nuvola.network.ServerConfig;
 import com.example.nuvola.network.TokenStorage;
 import com.google.android.material.navigation.NavigationView;
 
@@ -594,7 +595,7 @@ public class ProfileActivity extends AppCompatActivity {
 
             Glide.with(this)
                     .load(
-                            "http://10.0.2.2:8080/api/profile/picture/"
+                            ServerConfig.BASE_URL + "api/profile/picture/"
                                     + profile.picture
                     )
                     .circleCrop()
@@ -771,7 +772,7 @@ public class ProfileActivity extends AppCompatActivity {
 
             Glide.with(this)
                     .load(
-                            "http://10.0.2.2:8080/api/profile/picture/"
+                            ServerConfig.BASE_URL + "api/profile/picture/"
                                     + profile.picture
                     )
                     .circleCrop()

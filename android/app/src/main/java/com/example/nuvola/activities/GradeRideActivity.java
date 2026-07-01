@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.nuvola.R;
 import com.example.nuvola.network.ApiClient;
 import com.example.nuvola.network.ReviewApi;
+import com.example.nuvola.network.TokenStorage;
 import com.google.android.material.button.MaterialButton;
 
 import dto.RatingRequestDTO;
@@ -66,14 +67,7 @@ public class GradeRideActivity extends AppCompatActivity {
             return;
         }
 
-        username =
-                getSharedPreferences(
-                        "APP_PREFS",
-                        MODE_PRIVATE
-                ).getString(
-                        "USERNAME",
-                        ""
-                );
+        username = TokenStorage.getUserEmail(this);
 
         bindViews();
         setupSpinners();
